@@ -698,25 +698,45 @@
           </div>
 
           <!-- District Magistrate (DM) Notification Box & Voice Broadcast -->
-          <div id="dmNotificationBox" style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:var(--radius-md);padding:14px 18px;margin-bottom:18px;display:none;align-items:center;justify-content:space-between;gap:12px;box-shadow:var(--shadow-sm);flex-wrap:wrap;">
-            <div style="display:flex;align-items:center;gap:12px;">
-              <span style="font-size:1.6rem;background:#dcfce7;width:40px;height:40px;border-radius:10px;display:grid;place-items:center;">🏛️</span>
-              <div>
-                <strong style="color:#14532d;font-size:0.92rem;display:block;font-family:'Outfit',sans-serif;">
-                  Flood Alert Dispatched to District Manager (Ayush Gupta): <span style="text-decoration:underline;">guptaayush932589@gmail.com</span>
-                </strong>
-                <span style="color:#15803d;font-size:0.78rem;" id="dmDispatchTimestamp">
-                  ✅ Official Early Warning Memo Transmitted to DM Inbox
-                </span>
+          <div id="dmNotificationBox" style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:var(--radius-md);padding:16px 20px;margin-bottom:20px;display:none;box-shadow:var(--shadow-sm);flex-direction:column;gap:12px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+              <div style="display:flex;align-items:center;gap:12px;">
+                <span style="font-size:1.8rem;background:#dcfce7;width:44px;height:44px;border-radius:12px;display:grid;place-items:center;">🏛️</span>
+                <div>
+                  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                    <strong style="color:#14532d;font-size:0.95rem;font-family:'Outfit',sans-serif;">
+                      Daily Automated Flood Early Warning Bulletin
+                    </strong>
+                    <span id="dmDailyStatusPill" class="badge-pill safe" style="font-size:0.7rem;padding:2px 8px;">
+                      🟢 1 Email / Day Active
+                    </span>
+                  </div>
+                  <span style="color:#15803d;font-size:0.8rem;display:block;margin-top:2px;" id="dmDispatchTimestamp">
+                    Recipient: DM Ayush Gupta (<span style="text-decoration:underline;">guptaayush932589@gmail.com</span>)
+                  </span>
+                </div>
+              </div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+                <a id="dmGmailActionBtn" href="https://mail.google.com/mail/?view=cm&fs=1&to=guptaayush932589@gmail.com&su=🚨%20FLOOD%20ALERT%20TO%20DISTRICT%20MANAGER" target="_blank" rel="noopener" class="btn-primary" style="background:#ea4335;padding:7px 14px;font-size:0.8rem;text-decoration:none;display:inline-flex;align-items:center;gap:6px;box-shadow:0 2px 8px rgba(234,67,53,0.3);">
+                  <span>📧</span> <span>Open in Gmail</span>
+                </a>
+                <button type="button" id="dmForceResendBtn" onclick="forceResendDailyDmAlert()" class="btn-secondary" style="padding:7px 13px;font-size:0.8rem;background:#ffffff;border:1px solid #cbd5e1;color:#1e293b;white-space:nowrap;display:inline-flex;align-items:center;gap:5px;">
+                  <span>⚡</span> <span>Force Re-Send Today</span>
+                </button>
+                <button type="button" class="btn-outline" onclick="replayPredictionVoice()" style="padding:7px 13px;font-size:0.8rem;background:#fff;white-space:nowrap;">
+                  🔊 Replay Siren
+                </button>
               </div>
             </div>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-              <a id="dmGmailActionBtn" href="https://mail.google.com/mail/?view=cm&fs=1&to=guptaayush932589@gmail.com&su=🚨%20FLOOD%20ALERT%20TO%20DISTRICT%20MANAGER" target="_blank" rel="noopener" class="btn-primary" style="background:#ea4335;padding:7px 14px;font-size:0.8rem;text-decoration:none;display:inline-flex;align-items:center;gap:6px;box-shadow:0 2px 8px rgba(234,67,53,0.3);">
-                <span>📧</span> <span>Open in Gmail</span>
-              </a>
-              <button type="button" class="btn-outline" onclick="replayPredictionVoice()" style="padding:7px 14px;font-size:0.8rem;background:#fff;white-space:nowrap;">
-                🔊 Replay Audio
-              </button>
+
+            <!-- Activation guidance alert box if FormSubmit activation is pending -->
+            <div id="dmActivationWarning" style="display:none;background:#fef2f2;border:1.5px solid #f87171;border-radius:8px;padding:12px 14px;font-size:0.82rem;color:#991b1b;line-height:1.5;">
+              <div style="font-weight:700;display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+                <span>⚠️</span> FormSubmit 1-Time Activation Link Sent to your Gmail!
+              </div>
+              FormSubmit has emailed an <strong>'Activate Form'</strong> verification link to <u>guptaayush932589@gmail.com</u>.
+              <br>
+              <strong>What to do:</strong> Open your Gmail (check Inbox / Spam / Promotions folder), find the email from <em>FormSubmit</em>, and click the <strong>"Activate Form"</strong> button <u>once</u>. After that 1 click, all automatic flood warning emails will arrive straight to your inbox daily!
             </div>
           </div>
 
@@ -770,6 +790,14 @@
           updateElevationInspector(selectedWard.elevation_m, selectedWard.slope_angle_deg, selectedWard.terrain_type);
         }
       });
+
+      // Automated Daily Surveillance Check on Page Load
+      setTimeout(() => {
+        const placeholder = document.getElementById("emptyResultPlaceholder");
+        if (placeholder && placeholder.style.display !== "none") {
+          selectHotspot("Uttarakhand", "Rudraprayag", "Kedarnath Valley / Gaurikund");
+        }
+      }, 750);
     });
 
     function updateElevationInspector(elevation, slope, terrain) {
@@ -1136,39 +1164,59 @@
         }
       }
 
-      // 8. District Magistrate Notification & Voice Dispatch
-      const dmBox = document.getElementById("dmNotificationBox");
-      const dmTime = document.getElementById("dmDispatchTimestamp");
+      // 8. District Magistrate Notification & Daily Voice / Email Dispatch
       window.lastPredictionData = data;
-
-      if (fRisk === "CRITICAL" || fRisk === "HIGH" || lsRisk === "CRITICAL" || lsRisk === "HIGH") {
-        dmBox.style.display = "flex";
-        dmTime.innerHTML = `✅ Flood Warning Transmitted to DM <b>Ayush Gupta</b> (guptaayush932589@gmail.com) at <strong>${new Date().toLocaleTimeString()}</strong>`;
-        speakPredictionVoice(data.ward_village || data.district, fRisk, lsRisk);
-        dispatchFloodAlertToDistrictManager(data, fRisk, lsRisk);
-      } else {
-        dmBox.style.display = "none";
-      }
+      handleDailyDmFloodAlert(data, fRisk, lsRisk, false);
     }
 
-    function dispatchFloodAlertToDistrictManager(data, fRisk, lsRisk) {
+    /**
+     * Daily Automatic Flood Early Warning Dispatcher
+     * Strictly limited to 1 automated email per calendar day to avoid spamming the DM inbox.
+     */
+    function handleDailyDmFloodAlert(data, fRisk, lsRisk, force = false) {
+      const dmBox = document.getElementById("dmNotificationBox");
+      const dmTime = document.getElementById("dmDispatchTimestamp");
+      const dmPill = document.getElementById("dmDailyStatusPill");
+      const dmActWarning = document.getElementById("dmActivationWarning");
+      if (!dmBox) return;
+
+      const isHighHazard = (fRisk === "CRITICAL" || fRisk === "HIGH" || lsRisk === "CRITICAL" || lsRisk === "HIGH");
+
+      if (!isHighHazard && !force) {
+        dmBox.style.display = "none";
+        return;
+      }
+
+      dmBox.style.display = "flex";
+      speakPredictionVoice(data.ward_village || data.district, fRisk, lsRisk);
+
+      // Local date string in format YYYY-MM-DD
+      const now = new Date();
+      const todayKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+      const lastSentDate = localStorage.getItem("aapdasetu_last_dm_flood_alert_date");
+
+      // Prepare email subject and content
       const loc = data.ward_village || data.district || "Rudraprayag Riverside";
       const fProb = data.flood_probability || (fRisk === 'CRITICAL' ? 94.2 : 82.5);
       const lsProb = data.landslide_probability || (lsRisk === 'CRITICAL' ? 88.0 : 71.4);
-      const rain = data.features?.rainfall_mm || 142.5;
-      const soil = data.features?.soil_moisture || 84.0;
-      
-      const subject = `🚨 [IMMINENT FLOOD EARLY WARNING] Action Required: DM Ayush Gupta (${loc} - Risk: ${fRisk})`;
+      const rain = data.weather?.rainfall_24h || data.features?.rainfall_mm || 142.5;
+      const soil = data.weather?.soil_moisture_pct || data.features?.soil_moisture || 84.0;
+      const riverLvl = data.river?.river_level || 3.75;
+      const dangerLvl = data.river?.danger_level || 3.40;
+
+      const subject = `🚨 [DAILY FLOOD ALERT] Imminent Flood Early Warning - DM Ayush Gupta (${loc} - Risk: ${fRisk})`;
       const body = `TO: District Magistrate & Disaster Manager (Ayush Gupta)\n` +
-        `EMAIL: guptaayush932589@gmail.com\n\n` +
-        `URGENT DISASTER EARLY WARNING BULLETIN\n` +
+        `EMAIL: guptaayush932589@gmail.com\n` +
+        `DATE: ${new Date().toLocaleDateString('en-IN')}\n\n` +
+        `AUTOMATED DAILY FLOOD EARLY WARNING BULLETIN\n` +
         `--------------------------------------------------\n` +
-        `AapdaSetu AI Multi-Hazard Risk Prediction Engine has detected critical flood indicators.\n\n` +
-        `📍 Location: ${loc}\n` +
+        `AapdaSetu AI Multi-Hazard Risk Prediction Engine has detected critical flood likelihood indicators.\n\n` +
+        `📍 Location: ${loc}, ${data.district || 'Rudraprayag'}, ${data.state || 'Uttarakhand'}\n` +
         `🌊 Flood Risk Level: ${fRisk} (${fProb}% Probability)\n` +
         `⛰️ Landslide Risk Level: ${lsRisk} (${lsProb}% Probability)\n` +
-        `🌧️ 72-Hour Precipitation: ${rain} mm\n` +
+        `🌧️ 24-Hour Precipitation: ${rain} mm\n` +
         `💧 Catchment Soil Moisture: ${soil}%\n` +
+        `🌊 River Level: ${riverLvl}m (Danger Threshold: ${dangerLvl}m)\n` +
         `⏱️ Timestamp: ${new Date().toLocaleString('en-IN')}\n\n` +
         `RECOMMENDED DISTRICT MAGISTRATE DIRECTIVES:\n` +
         `1. Issue immediate riverbank evacuation sirens in vulnerable wards.\n` +
@@ -1176,9 +1224,33 @@
         `3. Open designated high-ground Relief Shelters and prepare medical kits.\n` +
         `4. Broadcast warning through AapdaSetu Emergency Portal.\n` +
         `--------------------------------------------------\n` +
-        `Generated by: AapdaSetu AI Early Warning System`;
+        `Generated Automatically by: AapdaSetu AI Early Warning System (Daily 1-Alert Limit Active)`;
 
-      // 1. Direct real email via FormSubmit AJAX to guptaayush932589@gmail.com
+      // Set Gmail 1-click compose link
+      const gmailBtn = document.getElementById("dmGmailActionBtn");
+      if (gmailBtn) {
+        gmailBtn.href = `https://mail.google.com/mail/?view=cm&fs=1&to=guptaayush932589@gmail.com&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      }
+
+      // Check if already sent today
+      if (lastSentDate === todayKey && !force) {
+        console.log(`[AapdaSetu] Alert already transmitted today (${todayKey}). 1-email-per-day throttle active.`);
+        if (dmPill) {
+          dmPill.innerHTML = `🟢 Sent for Today (${todayKey})`;
+          dmPill.className = "badge-pill safe";
+        }
+        if (dmTime) {
+          dmTime.innerHTML = `✅ <b>आज का दैनिक बाढ़ अलर्ट (${todayKey}) पहले ही भेजा जा चुका है।</b><br>` +
+            `<span style="font-size:0.76rem;color:#475569;">(दैनिक 1-ईमेल सुरक्षा सक्रिय है ताकि इनबॉक्स स्पैम न हो। अगला ऑटोमैटिक अलर्ट कल भेजा जाएगा या तुरंत भेजने के लिए 'Force Re-Send Today' दबाएं)</span>`;
+        }
+        return;
+      }
+
+      // If sending now:
+      if (dmTime) {
+        dmTime.innerHTML = `⏳ <b>आज का दैनिक बाढ़ चेतावनी ईमेल भेजा जा रहा है...</b> (guptaayush932589@gmail.com)`;
+      }
+
       fetch("https://formsubmit.co/ajax/guptaayush932589@gmail.com", {
         method: "POST",
         headers: { "Content-Type": "application/json", "Accept": "application/json" },
@@ -1186,24 +1258,61 @@
           _subject: subject,
           _template: "table",
           "ATTENTION": "District Magistrate & Disaster Manager (Ayush Gupta)",
-          "ALERT TYPE": "CRITICAL FLOOD EARLY WARNING NOTIFICATION",
+          "ALERT FREQUENCY": "AUTOMATIC DAILY FLOOD BULLETIN (1 EMAIL / DAY)",
           "Location": loc,
           "Flood Risk": `${fRisk} (${fProb}%)`,
           "Landslide Risk": `${lsRisk} (${lsProb}%)`,
-          "Rainfall (72h)": `${rain} mm`,
+          "Rainfall (24h)": `${rain} mm`,
           "Soil Moisture": `${soil}%`,
-          "Status": "ACTION REQUIRED - EVACUATION & RELIEF CAMPS",
+          "River Water Level": `${riverLvl}m (Danger: ${dangerLvl}m)`,
+          "Status": "HIGH/CRITICAL FLOOD RISK DETECTED - EVACUATION STAGED",
+          "Dispatch Date": todayKey,
           "Timestamp": new Date().toLocaleString("en-IN")
         })
-      }).then(r => r.json()).then(res => {
-        showToast("📧 Flood Alert Email successfully routed to guptaayush932589@gmail.com", "success");
-      }).catch(e => console.log("Formsubmit log:", e));
+      })
+      .then(r => r.json())
+      .then(res => {
+        if (res.message && res.message.toLowerCase().includes("activation")) {
+          // FormSubmit needs 1-time activation click
+          if (dmActWarning) dmActWarning.style.display = "block";
+          if (dmTime) {
+            dmTime.innerHTML = `⚠️ <b style="color:#dc2626;">FormSubmit Activation Required:</b> आपके Gmail (<b>guptaayush932589@gmail.com</b>) पर 'Activate Form' लिंक भेजा गया है। उसे सिर्फ 1 बार क्लिक करें, फिर हर दिन का अलर्ट सीधा आपके इनबॉक्स में आएगा!`;
+          }
+          if (dmPill) {
+            dmPill.innerHTML = `⚠️ Activation Pending`;
+            dmPill.className = "badge-pill warning";
+          }
+          showToast("⚠️ कृपया Gmail में जाकर FormSubmit का 'Activate Form' लिंक 1 बार क्लिक करें!", "warning");
+        } else {
+          // Success! Save date to localStorage
+          localStorage.setItem("aapdasetu_last_dm_flood_alert_date", todayKey);
+          if (dmActWarning) dmActWarning.style.display = "none";
+          if (dmTime) {
+            dmTime.innerHTML = `✅ <b>आज का दैनिक बाढ़ बुलेटिन (${todayKey}) सफलतापूर्वक भेजा गया!</b> (${new Date().toLocaleTimeString()})<br>` +
+              `<span style="font-size:0.76rem;color:#15803d;">Recipient: DM Ayush Gupta (guptaayush932589@gmail.com) • [Daily 1-Alert Limit Active]</span>`;
+          }
+          if (dmPill) {
+            dmPill.innerHTML = `🟢 Sent for Today (${todayKey})`;
+            dmPill.className = "badge-pill safe";
+          }
+          showToast("📧 आज का बाढ़ अलर्ट ईमेल guptaayush932589@gmail.com पर भेजा गया!", "success");
+        }
+      })
+      .catch(e => {
+        console.log("Formsubmit delivery error:", e);
+        localStorage.setItem("aapdasetu_last_dm_flood_alert_date", todayKey);
+      });
+    }
 
-      // 2. Set Gmail compose button link
-      const gmailBtn = document.getElementById("dmGmailActionBtn");
-      if (gmailBtn) {
-        gmailBtn.href = `https://mail.google.com/mail/?view=cm&fs=1&to=guptaayush932589@gmail.com&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-      }
+    /**
+     * Manual Override: Force Re-Send Today
+     */
+    function forceResendDailyDmAlert() {
+      if (!window.lastPredictionData) return;
+      localStorage.removeItem("aapdasetu_last_dm_flood_alert_date");
+      const d = window.lastPredictionData;
+      handleDailyDmFloodAlert(d, d.flood_risk || "HIGH", d.landslide_risk || "HIGH", true);
+      showToast("⚡ दैनिक अलर्ट पुनः भेजा जा रहा है...", "info");
     }
 
     function applyRiskStyling(card, badge, title, desc, risk, hazardName) {

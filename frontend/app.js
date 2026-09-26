@@ -817,6 +817,9 @@ async function sendDmEmergencyEmail(ticketId, payload, lat, lon, locName, dmDeta
       body: JSON.stringify(postData)
     }).then(r => r.json()).then(res => {
       console.log("✅ [DM EMAIL SENT] Real email routed to guptaayush932589@gmail.com:", res);
+      if (res.message && res.message.toLowerCase().includes("activation")) {
+        showToast("⚠️ DM Email: Please click 'Activate Form' in your Gmail (guptaayush932589@gmail.com) once!", "warning");
+      }
     }).catch(e => console.log("DM Email delivery log:", e));
 
     // 2. Try Backend Endpoint if running
@@ -841,6 +844,50 @@ async function sendDmEmergencyEmail(ticketId, payload, lat, lon, locName, dmDeta
   } catch(e) {
     console.log("DM Email Dispatch error:", e);
   }
+}
+
+/**
+ * Daily Automated Flood Early Warning Surveillance Daemon
+ * Ensures the District Manager receives exactly 1 automated bulletin per calendar day when flood hazard is active.
+ */
+function triggerDailyFloodSurveillanceAlert(locName, riverName, waterLevel, dangerLevel, force = false) {
+  try {
+    const now = new Date();
+    const todayKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    const lastSent = localStorage.getItem("aapdasetu_last_dm_flood_alert_date");
+
+    if (lastSent === todayKey && !force) {
+      console.log(`[AapdaSetu] Daily flood alert already dispatched today (${todayKey}). 1/day limit active.`);
+      return;
+    }
+
+    const subject = `🚨 [DAILY FLOOD ALERT] Imminent Flood Early Warning: ${riverName} River at ${locName}`;
+    fetch("https://formsubmit.co/ajax/guptaayush932589@gmail.com", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Accept": "application/json" },
+      body: JSON.stringify({
+        _subject: subject,
+        _template: "table",
+        "RECIPIENT": "District Magistrate & Disaster Manager (Ayush Gupta)",
+        "EMAIL": "guptaayush932589@gmail.com",
+        "ALERT FREQUENCY": "AUTOMATIC DAILY FLOOD BULLETIN (1 EMAIL / DAY)",
+        "River / Basin": riverName,
+        "Location": locName,
+        "Current Water Level": `${waterLevel} m`,
+        "Danger Mark": `${dangerLevel} m`,
+        "Severity": "RIVER CROSSING DANGER LEVEL - HIGH FLOOD LIKELIHOOD",
+        "Dispatch Date": todayKey,
+        "Timestamp": new Date().toLocaleString("en-IN")
+      })
+    })
+    .then(r => r.json())
+    .then(res => {
+      if (!res.message || !res.message.toLowerCase().includes("activation")) {
+        localStorage.setItem("aapdasetu_last_dm_flood_alert_date", todayKey);
+      }
+    })
+    .catch(() => {});
+  } catch(e) {}
 }
 
 function playEmergencyTone() {

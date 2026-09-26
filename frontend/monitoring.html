@@ -238,6 +238,12 @@
       initMap();
       renderRivers(RIVERS_DATA);
       renderReservoirs(RESERVOIRS_DATA);
+
+      // Check if any river crosses danger mark, and trigger daily DM alert if not already sent today
+      const dangerRiver = RIVERS_DATA.find(r => r.level >= r.danger);
+      if (dangerRiver && typeof triggerDailyFloodSurveillanceAlert === "function") {
+        triggerDailyFloodSurveillanceAlert(`${dangerRiver.district}, ${dangerRiver.state}`, dangerRiver.name, dangerRiver.level, dangerRiver.danger);
+      }
     });
 
     function initMap() {
