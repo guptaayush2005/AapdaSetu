@@ -533,6 +533,14 @@
 
     document.addEventListener("DOMContentLoaded", () => {
       initHomeMap();
+
+      // Auto-Surveillance: If Mandakini or any monitored river breaches danger level, dispatch daily alert to DM Ayush Gupta (1/day)
+      if (typeof triggerDailyFloodSurveillanceAlert === "function") {
+        const dangerStation = HOME_STATIONS.find(s => !s.isDam && s.level >= s.danger);
+        if (dangerStation) {
+          triggerDailyFloodSurveillanceAlert(`${dangerStation.district}, ${dangerStation.state}`, dangerStation.name, dangerStation.level, dangerStation.danger);
+        }
+      }
     });
 
     function initHomeMap() {
