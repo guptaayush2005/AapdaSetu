@@ -717,8 +717,11 @@
                 </div>
               </div>
               <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-                <a id="dmGmailActionBtn" href="https://mail.google.com/mail/?view=cm&fs=1&to=guptaayush932589@gmail.com&su=🚨%20FLOOD%20ALERT%20TO%20DISTRICT%20MANAGER" target="_blank" rel="noopener" class="btn-primary" style="background:#ea4335;padding:7px 14px;font-size:0.8rem;text-decoration:none;display:inline-flex;align-items:center;gap:6px;box-shadow:0 2px 8px rgba(234,67,53,0.3);">
+                <a id="dmGmailActionBtn" href="https://mail.google.com/mail/?view=cm&fs=1&to=guptaayush932589@gmail.com&su=🚨%20FLOOD%20ALERT%20TO%20DISTRICT%20MANAGER" target="_blank" rel="noopener" class="btn-primary" style="background:#ea4335;padding:7px 14px;font-size:0.8rem;text-decoration:none;display:inline-flex;align-items:center;gap:6px;box-shadow:0 2px 8px rgba(234,67,53,0.3);" title="Direct Web Gmail with complete pre-filled early warning bulletin">
                   <span>📧</span> <span>Open in Gmail</span>
+                </a>
+                <a id="dmWhatsappActionBtn" href="#" target="_blank" rel="noopener" class="btn-primary" style="background:#16a34a;padding:7px 14px;font-size:0.8rem;text-decoration:none;display:inline-flex;align-items:center;gap:6px;box-shadow:0 2px 8px rgba(22,163,74,0.3);" title="Share Early Warning bulletin to WhatsApp DM / Emergency Groups">
+                  <span>💬</span> <span>WhatsApp Alert</span>
                 </a>
                 <button type="button" id="dmForceResendBtn" onclick="forceResendDailyDmAlert()" class="btn-secondary" style="padding:7px 13px;font-size:0.8rem;background:#ffffff;border:1px solid #cbd5e1;color:#1e293b;white-space:nowrap;display:inline-flex;align-items:center;gap:5px;">
                   <span>⚡</span> <span>Force Re-Send Today</span>
@@ -730,13 +733,28 @@
             </div>
 
             <!-- Activation guidance alert box if FormSubmit activation is pending -->
-            <div id="dmActivationWarning" style="display:none;background:#fef2f2;border:1.5px solid #f87171;border-radius:8px;padding:12px 14px;font-size:0.82rem;color:#991b1b;line-height:1.5;">
-              <div style="font-weight:700;display:flex;align-items:center;gap:6px;margin-bottom:4px;">
-                <span>⚠️</span> FormSubmit 1-Time Activation Link Sent to your Gmail!
+            <div id="dmActivationWarning" style="display:none;background:#fef2f2;border:1.5px solid #f87171;border-radius:8px;padding:14px 16px;font-size:0.83rem;color:#991b1b;line-height:1.6;">
+              <div style="font-weight:800;font-size:0.92rem;display:flex;align-items:center;gap:8px;margin-bottom:6px;color:#b91c1c;">
+                <span>⚠️</span> 'Not a valid link' क्यों आ रहा था और इसे कैसे ठीक करें:
               </div>
-              FormSubmit has emailed an <strong>'Activate Form'</strong> verification link to <u>guptaayush932589@gmail.com</u>.
-              <br>
-              <strong>What to do:</strong> Open your Gmail (check Inbox / Spam / Promotions folder), find the email from <em>FormSubmit</em>, and click the <strong>"Activate Form"</strong> button <u>once</u>. After that 1 click, all automatic flood warning emails will arrive straight to your inbox daily!
+              <p style="margin:0 0 8px 0;">
+                पेज ऑटो-रिफ्रेश होने से FormSubmit ने नया लिंक जनरेट कर दिया था, जिस वजह से आपका पुराना ईमेल लिंक अमान्य (invalid / expired) हो गया था। अब हमने नया ऑटो-रिक्वेस्ट लॉक कर दिया है ताकि लिंक एक्सपायर न हो!
+              </p>
+              <div style="background:#fff;border:1px solid #fecaca;border-radius:6px;padding:10px 14px;margin-bottom:12px;color:#7f1d1d;">
+                <strong>👉 सिर्फ ये 2 आसान स्टेप्स करें:</strong>
+                <ol style="margin:4px 0 0 18px;padding:0;">
+                  <li>नीचे लाल रंग के <strong>"📨 Send 1 Fresh Activation Email"</strong> बटन पर क्लिक करें।</li>
+                  <li>अपने Gmail (<u>guptaayush932589@gmail.com</u>) में जाएं और <strong>सिर्फ सबसे नया (LATEST / सबसे ऊपर)</strong> ईमेल खोलकर <strong>"Activate Form"</strong> बटन दबाएं।</li>
+                </ol>
+              </div>
+              <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+                <button type="button" onclick="requestFreshActivationLink()" class="btn-primary" style="background:#dc2626;padding:8px 16px;font-size:0.82rem;border:none;cursor:pointer;font-weight:700;">
+                  📨 Send 1 Fresh Activation Email
+                </button>
+                <a id="dmGmailFallbackBtn" href="https://mail.google.com/mail/?view=cm&fs=1&to=guptaayush932589@gmail.com&su=🚨%20FLOOD%20ALERT%20TO%20DISTRICT%20MANAGER" target="_blank" rel="noopener" class="btn-secondary" style="padding:8px 14px;font-size:0.82rem;background:#fff;border:1px solid #fca5a5;color:#991b1b;text-decoration:none;font-weight:600;">
+                  📧 बिना एक्टिवेशन सीधे Gmail से भेजें →
+                </a>
+              </div>
             </div>
           </div>
 
@@ -1226,13 +1244,33 @@
         `--------------------------------------------------\n` +
         `Generated Automatically by: AapdaSetu AI Early Warning System (Daily 1-Alert Limit Active)`;
 
-      // Set Gmail 1-click compose link
+      // 1. Set Gmail 1-click compose link
       const gmailBtn = document.getElementById("dmGmailActionBtn");
       if (gmailBtn) {
         gmailBtn.href = `https://mail.google.com/mail/?view=cm&fs=1&to=guptaayush932589@gmail.com&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
       }
+      const gmFallback = document.getElementById("dmGmailFallbackBtn");
+      if (gmFallback) {
+        gmFallback.href = `https://mail.google.com/mail/?view=cm&fs=1&to=guptaayush932589@gmail.com&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      }
 
-      // Check if already sent today
+      // 2. Set WhatsApp Broadcast link
+      const waBtn = document.getElementById("dmWhatsappActionBtn");
+      if (waBtn) {
+        const waMsg = `🚨 *AAPDASETU FLOOD EARLY WARNING BULLETIN*\n\n` +
+          `🏛️ *Attention:* District Magistrate & Disaster Manager (Ayush Gupta)\n` +
+          `📍 *Location:* ${loc}, ${data.district || 'Rudraprayag'}, ${data.state || 'Uttarakhand'}\n` +
+          `🌊 *Flood Risk Level:* ${fRisk} (${fProb}% Probability)\n` +
+          `⛰️ *Landslide Risk:* ${lsRisk} (${lsProb}%)\n` +
+          `🌧️ *24h Rainfall:* ${rain} mm\n` +
+          `💧 *Soil Saturation:* ${soil}%\n` +
+          `🌊 *River Level:* ${riverLvl}m (Danger Threshold: ${dangerLvl}m)\n\n` +
+          `⚠️ *DIRECTIVES:* Stage immediate riverbank evacuation in vulnerable wards. Put NDRF/SDRF on standby.\n\n` +
+          `Live Portal: https://aapda-setu-one.vercel.app/frontend/prediction.html`;
+        waBtn.href = `https://api.whatsapp.com/send?text=${encodeURIComponent(waMsg)}`;
+      }
+
+      // 3. Check if already sent today
       if (lastSentDate === todayKey && !force) {
         console.log(`[AapdaSetu] Alert already transmitted today (${todayKey}). 1-email-per-day throttle active.`);
         if (dmPill) {
@@ -1242,6 +1280,25 @@
         if (dmTime) {
           dmTime.innerHTML = `✅ <b>आज का दैनिक बाढ़ अलर्ट (${todayKey}) पहले ही भेजा जा चुका है।</b><br>` +
             `<span style="font-size:0.76rem;color:#475569;">(दैनिक 1-ईमेल सुरक्षा सक्रिय है ताकि इनबॉक्स स्पैम न हो। अगला ऑटोमैटिक अलर्ट कल भेजा जाएगा या तुरंत भेजने के लिए 'Force Re-Send Today' दबाएं)</span>`;
+        }
+        return;
+      }
+
+      // 4. Protection against token invalidation:
+      // If activation is pending and a link was already requested in the last 20 minutes, don't spam new tokens!
+      const lastTokenTime = localStorage.getItem("aapdasetu_formsubmit_last_token_time");
+      const isActivationPending = localStorage.getItem("aapdasetu_formsubmit_needs_activation") === "true";
+      const nowMs = Date.now();
+
+      if (isActivationPending && lastTokenTime && (nowMs - parseInt(lastTokenTime, 10)) < 20 * 60 * 1000 && !force) {
+        console.log("[AapdaSetu] Activation link already active in inbox. Avoiding token override.");
+        if (dmActWarning) dmActWarning.style.display = "block";
+        if (dmTime) {
+          dmTime.innerHTML = `⚠️ <b style="color:#dc2626;">FormSubmit Activation Link Active:</b> कृपया Gmail में सबसे नया (LATEST) ईमेल खोलकर <b>'Activate Form'</b> दबाएं।`;
+        }
+        if (dmPill) {
+          dmPill.innerHTML = `⚠️ Activation Pending`;
+          dmPill.className = "badge-pill warning";
         }
         return;
       }
@@ -1273,19 +1330,24 @@
       .then(r => r.json())
       .then(res => {
         if (res.message && res.message.toLowerCase().includes("activation")) {
-          // FormSubmit needs 1-time activation click
+          // Lock the token so subsequent refreshes won't invalidate it
+          localStorage.setItem("aapdasetu_formsubmit_last_token_time", String(Date.now()));
+          localStorage.setItem("aapdasetu_formsubmit_needs_activation", "true");
+
           if (dmActWarning) dmActWarning.style.display = "block";
           if (dmTime) {
-            dmTime.innerHTML = `⚠️ <b style="color:#dc2626;">FormSubmit Activation Required:</b> आपके Gmail (<b>guptaayush932589@gmail.com</b>) पर 'Activate Form' लिंक भेजा गया है। उसे सिर्फ 1 बार क्लिक करें, फिर हर दिन का अलर्ट सीधा आपके इनबॉक्स में आएगा!`;
+            dmTime.innerHTML = `⚠️ <b style="color:#dc2626;">FormSubmit Activation Required:</b> आपके Gmail (<b>guptaayush932589@gmail.com</b>) पर 'Activate Form' लिंक भेजा गया है।`;
           }
           if (dmPill) {
             dmPill.innerHTML = `⚠️ Activation Pending`;
             dmPill.className = "badge-pill warning";
           }
-          showToast("⚠️ कृपया Gmail में जाकर FormSubmit का 'Activate Form' लिंक 1 बार क्लिक करें!", "warning");
+          showToast("⚠️ कृपया Gmail में सबसे ऊपर वाला 'Activate Form' लिंक 1 बार क्लिक करें!", "warning");
         } else {
-          // Success! Save date to localStorage
+          // Success! Clear activation flag and save today's date
+          localStorage.removeItem("aapdasetu_formsubmit_needs_activation");
           localStorage.setItem("aapdasetu_last_dm_flood_alert_date", todayKey);
+
           if (dmActWarning) dmActWarning.style.display = "none";
           if (dmTime) {
             dmTime.innerHTML = `✅ <b>आज का दैनिक बाढ़ बुलेटिन (${todayKey}) सफलतापूर्वक भेजा गया!</b> (${new Date().toLocaleTimeString()})<br>` +
@@ -1301,6 +1363,36 @@
       .catch(e => {
         console.log("Formsubmit delivery error:", e);
         localStorage.setItem("aapdasetu_last_dm_flood_alert_date", todayKey);
+      });
+    }
+
+    /**
+     * Send 1 Single Fresh Activation Email (Prevents multi-token expiration)
+     */
+    function requestFreshActivationLink() {
+      localStorage.removeItem("aapdasetu_formsubmit_last_token_time");
+      showToast("📨 1 फ्रेश एक्टिवेशन लिंक भेजा जा रहा है...", "info");
+
+      fetch("https://formsubmit.co/ajax/guptaayush932589@gmail.com", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify({
+          _subject: "⚡ [AapdaSetu Activation] Confirm guptaayush932589@gmail.com for Disaster Alerts",
+          "SYSTEM": "AapdaSetu AI Disaster Management Early Warning Platform",
+          "RECIPIENT": "District Magistrate & Disaster Manager (Ayush Gupta)",
+          "ACTION": "Please click the Activate Form button below once to enable automated flood early warning memos."
+        })
+      })
+      .then(r => r.json())
+      .then(res => {
+        localStorage.setItem("aapdasetu_formsubmit_last_token_time", String(Date.now()));
+        localStorage.setItem("aapdasetu_formsubmit_needs_activation", "true");
+        showToast("✅ फ्रेश लिंक भेजा गया! Gmail में सबसे ऊपर (Latest) ईमेल खोलें।", "success");
+        alert("✅ नया एक्टिवेशन लिंक भेज दिया गया है!\n\nकृपया अपने Gmail (guptaayush932589@gmail.com) में जाएं और अभी-अभी आया हुआ सबसे ऊपर (LATEST) वाला ईमेल खोलकर 'Activate Form' बटन दबाएं।\n\n(ध्यान दें: पुराने ईमेल को न खोलें क्योंकि उनका लिंक अमान्य हो चुका है)");
+      })
+      .catch(err => {
+        console.error("Fresh activation error:", err);
+        showToast("नेटवर्क त्रुटि, कृपया पुनः प्रयास करें।", "error");
       });
     }
 

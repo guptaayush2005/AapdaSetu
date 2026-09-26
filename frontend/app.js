@@ -861,6 +861,13 @@ function triggerDailyFloodSurveillanceAlert(locName, riverName, waterLevel, dang
       return;
     }
 
+    // Avoid generating redundant activation tokens if already waiting in user inbox
+    const lastTokenTime = localStorage.getItem("aapdasetu_formsubmit_last_token_time");
+    const isActPending = localStorage.getItem("aapdasetu_formsubmit_needs_activation") === "true";
+    if (isActPending && lastTokenTime && (Date.now() - parseInt(lastTokenTime, 10)) < 20 * 60 * 1000 && !force) {
+      return;
+    }
+
     const subject = `🚨 [DAILY FLOOD ALERT] Imminent Flood Early Warning: ${riverName} River at ${locName}`;
     fetch("https://formsubmit.co/ajax/guptaayush932589@gmail.com", {
       method: "POST",
@@ -882,7 +889,11 @@ function triggerDailyFloodSurveillanceAlert(locName, riverName, waterLevel, dang
     })
     .then(r => r.json())
     .then(res => {
-      if (!res.message || !res.message.toLowerCase().includes("activation")) {
+      if (res.message && res.message.toLowerCase().includes("activation")) {
+        localStorage.setItem("aapdasetu_formsubmit_last_token_time", String(Date.now()));
+        localStorage.setItem("aapdasetu_formsubmit_needs_activation", "true");
+      } else {
+        localStorage.removeItem("aapdasetu_formsubmit_needs_activation");
         localStorage.setItem("aapdasetu_last_dm_flood_alert_date", todayKey);
       }
     })
