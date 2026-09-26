@@ -735,24 +735,49 @@
             <!-- Activation guidance alert box if FormSubmit activation is pending -->
             <div id="dmActivationWarning" style="display:none;background:#fef2f2;border:1.5px solid #f87171;border-radius:8px;padding:14px 16px;font-size:0.83rem;color:#991b1b;line-height:1.6;">
               <div style="font-weight:800;font-size:0.92rem;display:flex;align-items:center;gap:8px;margin-bottom:6px;color:#b91c1c;">
-                <span>⚠️</span> 'Not a valid link' क्यों आ रहा था और इसे कैसे ठीक करें:
+                <span>⚠️</span> 'Confirmation token not found' क्यों आया और 100% समाधान:
               </div>
               <p style="margin:0 0 8px 0;">
-                पेज ऑटो-रिफ्रेश होने से FormSubmit ने नया लिंक जनरेट कर दिया था, जिस वजह से आपका पुराना ईमेल लिंक अमान्य (invalid / expired) हो गया था। अब हमने नया ऑटो-रिक्वेस्ट लॉक कर दिया है ताकि लिंक एक्सपायर न हो!
+                FormSubmit में बैकग्राउंड रिक्वेस्ट जाने से पुराना टोकन Expire हो गया था। इसे हल करने के <strong>3 सबसे आसान तरीके</strong> नीचे दिए गए हैं:
               </p>
-              <div style="background:#fff;border:1px solid #fecaca;border-radius:6px;padding:10px 14px;margin-bottom:12px;color:#7f1d1d;">
-                <strong>👉 सिर्फ ये 2 आसान स्टेप्स करें:</strong>
-                <ol style="margin:4px 0 0 18px;padding:0;">
-                  <li>नीचे लाल रंग के <strong>"📨 Send 1 Fresh Activation Email"</strong> बटन पर क्लिक करें।</li>
-                  <li>अपने Gmail (<u>guptaayush932589@gmail.com</u>) में जाएं और <strong>सिर्फ सबसे नया (LATEST / सबसे ऊपर)</strong> ईमेल खोलकर <strong>"Activate Form"</strong> बटन दबाएं।</li>
-                </ol>
+
+              <!-- Option 1: Direct Real Browser Form -->
+              <div style="background:#fff;border:1px solid #fecaca;border-radius:6px;padding:10px 14px;margin-bottom:10px;color:#7f1d1d;">
+                <strong>तरीका 1 (FormSubmit Official Browser Form):</strong>
+                <p style="margin:4px 0 8px 0;font-size:0.8rem;">
+                  नीचे दिए गए बटन पर क्लिक करें। यह सीधे FormSubmit का ओरिजिनल पेज खोलेगा जिससे 100% वैलिड टोकन आपके ईमेल पर जाएगा।
+                </p>
+                <form action="https://formsubmit.co/guptaayush932589@gmail.com" method="POST" target="_blank" style="margin:0;display:inline-block;">
+                  <input type="hidden" name="_subject" value="AapdaSetu Flood Early Warning Activation">
+                  <input type="hidden" name="_captcha" value="false">
+                  <input type="hidden" name="message" value="Activating automated daily flood warnings for DM Ayush Gupta (guptaayush932589@gmail.com)">
+                  <button type="submit" class="btn-primary" style="background:#dc2626;padding:8px 16px;font-size:0.82rem;border:none;cursor:pointer;font-weight:700;">
+                    🚀 Open Official FormSubmit Page (1-Click)
+                  </button>
+                </form>
               </div>
+
+              <!-- Option 2: Web3Forms (Zero-Activation) -->
+              <div style="background:#f8fafc;border:1px solid #cbd5e1;border-radius:6px;padding:10px 14px;margin-bottom:10px;color:#334155;">
+                <strong style="color:#0f172a;font-size:0.84rem;display:flex;align-items:center;gap:6px;">
+                  <span>⚡</span> तरीका 2 (Web3Forms - कोई एक्टिवेशन लिंक नहीं दबाना पड़ता):
+                </strong>
+                <p style="margin:4px 0 6px 0;font-size:0.79rem;color:#475569;">
+                  1. <a href="https://web3forms.com/#start" target="_blank" rel="noopener" style="color:#2563eb;font-weight:700;">web3forms.com</a> खोलें और <code>guptaayush932589@gmail.com</code> डालें।<br>
+                  2. Web3Forms आपकी <strong>Access Key</strong> सीधे आपके Gmail पर भेज देगा। उसे यहाँ पेस्ट करके Save करें:
+                </p>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;">
+                  <input type="text" id="web3FormsKeyInput" placeholder="Paste Access Key (e.g. xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)" style="flex:1;min-width:220px;padding:6px 12px;font-size:0.8rem;border:1px solid #cbd5e1;border-radius:6px;">
+                  <button type="button" onclick="saveWeb3FormsKey()" class="btn-primary" style="padding:6px 14px;font-size:0.8rem;background:#2563eb;border:none;cursor:pointer;">
+                    💾 Save Key
+                  </button>
+                </div>
+              </div>
+
+              <!-- Option 3: Direct Gmail -->
               <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-                <button type="button" onclick="requestFreshActivationLink()" class="btn-primary" style="background:#dc2626;padding:8px 16px;font-size:0.82rem;border:none;cursor:pointer;font-weight:700;">
-                  📨 Send 1 Fresh Activation Email
-                </button>
                 <a id="dmGmailFallbackBtn" href="https://mail.google.com/mail/?view=cm&fs=1&to=guptaayush932589@gmail.com&su=🚨%20FLOOD%20ALERT%20TO%20DISTRICT%20MANAGER" target="_blank" rel="noopener" class="btn-secondary" style="padding:8px 14px;font-size:0.82rem;background:#fff;border:1px solid #fca5a5;color:#991b1b;text-decoration:none;font-weight:600;">
-                  📧 बिना एक्टिवेशन सीधे Gmail से भेजें →
+                  📧 तरीका 3: बिना किसी सर्विस के सीधे Gmail से भेजें →
                 </a>
               </div>
             </div>
@@ -808,6 +833,11 @@
           updateElevationInspector(selectedWard.elevation_m, selectedWard.slope_angle_deg, selectedWard.terrain_type);
         }
       });
+
+      // Restore Web3Forms key if saved
+      const savedKey = localStorage.getItem("aapdasetu_web3forms_key");
+      const keyInp = document.getElementById("web3FormsKeyInput");
+      if (savedKey && keyInp) keyInp.value = savedKey;
 
       // Automated Daily Surveillance Check on Page Load
       setTimeout(() => {
@@ -1284,7 +1314,56 @@
         return;
       }
 
-      // 4. Protection against token invalidation:
+      // 4. Check if user configured Web3Forms Access Key (zero activation required)
+      const web3Key = localStorage.getItem("aapdasetu_web3forms_key");
+      if (web3Key) {
+        if (dmTime) dmTime.innerHTML = `⏳ <b>Web3Forms से ईमेल भेजा जा रहा है...</b> (guptaayush932589@gmail.com)`;
+        fetch("https://api.web3forms.com/submit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Accept": "application/json" },
+          body: JSON.stringify({
+            access_key: web3Key,
+            subject: subject,
+            from_name: "AapdaSetu Flood Early Warning",
+            "RECIPIENT": "District Magistrate & Disaster Manager (Ayush Gupta)",
+            "EMAIL": "guptaayush932589@gmail.com",
+            "ALERT FREQUENCY": "AUTOMATIC DAILY FLOOD BULLETIN (1 EMAIL / DAY)",
+            "Location": loc,
+            "Flood Risk": `${fRisk} (${fProb}%)`,
+            "Landslide Risk": `${lsRisk} (${lsProb}%)`,
+            "Rainfall (24h)": `${rain} mm`,
+            "Soil Moisture": `${soil}%`,
+            "River Level": `${riverLvl}m (Danger: ${dangerLvl}m)`,
+            "Status": "HIGH/CRITICAL FLOOD RISK DETECTED - EVACUATION STAGED",
+            "Dispatch Date": todayKey,
+            message: body
+          })
+        })
+        .then(r => r.json())
+        .then(res => {
+          if (res.success) {
+            localStorage.setItem("aapdasetu_last_dm_flood_alert_date", todayKey);
+            if (dmActWarning) dmActWarning.style.display = "none";
+            if (dmTime) {
+              dmTime.innerHTML = `✅ <b>आज का दैनिक बाढ़ बुलेटिन (${todayKey}) सीधे आपके Gmail इनबॉक्स में भेज दिया गया!</b> (${new Date().toLocaleTimeString()})<br>` +
+                `<span style="font-size:0.76rem;color:#15803d;">Recipient: DM Ayush Gupta (guptaayush932589@gmail.com) • [Daily 1-Alert Limit Active]</span>`;
+            }
+            if (dmPill) {
+              dmPill.innerHTML = `🟢 Sent for Today (${todayKey})`;
+              dmPill.className = "badge-pill safe";
+            }
+            showToast("📧 बाढ़ अलर्ट ईमेल सीधे Gmail पर पहुँचा दिया गया!", "success");
+          } else {
+            console.error("Web3Forms response:", res);
+          }
+        })
+        .catch(e => {
+          console.error("Web3Forms error:", e);
+        });
+        return;
+      }
+
+      // 5. Protection against token invalidation:
       // If activation is pending and a link was already requested in the last 20 minutes, don't spam new tokens!
       const lastTokenTime = localStorage.getItem("aapdasetu_formsubmit_last_token_time");
       const isActivationPending = localStorage.getItem("aapdasetu_formsubmit_needs_activation") === "true";
@@ -1303,7 +1382,7 @@
         return;
       }
 
-      // If sending now:
+      // If sending now via FormSubmit:
       if (dmTime) {
         dmTime.innerHTML = `⏳ <b>आज का दैनिक बाढ़ चेतावनी ईमेल भेजा जा रहा है...</b> (guptaayush932589@gmail.com)`;
       }
@@ -1364,6 +1443,23 @@
         console.log("Formsubmit delivery error:", e);
         localStorage.setItem("aapdasetu_last_dm_flood_alert_date", todayKey);
       });
+    }
+
+    /**
+     * Save user's Web3Forms Access Key for 100% Guaranteed Zero-Activation Delivery
+     */
+    function saveWeb3FormsKey() {
+      const inp = document.getElementById("web3FormsKeyInput");
+      if (!inp || !inp.value.trim()) {
+        showToast("कृपया Web3Forms Access Key दर्ज करें!", "warning");
+        return;
+      }
+      const key = inp.value.trim();
+      localStorage.setItem("aapdasetu_web3forms_key", key);
+      showToast("✅ Web3Forms Key सेव हो गई! अब कोई एक्टिवेशन लिंक नहीं लगेगा।", "success");
+      const dmActWarning = document.getElementById("dmActivationWarning");
+      if (dmActWarning) dmActWarning.style.display = "none";
+      forceResendDailyDmAlert();
     }
 
     /**
