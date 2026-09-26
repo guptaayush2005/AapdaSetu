@@ -1493,8 +1493,8 @@ def get_district_dm_email(district: str = "", state: str = "", lat: float = None
             "phone": "0542-2508550"
         }
     return {
-        "email": "dm-disaster-control@nic.in",
-        "name": "District Magistrate & Chairman DDMA (Emergency Control Room)",
+        "email": "guptaayush932589@gmail.com",
+        "name": "District Magistrate & Disaster Manager (Ayush Gupta)",
         "district": district or "Disaster Affected District",
         "state": state or "India",
         "phone": "1077"

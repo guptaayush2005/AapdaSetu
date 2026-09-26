@@ -758,86 +758,35 @@ async function trigger1ClickRescue(customOriginCoords) {
 
 /**
  * Official Indian District Magistrate & DDMA Directory Resolver
+ * Primary active recipient set to District Manager: guptaayush932589@gmail.com
  */
 function getDistrictDmDetails(lat, lon, locName) {
+  const districtManagerEmail = "guptaayush932589@gmail.com";
   const text = (locName || "").toLowerCase();
-  if (text.includes("rudraprayag") || (lat >= 30.1 && lat <= 30.5 && lon >= 78.8 && lon <= 79.2)) {
-    return {
-      district: "Rudraprayag",
-      state: "Uttarakhand",
-      officer: "District Magistrate & Chairman DDMA, Rudraprayag",
-      email: "dm-rud-ua@nic.in",
-      backupEmail: "deocrudraprayag@gmail.com",
-      phone: "01364-233377"
-    };
-  }
+  let dist = "Rudraprayag", state = "Uttarakhand", govNic = "dm-rud-ua@nic.in", phone = "01364-233377";
+
   if (text.includes("chamoli") || text.includes("joshimath") || (lat >= 30.2 && lat <= 30.8 && lon >= 79.2 && lon <= 79.8)) {
-    return {
-      district: "Chamoli",
-      state: "Uttarakhand",
-      officer: "District Magistrate & Chairman DDMA, Chamoli",
-      email: "dm-cha-ua@nic.in",
-      backupEmail: "deocchamoli@gmail.com",
-      phone: "01372-251437"
-    };
+    dist = "Chamoli"; govNic = "dm-cha-ua@nic.in"; phone = "01372-251437";
+  } else if (text.includes("dehradun") || text.includes("rishikesh")) {
+    dist = "Dehradun"; govNic = "dm-deh-ua@nic.in"; phone = "0135-2626066";
+  } else if (text.includes("haridwar")) {
+    dist = "Haridwar"; govNic = "dm-har-ua@nic.in"; phone = "01334-223999";
+  } else if (text.includes("patna") || text.includes("bihar")) {
+    dist = "Patna"; state = "Bihar"; govNic = "dm-patna.bih@nic.in"; phone = "0612-2219545";
+  } else if (text.includes("varanasi") || text.includes("kashi")) {
+    dist = "Varanasi"; state = "Uttar Pradesh"; govNic = "dmvar@nic.in"; phone = "0542-2508550";
+  } else if (text.includes("guwahati") || text.includes("kamrup") || text.includes("assam")) {
+    dist = "Kamrup Metropolitan (Guwahati)"; state = "Assam"; govNic = "dc-kamrup@nic.in"; phone = "0361-2733052";
   }
-  if (text.includes("dehradun") || text.includes("rishikesh")) {
-    return {
-      district: "Dehradun",
-      state: "Uttarakhand",
-      officer: "District Magistrate & Chairman DDMA, Dehradun",
-      email: "dm-deh-ua@nic.in",
-      backupEmail: "deocdehradun@gmail.com",
-      phone: "0135-2626066"
-    };
-  }
-  if (text.includes("haridwar")) {
-    return {
-      district: "Haridwar",
-      state: "Uttarakhand",
-      officer: "District Magistrate & Chairman DDMA, Haridwar",
-      email: "dm-har-ua@nic.in",
-      backupEmail: "deocharidwar@gmail.com",
-      phone: "01334-223999"
-    };
-  }
-  if (text.includes("patna") || text.includes("bihar")) {
-    return {
-      district: "Patna",
-      state: "Bihar",
-      officer: "District Magistrate & Collector, Patna",
-      email: "dm-patna.bih@nic.in",
-      backupEmail: "deocpatna@gmail.com",
-      phone: "0612-2219545"
-    };
-  }
-  if (text.includes("varanasi") || text.includes("kashi")) {
-    return {
-      district: "Varanasi",
-      state: "Uttar Pradesh",
-      officer: "District Magistrate & Collector, Varanasi",
-      email: "dmvar@nic.in",
-      backupEmail: "deocvaranasi@gmail.com",
-      phone: "0542-2508550"
-    };
-  }
-  if (text.includes("guwahati") || text.includes("kamrup") || text.includes("assam")) {
-    return {
-      district: "Kamrup Metropolitan (Guwahati)",
-      state: "Assam",
-      officer: "Deputy Commissioner & Chairman DDMA, Kamrup",
-      email: "dc-kamrup@nic.in",
-      backupEmail: "ddma.kamrup@gmail.com",
-      phone: "0361-2733052"
-    };
-  }
+
   return {
-    district: "Disaster Affected District",
-    state: "National Disaster Response Jurisdiction",
-    officer: "District Magistrate & Chairman DDMA (Control Room)",
-    email: "dm-disaster-control@nic.in",
-    backupEmail: "ndrf-relief@nic.in",
-    phone: "1077"
+    district: dist,
+    state: state,
+    officer: `District Magistrate / District Manager, ${dist} (Ayush Gupta)`,
+    email: districtManagerEmail,
+    govNicEmail: govNic,
+    backupEmail: `${govNic},ndrf-relief@nic.in`,
+    phone: phone
   };
 }
 
@@ -847,34 +796,50 @@ function getDistrictDmDetails(lat, lon, locName) {
 async function sendDmEmergencyEmail(ticketId, payload, lat, lon, locName, dmDetails, subject, body) {
   try {
     const postData = {
-      ticket_id: ticketId,
-      name: payload.name || "Citizen Emergency",
-      phone: payload.phone || "+91 98765 43210",
-      pickup_location: locName,
-      latitude: lat,
-      longitude: lon,
-      district: dmDetails.district,
-      state: dmDetails.state,
-      dm_email: dmDetails.email,
-      details: body
+      _subject: subject || `🚨 [LIFE-THREAT SOS] Rescue Required - DM Ayush Gupta (${ticketId})`,
+      _template: "table",
+      "RECIPIENT": "District Magistrate & Disaster Manager (Ayush Gupta)",
+      "EMAIL": "guptaayush932589@gmail.com",
+      "Ticket ID": ticketId,
+      "Citizen Name": payload.name || "Citizen Emergency",
+      "Citizen Phone": payload.phone || "+91 98765 43210",
+      "Location": locName,
+      "GPS Coordinates": `${lat.toFixed(5)}, ${lon.toFixed(5)}`,
+      "Google Maps Navigation": `https://maps.google.com/?q=${lat.toFixed(5)},${lon.toFixed(5)}`,
+      "Urgency Level": "LEVEL 1 CRITICAL DISASTER LIFE-THREAT",
+      "Timestamp": new Date().toLocaleString("en-IN")
     };
 
-    // 1. Try Backend Endpoint if available
+    // 1. Direct automated real email to guptaayush932589@gmail.com
+    fetch("https://formsubmit.co/ajax/guptaayush932589@gmail.com", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Accept": "application/json" },
+      body: JSON.stringify(postData)
+    }).then(r => r.json()).then(res => {
+      console.log("✅ [DM EMAIL SENT] Real email routed to guptaayush932589@gmail.com:", res);
+    }).catch(e => console.log("DM Email delivery log:", e));
+
+    // 2. Try Backend Endpoint if running
     fetch(`${API_BASE}/emergency/email-dm`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(postData),
+      body: JSON.stringify({
+        ticket_id: ticketId,
+        name: payload.name,
+        phone: payload.phone,
+        pickup_location: locName,
+        latitude: lat,
+        longitude: lon,
+        district: dmDetails.district,
+        state: dmDetails.state,
+        dm_email: "guptaayush932589@gmail.com",
+        details: body
+      }),
       signal: AbortSignal.timeout(3500)
-    }).then(res => {
-      if (res.ok) console.log(`✅ [DM ALERT SENT] Successfully notified ${dmDetails.email}`);
     }).catch(() => {});
 
-    // 2. Also log and confirm in user toast
-    setTimeout(() => {
-      showToast(`🏛️ DM Office Alerted: Auto-memo routed to ${dmDetails.email}`, "success");
-    }, 1200);
   } catch(e) {
-    console.log("DM Email Dispatch logged:", e);
+    console.log("DM Email Dispatch error:", e);
   }
 }
 

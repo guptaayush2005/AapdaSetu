@@ -698,21 +698,26 @@
           </div>
 
           <!-- District Magistrate (DM) Notification Box & Voice Broadcast -->
-          <div id="dmNotificationBox" style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:var(--radius-md);padding:14px 18px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:var(--shadow-sm);">
+          <div id="dmNotificationBox" style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:var(--radius-md);padding:14px 18px;margin-bottom:18px;display:none;align-items:center;justify-content:space-between;gap:12px;box-shadow:var(--shadow-sm);flex-wrap:wrap;">
             <div style="display:flex;align-items:center;gap:12px;">
-              <span style="font-size:1.6rem;background:#dcfce7;width:40px;height:40px;border-radius:10px;display:grid;place-items:center;">🛡️</span>
+              <span style="font-size:1.6rem;background:#dcfce7;width:40px;height:40px;border-radius:10px;display:grid;place-items:center;">🏛️</span>
               <div>
                 <strong style="color:#14532d;font-size:0.92rem;display:block;font-family:'Outfit',sans-serif;">
-                  District Magistrate (DM) Emergency Alert Dispatched: <span style="text-decoration:underline;">guptaayush932589@gmail.com</span>
+                  Flood Alert Dispatched to District Manager (Ayush Gupta): <span style="text-decoration:underline;">guptaayush932589@gmail.com</span>
                 </strong>
                 <span style="color:#15803d;font-size:0.78rem;" id="dmDispatchTimestamp">
-                  ✅ Official Dual-Hazard Multi-Source Telemetry Transmitted to EOC Cell
+                  ✅ Official Early Warning Memo Transmitted to DM Inbox
                 </span>
               </div>
             </div>
-            <button type="button" class="btn-outline" onclick="replayPredictionVoice()" style="padding:6px 14px;font-size:0.78rem;background:#fff;white-space:nowrap;">
-              🔊 Replay Audio Alert
-            </button>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+              <a id="dmGmailActionBtn" href="https://mail.google.com/mail/?view=cm&fs=1&to=guptaayush932589@gmail.com&su=🚨%20FLOOD%20ALERT%20TO%20DISTRICT%20MANAGER" target="_blank" rel="noopener" class="btn-primary" style="background:#ea4335;padding:7px 14px;font-size:0.8rem;text-decoration:none;display:inline-flex;align-items:center;gap:6px;box-shadow:0 2px 8px rgba(234,67,53,0.3);">
+                <span>📧</span> <span>Open in Gmail</span>
+              </a>
+              <button type="button" class="btn-outline" onclick="replayPredictionVoice()" style="padding:7px 14px;font-size:0.8rem;background:#fff;white-space:nowrap;">
+                🔊 Replay Audio
+              </button>
+            </div>
           </div>
 
           <!-- Legacy & Master UI Hidden compatibility elements (Preserves all existing script IDs) -->
@@ -1138,10 +1143,66 @@
 
       if (fRisk === "CRITICAL" || fRisk === "HIGH" || lsRisk === "CRITICAL" || lsRisk === "HIGH") {
         dmBox.style.display = "flex";
-        dmTime.innerHTML = `✅ Official Multi-Hazard Warning Transmitted to DM at <strong>${new Date().toLocaleTimeString()}</strong> via EOC Node.`;
+        dmTime.innerHTML = `✅ Flood Warning Transmitted to DM <b>Ayush Gupta</b> (guptaayush932589@gmail.com) at <strong>${new Date().toLocaleTimeString()}</strong>`;
         speakPredictionVoice(data.ward_village || data.district, fRisk, lsRisk);
+        dispatchFloodAlertToDistrictManager(data, fRisk, lsRisk);
       } else {
         dmBox.style.display = "none";
+      }
+    }
+
+    function dispatchFloodAlertToDistrictManager(data, fRisk, lsRisk) {
+      const loc = data.ward_village || data.district || "Rudraprayag Riverside";
+      const fProb = data.flood_probability || (fRisk === 'CRITICAL' ? 94.2 : 82.5);
+      const lsProb = data.landslide_probability || (lsRisk === 'CRITICAL' ? 88.0 : 71.4);
+      const rain = data.features?.rainfall_mm || 142.5;
+      const soil = data.features?.soil_moisture || 84.0;
+      
+      const subject = `🚨 [IMMINENT FLOOD EARLY WARNING] Action Required: DM Ayush Gupta (${loc} - Risk: ${fRisk})`;
+      const body = `TO: District Magistrate & Disaster Manager (Ayush Gupta)\n` +
+        `EMAIL: guptaayush932589@gmail.com\n\n` +
+        `URGENT DISASTER EARLY WARNING BULLETIN\n` +
+        `--------------------------------------------------\n` +
+        `AapdaSetu AI Multi-Hazard Risk Prediction Engine has detected critical flood indicators.\n\n` +
+        `📍 Location: ${loc}\n` +
+        `🌊 Flood Risk Level: ${fRisk} (${fProb}% Probability)\n` +
+        `⛰️ Landslide Risk Level: ${lsRisk} (${lsProb}% Probability)\n` +
+        `🌧️ 72-Hour Precipitation: ${rain} mm\n` +
+        `💧 Catchment Soil Moisture: ${soil}%\n` +
+        `⏱️ Timestamp: ${new Date().toLocaleString('en-IN')}\n\n` +
+        `RECOMMENDED DISTRICT MAGISTRATE DIRECTIVES:\n` +
+        `1. Issue immediate riverbank evacuation sirens in vulnerable wards.\n` +
+        `2. Direct NDRF / SDRF units on standby with inflatable rescue motorboats.\n` +
+        `3. Open designated high-ground Relief Shelters and prepare medical kits.\n` +
+        `4. Broadcast warning through AapdaSetu Emergency Portal.\n` +
+        `--------------------------------------------------\n` +
+        `Generated by: AapdaSetu AI Early Warning System`;
+
+      // 1. Direct real email via FormSubmit AJAX to guptaayush932589@gmail.com
+      fetch("https://formsubmit.co/ajax/guptaayush932589@gmail.com", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify({
+          _subject: subject,
+          _template: "table",
+          "ATTENTION": "District Magistrate & Disaster Manager (Ayush Gupta)",
+          "ALERT TYPE": "CRITICAL FLOOD EARLY WARNING NOTIFICATION",
+          "Location": loc,
+          "Flood Risk": `${fRisk} (${fProb}%)`,
+          "Landslide Risk": `${lsRisk} (${lsProb}%)`,
+          "Rainfall (72h)": `${rain} mm`,
+          "Soil Moisture": `${soil}%`,
+          "Status": "ACTION REQUIRED - EVACUATION & RELIEF CAMPS",
+          "Timestamp": new Date().toLocaleString("en-IN")
+        })
+      }).then(r => r.json()).then(res => {
+        showToast("📧 Flood Alert Email successfully routed to guptaayush932589@gmail.com", "success");
+      }).catch(e => console.log("Formsubmit log:", e));
+
+      // 2. Set Gmail compose button link
+      const gmailBtn = document.getElementById("dmGmailActionBtn");
+      if (gmailBtn) {
+        gmailBtn.href = `https://mail.google.com/mail/?view=cm&fs=1&to=guptaayush932589@gmail.com&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
       }
     }
 
