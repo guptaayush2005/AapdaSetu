@@ -255,8 +255,18 @@ async function loadHyperlocalLocations(stateSelectId = "state", districtSelectId
  */
 function toggleMobileNav() {
   const drawer = document.getElementById("mobileNavDrawer");
+  const menuBtn = document.querySelector(".mobile-menu-btn");
   if (drawer) {
-    drawer.classList.toggle("open");
+    const isOpen = drawer.classList.toggle("open");
+    if (menuBtn) {
+      menuBtn.textContent = isOpen ? "✕" : "☰";
+      menuBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    }
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
   }
 }
 
@@ -2152,4 +2162,64 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   applyTranslations(currentLang);
+
+  // Initialize Native Mobile Bottom Navigation Bar & Drawer listeners
+  initMobileEnhancements();
 });
+
+/**
+ * Mobile UX Enhancement Engine
+ * Injects app-like quick bottom navigation bar and handles mobile drawer interactions
+ */
+function initMobileEnhancements() {
+  // 1. Auto-close mobile drawer when any link is tapped
+  const drawerLinks = document.querySelectorAll("#mobileNavDrawer a");
+  drawerLinks.forEach(link => {
+    link.addEventListener("click", () => {
+      const drawer = document.getElementById("mobileNavDrawer");
+      const menuBtn = document.querySelector(".mobile-menu-btn");
+      if (drawer && drawer.classList.contains("open")) {
+        drawer.classList.remove("open");
+        document.body.style.overflow = "";
+        if (menuBtn) menuBtn.textContent = "☰";
+      }
+    });
+  });
+
+  // 2. Inject Mobile Quick-Action Bottom Bar if not already present
+  if (!document.querySelector(".mobile-bottom-bar")) {
+    const bar = document.createElement("nav");
+    bar.className = "mobile-bottom-bar";
+    bar.setAttribute("aria-label", "Mobile Quick Actions");
+
+    const currentPath = window.location.pathname.toLowerCase();
+    const isHome = currentPath.endsWith("index.html") || currentPath.endsWith("/") || currentPath.endsWith("aapda-setu-one.vercel.app");
+    const isRoute = currentPath.includes("safe-route");
+    const isMonitoring = currentPath.includes("monitoring");
+    const isShelters = currentPath.includes("shelters");
+
+    bar.innerHTML = `
+      <a href="index.html" class="mobile-bar-item ${isHome ? 'active' : ''}">
+        <span class="icon">🏠</span>
+        <span>Home</span>
+      </a>
+      <a href="safe-route.html" class="mobile-bar-item ${isRoute ? 'active' : ''}">
+        <span class="icon">🗺️</span>
+        <span>Routes</span>
+      </a>
+      <a href="javascript:void(0)" onclick="trigger1ClickRescue()" class="mobile-bar-item mobile-bar-sos" title="1-Click Emergency SOS">
+        <span class="icon">🚨</span>
+        <span>SOS 112</span>
+      </a>
+      <a href="monitoring.html" class="mobile-bar-item ${isMonitoring ? 'active' : ''}">
+        <span class="icon">🌊</span>
+        <span>Rivers</span>
+      </a>
+      <a href="shelters.html" class="mobile-bar-item ${isShelters ? 'active' : ''}">
+        <span class="icon">🏕️</span>
+        <span>Shelters</span>
+      </a>
+    `;
+    document.body.appendChild(bar);
+  }
+}
