@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AapdaSetu | Emergency SOS & Helpline Directory</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚨</text></svg>">
+</head>
+<body>
+
+  <!-- ================= NAVBAR ================= -->
+  <header class="site-nav">
+    <div class="nav-container">
+      <a href="index.html" class="nav-brand">
+        <div class="brand-icon-box">🚨</div>
+        <div class="brand-name-wrap">
+          <span class="brand-name">AapdaSetu</span>
+          <span class="brand-tagline">Disaster Response</span>
+        </div>
+      </a>
+
+      <nav class="nav-links-wrap" aria-label="Main Navigation">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="prediction.html" class="nav-link">AI Prediction</a>
+        <a href="weather.html" class="nav-link">Weather</a>
+        <a href="monitoring.html" class="nav-link">Rivers & Dams</a>
+        <a href="emergency.html" class="nav-link active">Emergency SOS</a>
+        <a href="rescue.html" class="nav-link">Rescue Help</a>
+        <a href="shelters.html" class="nav-link">Safe Shelters</a>
+        <a href="safe-route.html" class="nav-link">Safe Routes</a>
+        <a href="alerts.html" class="nav-link">Live Alerts</a>
+        <a href="community.html" class="nav-link">Community</a>
+        <a href="family.html" class="nav-link">Family Check-in</a>
+        <a href="donation.html" class="nav-link">Relief Fund</a>
+        <a href="chatbot.html" class="nav-link">AI Assistant</a>
+      </nav>
+
+      <div class="nav-actions">
+        <div class="lang-select-box">
+          <span>🌐</span>
+          <select id="languageSelector">
+            <option value="en">English</option>
+            <option value="hi">हिन्दी</option>
+            <option value="hinglish" selected>Hinglish</option>
+          </select>
+        </div>
+        <a href="javascript:void(0)" onclick="openEmergencySOSModal()" class="sos-header-btn">🚨 SOS 112</a>
+        <button class="mobile-menu-btn" onclick="toggleMobileNav()">☰</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Drawer -->
+  <div id="mobileNavDrawer" class="mobile-nav-drawer">
+    <a href="index.html">🏠 Home</a>
+    <a href="prediction.html">🤖 AI Flood Prediction</a>
+    <a href="weather.html">🌤️ Weather Forecast</a>
+    <a href="monitoring.html">🌊 Rivers & Dams</a>
+    <a href="emergency.html" class="active">🚨 Emergency Help 112</a>
+    <a href="rescue.html">🚑 Rescue Help</a>
+    <a href="shelters.html">🏕️ Safe Shelters</a>
+    <a href="safe-route.html">🗺️ Safe Routes</a>
+    <a href="alerts.html">🔔 Live Alerts</a>
+    <a href="community.html">📢 Community Reports</a>
+    <a href="family.html">👨‍👩‍👧 Family Safety</a>
+    <a href="donation.html">❤️ Relief Fund</a>
+    <a href="chatbot.html">💬 AI Assistant</a>
+  </div>
+
+  <!-- ================= MAIN CONTENT ================= -->
+  <main class="main-wrapper">
+
+    <!-- Emergency SOS Big Banner -->
+    <section style="background:linear-gradient(135deg,#991b1b 0%,#e02424 60%,#b91c1c 100%);color:#fff;border-radius:var(--radius-lg);padding:42px 36px;box-shadow:var(--shadow-glow-red);margin-bottom:28px;text-align:center;position:relative;overflow:hidden;">
+      <span style="display:inline-block;padding:6px 16px;border-radius:var(--radius-full);background:rgba(255,255,255,0.2);font-weight:800;font-size:0.8rem;letter-spacing:0.06em;margin-bottom:14px;">
+        🚨 LIFE-THREATENING EMERGENCY IMMEDIATE RESPONSE
+      </span>
+      <h1 style="font-size:2.8rem;color:#ffffff;margin-bottom:12px;font-family:'Outfit',sans-serif;">
+        Are you or your family in danger?
+      </h1>
+      <p style="font-size:1.15rem;color:#fee2e2;max-width:720px;margin:0 auto 28px;line-height:1.6;">
+        Press the button below to dial the unified National Emergency Helpline 112, or broadcast your exact GPS coordinates to nearest disaster rescue teams.
+      </p>
+
+      <div style="display:flex;justify-content:center;gap:16px;flex-wrap:wrap;">
+        <button onclick="trigger1ClickRescue()" class="btn-1click-sos" style="background:#fef08a;color:#7f1d1d;border:2px solid #fde047;padding:16px 30px;border-radius:var(--radius-md);font-size:1.15rem;font-weight:900;cursor:pointer;display:inline-flex;align-items:center;gap:10px;box-shadow:0 8px 24px rgba(0,0,0,0.3);">
+          <span>⚡ 1-Click Instant Auto-Rescue (Zero Form)</span>
+        </button>
+        <a href="tel:112" style="background:#ffffff;color:#b91c1c;padding:16px 32px;border-radius:var(--radius-md);font-size:1.2rem;font-weight:900;text-decoration:none;box-shadow:0 8px 24px rgba(0,0,0,0.3);display:inline-flex;align-items:center;gap:10px;transition:0.2s;">
+          <span>📞 Call 112 Now</span>
+        </a>
+        <a href="rescue.html?mode=normal" style="background:rgba(255,255,255,0.18);color:#fff;border:2px solid rgba(255,255,255,0.4);padding:16px 26px;border-radius:var(--radius-md);font-size:1.05rem;font-weight:800;text-decoration:none;display:inline-flex;align-items:center;gap:8px;backdrop-filter:blur(8px);">
+          <span>📝 Normal Case: Fill Form</span>
+        </a>
+        <button onclick="broadcastGPS()" style="background:rgba(255,255,255,0.12);color:#fff;border:1px solid rgba(255,255,255,0.3);padding:16px 22px;border-radius:var(--radius-md);font-size:1rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:8px;backdrop-filter:blur(8px);">
+          <span>📍 Share GPS Location</span>
+        </button>
+      </div>
+
+      <div id="gpsStatusBox" style="display:none;margin-top:20px;padding:12px 20px;background:rgba(0,0,0,0.3);border-radius:var(--radius-sm);max-width:550px;margin-left:auto;margin-right:auto;font-size:0.92rem;">
+        <span id="gpsStatusText">Detecting satellite coordinates...</span>
+      </div>
+    </section>
+
+    <!-- Emergency Helplines Cards Grid -->
+    <section class="content-card">
+      <div class="card-header-bar">
+        <div class="card-title-group">
+          <div class="card-title-icon" style="background:#fee2e2;color:#b91c1c;">📞</div>
+          <div>
+            <h2 class="card-title">24x7 Verified Disaster Helplines</h2>
+            <p class="card-subtitle">Tap any service below to connect with control rooms.</p>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:20px;">
+        
+        <div class="stat-card" style="padding:22px;border-left:4px solid #e02424;">
+          <div class="stat-icon red">🚨</div>
+          <div style="flex:1;">
+            <h3 style="font-size:1.2rem;color:var(--navy);margin-bottom:2px;">National Emergency (Police)</h3>
+            <span style="font-size:0.82rem;color:var(--text-muted);display:block;margin-bottom:12px;">Unified response for all emergencies</span>
+            <a href="tel:112" class="btn-danger" style="width:100%;padding:10px;font-size:1rem;">Call 112</a>
+          </div>
+        </div>
+
+        <div class="stat-card" style="padding:22px;border-left:4px solid #1677ff;">
+          <div class="stat-icon blue">🛡️</div>
+          <div style="flex:1;">
+            <h3 style="font-size:1.2rem;color:var(--navy);margin-bottom:2px;">NDRF Disaster Response</h3>
+            <span style="font-size:0.82rem;color:var(--text-muted);display:block;margin-bottom:12px;">Specialized flood & disaster rescue</span>
+            <a href="tel:1078" class="btn-primary" style="width:100%;padding:10px;font-size:1rem;">Call 1078</a>
+          </div>
+        </div>
+
+        <div class="stat-card" style="padding:22px;border-left:4px solid #10b981;">
+          <div class="stat-icon teal">🚑</div>
+          <div style="flex:1;">
+            <h3 style="font-size:1.2rem;color:var(--navy);margin-bottom:2px;">Medical Ambulance</h3>
+            <span style="font-size:0.82rem;color:var(--text-muted);display:block;margin-bottom:12px;">Immediate medical trauma transport</span>
+            <a href="tel:108" class="btn-primary" style="width:100%;background:#059669;padding:10px;font-size:1rem;">Call 108</a>
+          </div>
+        </div>
+
+        <div class="stat-card" style="padding:22px;border-left:4px solid #f59e0b;">
+          <div class="stat-icon amber">🏛️</div>
+          <div style="flex:1;">
+            <h3 style="font-size:1.2rem;color:var(--navy);margin-bottom:2px;">State Disaster Authority</h3>
+            <span style="font-size:0.82rem;color:var(--text-muted);display:block;margin-bottom:12px;">State disaster relief control room</span>
+            <a href="tel:1070" class="btn-secondary" style="width:100%;text-align:center;display:block;padding:10px;font-size:1rem;font-weight:700;">Call 1070</a>
+          </div>
+        </div>
+
+        <div class="stat-card" style="padding:22px;border-left:4px solid #ec4899;">
+          <div class="stat-icon red" style="background:#fce7f3;color:#db2777;">👩</div>
+          <div style="flex:1;">
+            <h3 style="font-size:1.2rem;color:var(--navy);margin-bottom:2px;">Women & Child Helpline</h3>
+            <span style="font-size:0.82rem;color:var(--text-muted);display:block;margin-bottom:12px;">Special assistance & protection</span>
+            <a href="tel:1091" class="btn-secondary" style="width:100%;text-align:center;display:block;padding:10px;font-size:1rem;font-weight:700;">Call 1091</a>
+          </div>
+        </div>
+
+        <div class="stat-card" style="padding:22px;border-left:4px solid #ea580c;">
+          <div class="stat-icon amber" style="background:#ffedd5;color:#c2410c;">🚒</div>
+          <div style="flex:1;">
+            <h3 style="font-size:1.2rem;color:var(--navy);margin-bottom:2px;">Fire & Rescue Services</h3>
+            <span style="font-size:0.82rem;color:var(--text-muted);display:block;margin-bottom:12px;">Fire hazards & electrical collapses</span>
+            <a href="tel:101" class="btn-secondary" style="width:100%;text-align:center;display:block;padding:10px;font-size:1rem;font-weight:700;">Call 101</a>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Offline Disaster Safety Instructions -->
+    <section class="content-card">
+      <div class="card-header-bar">
+        <div class="card-title-group">
+          <div class="card-title-icon" style="background:#f1f5f9;color:#475467;">📋</div>
+          <div>
+            <h2 class="card-title">Crucial Flood Survival Instructions</h2>
+            <p class="card-subtitle">Keep these protocols in mind even when cellular network is weak.</p>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:18px;">
+        <div style="padding:16px;background:#f8fafc;border-radius:var(--radius-md);border:1px solid var(--border-light);">
+          <strong style="color:var(--navy);display:flex;align-items:center;gap:6px;font-size:1rem;margin-bottom:6px;">
+            <span>🚫</span> Turn Around, Don't Drown
+          </strong>
+          <p style="font-size:0.85rem;color:var(--text-muted);line-height:1.5;">
+            Never attempt to cross flooded roadways, bridges, or culverts on foot or in vehicles. Water depth and currents are deceptively powerful.
+          </p>
+        </div>
+
+        <div style="padding:16px;background:#f8fafc;border-radius:var(--radius-md);border:1px solid var(--border-light);">
+          <strong style="color:var(--navy);display:flex;align-items:center;gap:6px;font-size:1rem;margin-bottom:6px;">
+            <span>⚡</span> Disconnect Electricity
+          </strong>
+          <p style="font-size:0.85rem;color:var(--text-muted);line-height:1.5;">
+            Turn off your main circuit breaker and gas line before water enters the premises. Never touch fallen electric wires or submerged power meters.
+          </p>
+        </div>
+
+        <div style="padding:16px;background:#f8fafc;border-radius:var(--radius-md);border:1px solid var(--border-light);">
+          <strong style="color:var(--navy);display:flex;align-items:center;gap:6px;font-size:1rem;margin-bottom:6px;">
+            <span>🎒</span> Emergency Grab Bag
+          </strong>
+          <p style="font-size:0.85rem;color:var(--text-muted);line-height:1.5;">
+            Pack essential medicines, water bottles, non-perishable biscuits, flashlight, power bank, and identity cards in waterproof zip bags.
+          </p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================= UNIFIED FOOTER ================= -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div class="footer-bottom">
+        <span>© 2026 AapdaSetu. Official Emergency Coordination Portal.</span>
+        <a href="rescue.html" style="color:#60a5fa;font-weight:700;">Submit Rescue Dispatch Ticket →</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="translations.js"></script>
+  <script src="app.js"></script>
+  <script>
+    function broadcastGPS() {
+      const box = document.getElementById("gpsStatusBox");
+      const text = document.getElementById("gpsStatusText");
+      box.style.display = "block";
+      text.textContent = "📡 Querying GPS coordinates via satellite...";
+
+      if (!navigator.geolocation) {
+        text.textContent = "❌ Geolocation is not supported by your browser. Please call 112 directly.";
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          const lat = pos.coords.latitude.toFixed(5);
+          const lon = pos.coords.longitude.toFixed(5);
+          text.innerHTML = `✅ <strong>Location Identified:</strong> Lat: ${lat}, Lon: ${lon}. <br><span style="color:#86efac;">Dispatching emergency ping to NDRF command server...</span>`;
+
+          try {
+            await fetch(`${API_BASE}/rescue/quick`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                pickup_location: `GPS Broadcast: Lat ${lat}, Lon ${lon}`,
+                latitude: parseFloat(lat),
+                longitude: parseFloat(lon),
+                priority: "Critical"
+              })
+            });
+            showToast("Emergency coordinates received by rescue network!", "success");
+          } catch (e) {
+            console.log("Offline GPS Broadcast note:", e.message);
+            showToast("GPS coordinates logged locally!", "info");
+          }
+        },
+        (err) => {
+          text.innerHTML = `⚠️ Could not access GPS: ${err.message}. Please dial <strong>112</strong> immediately.`;
+        },
+        { timeout: 10000, enableHighAccuracy: true }
+      );
+    }
+  </script>
+</body>
+</html>

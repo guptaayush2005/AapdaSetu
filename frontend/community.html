@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AapdaSetu | Community Citizen Hazard Reporting</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📢</text></svg>">
+</head>
+<body>
+
+  <!-- ================= NAVBAR ================= -->
+  <header class="site-nav">
+    <div class="nav-container">
+      <a href="index.html" class="nav-brand">
+        <div class="brand-icon-box">🚨</div>
+        <div class="brand-name-wrap">
+          <span class="brand-name">AapdaSetu</span>
+          <span class="brand-tagline">Disaster Response</span>
+        </div>
+      </a>
+
+      <nav class="nav-links-wrap" aria-label="Main Navigation">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="prediction.html" class="nav-link">AI Prediction</a>
+        <a href="weather.html" class="nav-link">Weather</a>
+        <a href="monitoring.html" class="nav-link">Rivers & Dams</a>
+        <a href="emergency.html" class="nav-link">Emergency SOS</a>
+        <a href="rescue.html" class="nav-link">Rescue Help</a>
+        <a href="shelters.html" class="nav-link">Safe Shelters</a>
+        <a href="safe-route.html" class="nav-link">Safe Routes</a>
+        <a href="alerts.html" class="nav-link">Live Alerts</a>
+        <a href="community.html" class="nav-link active">Community</a>
+        <a href="family.html" class="nav-link">Family Check-in</a>
+        <a href="donation.html" class="nav-link">Relief Fund</a>
+        <a href="chatbot.html" class="nav-link">AI Assistant</a>
+      </nav>
+
+      <div class="nav-actions">
+        <div class="lang-select-box">
+          <span>🌐</span>
+          <select id="languageSelector">
+            <option value="en">English</option>
+            <option value="hi">हिन्दी</option>
+            <option value="hinglish" selected>Hinglish</option>
+          </select>
+        </div>
+        <a href="emergency.html" class="sos-header-btn">🚨 SOS 112</a>
+        <button class="mobile-menu-btn" onclick="toggleMobileNav()">☰</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Drawer -->
+  <div id="mobileNavDrawer" class="mobile-nav-drawer">
+    <a href="index.html">🏠 Home</a>
+    <a href="prediction.html">🤖 AI Flood Prediction</a>
+    <a href="weather.html">🌤️ Weather Forecast</a>
+    <a href="monitoring.html">🌊 Rivers & Dams</a>
+    <a href="emergency.html">🚨 Emergency Help 112</a>
+    <a href="rescue.html">🚑 Rescue Help</a>
+    <a href="shelters.html">🏕️ Safe Shelters</a>
+    <a href="safe-route.html">🗺️ Safe Routes</a>
+    <a href="alerts.html">🔔 Live Alerts</a>
+    <a href="community.html" class="active">📢 Community Reports</a>
+    <a href="family.html">👨‍👩‍👧 Family Safety</a>
+    <a href="donation.html">❤️ Relief Fund</a>
+    <a href="chatbot.html">💬 AI Assistant</a>
+  </div>
+
+  <!-- ================= MAIN CONTENT ================= -->
+  <main class="main-wrapper">
+
+    <!-- Hero Banner -->
+    <section class="page-hero">
+      <span class="hero-pill">📢 CROWDSOURCED DISASTER INTELLIGENCE</span>
+      <h1 class="hero-title">Citizen Incident Reporting & <span>Live Ground Feed</span></h1>
+      <p class="hero-subtitle">
+        Empowering communities to report waterlogged streets, collapsed bridges, and stranded neighbors with verified GPS mapping.
+      </p>
+    </section>
+
+    <!-- Two Columns: Submit Report & Live Feed -->
+    <div style="display:grid;grid-template-columns:1.1fr 1.35fr;gap:24px;align-items:start;">
+      
+      <!-- Submission Form -->
+      <section class="content-card">
+        <div class="card-header-bar">
+          <div class="card-title-group">
+            <div class="card-title-icon" style="background:#ede9fe;color:#7c3aed;">📝</div>
+            <div>
+              <h2 class="card-title">Report a Disaster Incident</h2>
+              <p class="card-subtitle">Broadcast local hazards to authorities and citizens.</p>
+            </div>
+          </div>
+        </div>
+
+        <form id="reportForm" onsubmit="event.preventDefault(); submitCommunityReport();">
+          <div style="display:flex;flex-direction:column;gap:16px;">
+            
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+              <div class="input-group">
+                <label for="state" class="input-label">State *</label>
+                <select id="state" class="form-select" required>
+                  <option value="">Loading states...</option>
+                </select>
+              </div>
+              <div class="input-group">
+                <label for="district" class="input-label">District *</label>
+                <select id="district" class="form-select" disabled required>
+                  <option value="">Select State First</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+              <div class="input-group">
+                <label for="category" class="input-label">Hazard Category *</label>
+                <select id="category" class="form-select" required>
+                  <option value="WATERLOGGING">🌊 Street Waterlogging</option>
+                  <option value="EMERGENCY_RESCUE">🚨 Trapped Citizens</option>
+                  <option value="BRIDGE_DAMAGED">🌉 Bridge / Road Damaged</option>
+                  <option value="LANDSLIDE_BLOCK">⛰️ Landslide Roadblock</option>
+                  <option value="POWER_OUTAGE">⚡ Power / Wire Hazard</option>
+                </select>
+              </div>
+              <div class="input-group">
+                <label for="urgency" class="input-label">Urgency Level *</label>
+                <select id="urgency" class="form-select" required>
+                  <option value="HIGH">🔴 High Urgency</option>
+                  <option value="MEDIUM" selected>🟠 Medium Urgency</option>
+                  <option value="LOW">🟡 Informational</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label for="message" class="input-label">Incident Description & Exact Landmark *</label>
+              <textarea id="message" class="form-textarea" rows="3" placeholder="Describe the hazard, water depth, and landmark..." required></textarea>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+              <div class="input-group">
+                <label for="reporterName" class="input-label">Your Name (Optional)</label>
+                <input type="text" id="reporterName" class="form-input" placeholder="Leave blank to stay anonymous">
+              </div>
+              <div class="input-group">
+                <label for="reporterPhone" class="input-label">Contact Phone (Optional)</label>
+                <input type="tel" id="reporterPhone" class="form-input" placeholder="For rescue follow-up">
+              </div>
+            </div>
+
+            <button type="submit" id="submitReportBtn" class="btn-primary" style="width:100%;margin-top:8px;">
+              <span>📢 Broadcast Incident to Feed</span>
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- Live Community Feed -->
+      <section class="content-card">
+        <div class="card-header-bar">
+          <div class="card-title-group">
+            <div class="card-title-icon" style="background:#e0f2fe;color:#0284c7;">📢</div>
+            <div>
+              <h2 class="card-title">Live Citizen Incident Feed</h2>
+              <p class="card-subtitle">Real-time crowdsourced reports from disaster zones.</p>
+            </div>
+          </div>
+          <span class="badge-pill active"><span class="pulse-dot green"></span> Live Sync</span>
+        </div>
+
+        <div id="reportsFeed" style="display:flex;flex-direction:column;gap:14px;max-height:650px;overflow-y:auto;padding-right:6px;">
+          <!-- Dynamic incident reports inserted here -->
+        </div>
+      </section>
+
+    </div>
+
+  </main>
+
+  <!-- ================= UNIFIED FOOTER ================= -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div class="footer-bottom">
+        <span>© 2026 AapdaSetu. Citizen-powered disaster intelligence and rapid reporting network.</span>
+        <a href="emergency.html" style="color:#f87171;font-weight:700;">🚨 Call 112 for Life Threat</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="translations.js"></script>
+  <script src="app.js"></script>
+  <script>
+    const INITIAL_REPORTS = [
+      {
+        id: "REP-7801",
+        state: "Uttarakhand",
+        district: "Rudraprayag",
+        category: "WATERLOGGING",
+        message: "Water level rising rapidly near Mandakini bridge. NH-58 lower road partially submerged by 2 feet of water.",
+        urgency: "HIGH",
+        status: "VERIFIED",
+        reporter: "Rajesh Negi",
+        time: "10 mins ago"
+      },
+      {
+        id: "REP-7802",
+        state: "Assam",
+        district: "Dhemaji",
+        category: "EMERGENCY_RESCUE",
+        message: "Family of 6 trapped on rooftop in Silapathar ward 3. Current is strong, need rescue boat immediately.",
+        urgency: "CRITICAL",
+        status: "RESCUE_DISPATCHED",
+        reporter: "Barun Bora",
+        time: "25 mins ago"
+      },
+      {
+        id: "REP-7803",
+        state: "Kerala",
+        district: "Wayanad",
+        category: "LANDSLIDE_BLOCK",
+        message: "Minor mudslide near Meppadi school road. Small vehicles unable to pass. Route clearance team notified.",
+        urgency: "MEDIUM",
+        status: "VERIFIED",
+        reporter: "Anonymous Citizen",
+        time: "45 mins ago"
+      },
+      {
+        id: "REP-7804",
+        state: "Maharashtra",
+        district: "Kolhapur",
+        category: "WATERLOGGING",
+        message: "Panchganga backwaters entering low-lying residential colony in Shiroli. Around 25 people need shelter transport.",
+        urgency: "HIGH",
+        status: "VERIFIED",
+        reporter: "Sanjay Patil",
+        time: "1 hour ago"
+      }
+    ];
+
+    let reportsList = INITIAL_REPORTS;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      loadLocations("state", "district", "submitReportBtn");
+      renderReports();
+    });
+
+    function renderReports() {
+      const feed = document.getElementById("reportsFeed");
+      feed.innerHTML = "";
+
+      reportsList.forEach(r => {
+        const isCritical = r.urgency === "CRITICAL" || r.urgency === "HIGH";
+        const badgeClass = isCritical ? "critical" : "warning";
+
+        const card = document.createElement("div");
+        card.style.cssText = "background:#f8fafc;border:1px solid var(--border-light);border-radius:var(--radius-sm);padding:16px;";
+        card.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px;gap:10px;">
+            <div>
+              <span class="badge-pill ${badgeClass}">${r.category.replace('_', ' ')}</span>
+              <strong style="font-size:0.9rem;color:var(--navy);margin-left:6px;">${r.district}, ${r.state}</strong>
+            </div>
+            <span class="badge-pill safe" style="font-size:0.7rem;">${r.status}</span>
+          </div>
+
+          <p style="font-size:0.88rem;color:#334155;line-height:1.5;margin-bottom:10px;">
+            ${r.message}
+          </p>
+
+          <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.78rem;color:var(--text-muted);border-top:1px solid #e2e8f0;padding-top:8px;">
+            <span>Reported by: <strong>${r.reporter}</strong></span>
+            <span>🕒 ${r.time} • ${r.id}</span>
+          </div>
+        `;
+        feed.appendChild(card);
+      });
+    }
+
+    async function submitCommunityReport() {
+      const state = document.getElementById("state").value;
+      const district = document.getElementById("district").value;
+      const category = document.getElementById("category").value;
+      const urgency = document.getElementById("urgency").value;
+      const message = document.getElementById("message").value;
+      const name = document.getElementById("reporterName").value || "Anonymous Citizen";
+      const phone = document.getElementById("reporterPhone").value;
+      const btn = document.getElementById("submitReportBtn");
+
+      if (!state || !district || !message) return;
+
+      btn.disabled = true;
+      btn.innerHTML = "⏳ Transmitting Report...";
+
+      const newRep = {
+        id: "REP-" + Math.floor(1000 + Math.random() * 9000),
+        state,
+        district,
+        category,
+        message,
+        urgency,
+        status: "SUBMITTED",
+        reporter: name,
+        time: "Just now"
+      };
+
+      try {
+        await fetch(`${API_BASE}/community/report`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            state, district, category, message, urgency,
+            contact_name: name, contact_phone: phone, anonymous: !name
+          }),
+          signal: AbortSignal.timeout(3500)
+        });
+      } catch (e) {
+        console.log("Logged report locally:", e.message);
+      }
+
+      reportsList.unshift(newRep);
+      renderReports();
+      document.getElementById("message").value = "";
+      btn.disabled = false;
+      btn.innerHTML = "📢 Broadcast Incident to Feed";
+      showToast("Incident report broadcasted successfully!", "success");
+    }
+  </script>
+</body>
+</html>

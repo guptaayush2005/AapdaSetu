@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AapdaSetu | AI-Powered Disaster Response & Flood Early Warning</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚨</text></svg>">
+</head>
+
+<body>
+
+  <!-- ================= UNIFIED NAVBAR ================= -->
+  <header class="site-nav">
+    <div class="nav-container">
+      <a href="index.html" class="nav-brand">
+        <div class="brand-icon-box">🚨</div>
+        <div class="brand-name-wrap">
+          <span class="brand-name">AapdaSetu</span>
+          <span class="brand-tagline">Disaster Response</span>
+        </div>
+      </a>
+
+      <nav class="nav-links-wrap" aria-label="Main Navigation">
+        <a href="index.html" class="nav-link active">Home</a>
+        <a href="prediction.html" class="nav-link">AI Prediction</a>
+        <a href="weather.html" class="nav-link">Weather</a>
+        <a href="monitoring.html" class="nav-link">Rivers & Dams</a>
+        <a href="emergency.html" class="nav-link">Emergency SOS</a>
+        <a href="rescue.html" class="nav-link">Rescue Help</a>
+        <a href="shelters.html" class="nav-link">Safe Shelters</a>
+        <a href="safe-route.html" class="nav-link">Safe Routes</a>
+        <a href="alerts.html" class="nav-link">Live Alerts</a>
+        <a href="community.html" class="nav-link">Community</a>
+        <a href="family.html" class="nav-link">Family Check-in</a>
+        <a href="donation.html" class="nav-link">Relief Fund</a>
+        <a href="chatbot.html" class="nav-link">AI Assistant</a>
+      </nav>
+
+      <div class="nav-actions">
+        <div class="lang-select-box">
+          <span></span>
+          <select id="languageSelector" aria-label="Language selector">
+            <option value="en">English</option>
+            <option value="hi">हिन्दी</option>
+            <option value="hinglish" selected>Hinglish</option>
+          </select>
+        </div>
+        <a href="javascript:void(0)" onclick="openEmergencySOSModal()" class="sos-header-btn">🚨 SOS 112</a>
+        <button class="mobile-menu-btn" onclick="toggleMobileNav()" aria-label="Toggle menu">☰</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Drawer -->
+  <div id="mobileNavDrawer" class="mobile-nav-drawer">
+    <a href="index.html" class="active">🏠 Home</a>
+    <a href="prediction.html">🤖 AI Flood Prediction</a>
+    <a href="weather.html">🌤️ Weather Forecast</a>
+    <a href="monitoring.html">🌊 River & Dam Gauges</a>
+    <a href="emergency.html">🚨 Emergency Help 112</a>
+    <a href="rescue.html">🚑 Request Rescue Dispatch</a>
+    <a href="shelters.html">🏕️ Safe Shelters & Camps</a>
+    <a href="safe-route.html">🗺️ Evacuation Safe Route</a>
+    <a href="alerts.html">🔔 Real-time Disaster Alerts</a>
+    <a href="community.html">📢 Citizen Reports</a>
+    <a href="family.html">👨‍👩‍👧 Family Safety Circle</a>
+    <a href="donation.html">❤️ Relief Fund Donation</a>
+    <a href="chatbot.html">💬 AapdaMitra AI Chat</a>
+    <a href="admin.html">🛡️ Disaster Authority Admin</a>
+  </div>
+
+  <!-- ================= MAIN CONTENT ================= -->
+  <main class="main-wrapper">
+
+    <!-- Active Alert Ticker Banner -->
+    <div id="alertBanner"
+      style="display:flex;align-items:center;justify-content:space-between;gap:12px;background:linear-gradient(135deg,#fee2e2,#fecaca);border:1px solid #f87171;border-radius:var(--radius-md);padding:14px 20px;margin-bottom:24px;box-shadow:var(--shadow-sm);">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="pulse-dot red"></span>
+        <strong style="color:#991b1b;font-size:0.95rem;">🚨 LIVE WARNING:</strong>
+        <span id="alertBannerText" style="color:#7f1d1d;font-size:0.9rem;font-weight:600;">High flood risk detected in
+          Rudraprayag (Mandakini river crossing danger level 3.6m). Immediate evacuation advised.</span>
+      </div>
+      <a href="alerts.html"
+        style="background:#dc2626;color:#fff;padding:6px 14px;border-radius:var(--radius-sm);font-size:0.8rem;font-weight:700;white-space:nowrap;">View
+        All Alerts →</a>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="page-hero">
+      <div style="display:grid;grid-template-columns:1.15fr 0.85fr;gap:36px;align-items:center;">
+        <div>
+          <span class="hero-pill">🛡️ NATIONAL AI DISASTER MANAGEMENT PLATFORM</span>
+          <h1 class="hero-title">Protecting Lives Through <span>AI Flood Intelligence</span> & Rapid Response.</h1>
+          <p class="hero-subtitle">
+            AapdaSetu integrates XGBoost machine learning, digital elevation models (SRTM), real-time river telemetry,
+            satellite rainfall feeds, and automated rescue dispatch to build disaster-resilient communities across
+            India.
+          </p>
+
+          <div style="display:flex;gap:14px;margin-top:28px;flex-wrap:wrap;align-items:center;">
+            <button type="button" onclick="trigger1ClickRescue()" class="btn-1click-sos"
+              title="Ekdum emergency me bina form bhare seedhe 1-click help">
+              <span>⚡ 1-Click Emergency SOS (No Form)</span>
+            </button>
+            <a href="rescue.html?mode=normal" class="btn-secondary"
+              style="background:rgba(255,255,255,0.18);color:#fff;border-color:rgba(255,255,255,0.35);padding:12px 20px;font-weight:700;">
+              <span>📝 Normal Rescue Form</span>
+            </a>
+            <a href="prediction.html" class="btn-primary" style="padding:12px 22px;font-size:0.95rem;">
+              <span>🤖 Analyze Flood Risk</span>
+            </a>
+            <a href="shelters.html" class="btn-secondary"
+              style="background:rgba(255,255,255,0.12);color:#fff;border-color:rgba(255,255,255,0.25);padding:12px 20px;">
+              <span>🏕️ Find Safe Shelter</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Live Status Hub Card -->
+        <div
+          style="background:rgba(255,255,255,0.08);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,0.18);border-radius:var(--radius-lg);padding:24px;color:#fff;">
+          <div
+            style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;border-bottom:1px solid rgba(255,255,255,0.12);padding-bottom:12px;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span class="pulse-dot green"></span>
+              <strong style="font-size:0.95rem;letter-spacing:0.02em;">SYSTEM OPERATIONAL</strong>
+            </div>
+            <span style="font-size:0.75rem;color:#94a3b8;font-weight:600;">24x7 REAL-TIME</span>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <div
+              style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:rgba(255,255,255,0.06);border-radius:var(--radius-sm);">
+              <span style="font-size:0.85rem;color:#cbd5e1;">🤖 ML Model Status</span>
+              <span class="badge-pill safe"><span class="pulse-dot green"></span> XGBoost 96.3% Acc</span>
+            </div>
+
+            <div
+              style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:rgba(255,255,255,0.06);border-radius:var(--radius-sm);">
+              <span style="font-size:0.85rem;color:#cbd5e1;">🏔️ Topography & Elevation</span>
+              <span style="font-weight:700;color:#38bdf8;">SRTM 30m DEM (180+ Wards)</span>
+            </div>
+
+            <div
+              style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:rgba(255,255,255,0.06);border-radius:var(--radius-sm);">
+              <span style="font-size:0.85rem;color:#cbd5e1;">🌊 Active River Gauges</span>
+              <span style="font-weight:700;color:#38bdf8;">45 Monitoring Stations</span>
+            </div>
+
+            <div
+              style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:rgba(255,255,255,0.06);border-radius:var(--radius-sm);">
+              <span style="font-size:0.85rem;color:#cbd5e1;">🏕️ Verified Safe Shelters</span>
+              <span style="font-weight:700;color:#34d399;">22 Active Centers</span>
+            </div>
+
+            <div
+              style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:rgba(255,255,255,0.06);border-radius:var(--radius-sm);">
+              <span style="font-size:0.85rem;color:#cbd5e1;">🚑 Rescue Response Time</span>
+              <span style="font-weight:700;color:#fbbf24;">&lt; 15 Minutes Average</span>
+            </div>
+          </div>
+
+          <div style="margin-top:18px;text-align:center;">
+            <a href="monitoring.html"
+              style="font-size:0.85rem;color:#60a5fa;font-weight:700;display:inline-flex;align-items:center;gap:6px;">
+              <span>Open Real-time Telemetry Dashboard</span> →
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Key Metrics Stats Strip -->
+    <div class="stats-strip">
+      <div class="stat-card">
+        <div class="stat-icon blue">📍</div>
+        <div class="stat-content">
+          <span class="stat-val">45</span>
+          <span class="stat-label">Monitored Districts</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon teal">🏕️</div>
+        <div class="stat-content">
+          <span class="stat-val">19,500+</span>
+          <span class="stat-label">Shelter Beds Capacity</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon amber">🌊</div>
+        <div class="stat-content">
+          <span class="stat-val">10</span>
+          <span class="stat-label">Major Dams & Reservoirs</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon red">🚨</div>
+        <div class="stat-content">
+          <span class="stat-val">100%</span>
+          <span class="stat-label">24x7 Rescue Coverage</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live National Disaster & Flood Risk Map Section -->
+    <section id="homeMapSection" class="content-card" style="padding:22px;margin-bottom:28px;position:relative;">
+      <div class="card-header-bar" style="flex-wrap:wrap;gap:12px;">
+        <div class="card-title-group">
+          <div class="card-title-icon" style="background:#e0f2fe;color:#0284c7;">🗺️</div>
+          <div>
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+              <h2 class="card-title" style="margin:0;">National Flood Risk & Water Station Map</h2>
+              <span class="badge-pill active"><span class="pulse-dot green"></span> Live Telemetry Feed</span>
+            </div>
+            <p class="card-subtitle" style="margin-top:2px;">Real-time flood telemetry, danger marks, and reservoir levels across India.</p>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <div style="display:flex;gap:6px;">
+            <span class="badge-pill critical"><span class="pulse-dot red"></span> Danger</span>
+            <span class="badge-pill warning"><span class="pulse-dot amber"></span> Warning</span>
+            <span class="badge-pill safe"><span class="pulse-dot green"></span> Normal</span>
+          </div>
+          <button type="button" onclick="fitHomeMapIndia()" class="btn-primary" style="padding:7px 14px;font-size:0.82rem;display:inline-flex;align-items:center;gap:6px;" title="Reset view to entire India">
+            <span>🇮🇳 Show Entire India</span>
+          </button>
+          <a href="monitoring.html" class="btn-secondary" style="padding:7px 14px;font-size:0.82rem;display:inline-flex;align-items:center;gap:6px;">
+            <span>🌊 Full Telemetry Hub →</span>
+          </a>
+          <button type="button" id="fsHomeToggleBtn" onclick="toggleHomeMapFullscreen()" class="btn-outline" style="padding:7px 14px;font-size:0.82rem;display:inline-flex;align-items:center;gap:6px;" title="Toggle Fullscreen">
+            <span>⛶ Fullscreen</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Basins -->
+      <div class="map-quick-chips-bar" style="margin-bottom:12px;">
+        <span style="font-size:0.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;margin-right:4px;">Quick Basins:</span>
+        <button type="button" class="map-chip-btn active" data-basin="ALL" onclick="filterHomeMap('ALL')">🇮🇳 Entire India (24)</button>
+        <button type="button" class="map-chip-btn" data-basin="Uttarakhand" onclick="filterHomeMap('Uttarakhand')">🏔️ Uttarakhand (5)</button>
+        <button type="button" class="map-chip-btn" data-basin="Himachal Pradesh" onclick="filterHomeMap('Himachal Pradesh')">⛰️ Himachal (3)</button>
+        <button type="button" class="map-chip-btn" data-basin="Assam" onclick="filterHomeMap('Assam')">🌊 Assam (2)</button>
+        <button type="button" class="map-chip-btn" data-basin="Bihar" onclick="filterHomeMap('Bihar')">🌾 Bihar (3)</button>
+        <button type="button" class="map-chip-btn" data-basin="Kerala" onclick="filterHomeMap('Kerala')">🌴 Kerala (3)</button>
+        <button type="button" class="map-chip-btn" data-basin="Maharashtra" onclick="filterHomeMap('Maharashtra')">🚜 Maharashtra (3)</button>
+      </div>
+
+      <div id="homeMap" style="height:560px;min-height:460px;border-radius:var(--radius-md);overflow:hidden;border:1px solid var(--border-light);box-shadow:inset 0 2px 6px rgba(0,0,0,0.1);position:relative;"></div>
+    </section>
+
+    <!-- Quick Services Grid (12 Modules) -->
+    <section class="content-card">
+      <div class="card-header-bar">
+        <div class="card-title-group">
+          <div class="card-title-icon">⚡</div>
+          <div>
+            <h2 class="card-title">Comprehensive Disaster Response Services</h2>
+            <p class="card-subtitle">Select any feature below to access real-time emergency services.</p>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:20px;">
+
+        <!-- 1. AI Flood Prediction -->
+        <a href="prediction.html" class="stat-card"
+          style="padding:20px;text-decoration:none;border-left:4px solid var(--blue-primary);">
+          <div class="stat-icon blue">🤖</div>
+
+
+          <div>
+            <h3 style="font-size:1.1rem;color:var(--navy);margin-bottom:4px;">AI Flood Prediction</h3>
+            <p style="font-size:0.82rem;color:var(--text-muted);line-height:1.45;">XGBoost-powered dual models
+              predicting flash flood & landslide risk from rainfall, elevation, slope, and river levels.</p>
+          </div>
+        </a>
+
+        <!-- 2. Weather Forecast -->
+        <a href="weather.html" class="stat-card"
+          style="padding:20px;text-decoration:none;border-left:4px solid #06b6d4;">
+          <div class="stat-icon blue" style="background:#e0f2fe;color:#0284c7;">🌤️</div>
+          <div>
+            <h3 style="font-size:1.1rem;color:var(--navy);margin-bottom:4px;">Weather Forecast</h3>
+            <p style="font-size:0.82rem;color:var(--text-muted);line-height:1.45;">Live precipitation, 1h/6h/24h/72h
+              rainfall gauges, and 5-day weather forecast.</p>
+          </div>
+        </a>
+
+        <!-- 3. Rivers & Dams -->
+        <a href="monitoring.html" class="stat-card"
+          style="padding:20px;text-decoration:none;border-left:4px solid #3b82f6;">
+          <div class="stat-icon blue" style="background:#dbeafe;color:#2563eb;">🌊</div>
+          <div>
+            <h3 style="font-size:1.1rem;color:var(--navy);margin-bottom:4px;">Rivers & Reservoirs</h3>
+            <p style="font-size:0.82rem;color:var(--text-muted);line-height:1.45;">Water level sensors vs danger
+              threshold on interactive geographic maps.</p>
+          </div>
+        </a>
+
+        <!-- 4. Emergency SOS -->
+        <a href="rescue.html?mode=emergency" class="stat-card"
+          style="padding:20px;text-decoration:none;border-left:4px solid var(--red-critical);">
+          <div class="stat-icon red">🚨</div>
+          <div>
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+              <h3 style="font-size:1.05rem;color:var(--navy);margin:0;">Ekdum Emergency SOS</h3>
+              <span
+                style="background:#fee2e2;color:#991b1b;font-size:0.68rem;font-weight:800;padding:2px 6px;border-radius:4px;">ZERO
+                FORM</span>
+            </div>
+            <p style="font-size:0.82rem;color:var(--text-muted);line-height:1.45;">Direct 1-click rescue help without
+              filling forms. Auto-GPS tag & instant dispatch.</p>
+          </div>
+        </a>
+
+        <!-- 5. Rescue Help -->
+        <a href="rescue.html?mode=normal" class="stat-card"
+          style="padding:20px;text-decoration:none;border-left:4px solid #3b82f6;">
+          <div class="stat-icon blue" style="background:#eff6ff;color:#2563eb;">📝</div>
+          <div>
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+              <h3 style="font-size:1.05rem;color:var(--navy);margin:0;">Normal Rescue / Relief Form</h3>
+              <span
+                style="background:#dbeafe;color:#1e3a8a;font-size:0.68rem;font-weight:800;padding:2px 6px;border-radius:4px;">FORM
+                FILL</span>
+            </div>
+            <p style="font-size:0.82rem;color:var(--text-muted);line-height:1.45;">Submit detailed requirements for
+              non-critical evacuation, relief materials, or boat aid.</p>
+          </div>
+        </a>
+
+        <!-- 6. Safe Shelters -->
+        <a href="shelters.html" class="stat-card"
+          style="padding:20px;text-decoration:none;border-left:4px solid var(--teal-safe);">
+          <div class="stat-icon teal">🏕️</div>
+          <div>
+            <h3 style="font-size:1.1rem;color:var(--navy);margin-bottom:4px;">Safe Shelters & Camps</h3>
+            <p style="font-size:0.82rem;color:var(--text-muted);line-height:1.45;">Find verified high-ground camps with
+              live bed availability and amenities.</p>
+          </div>
+        </a>
+
+        <!-- 7. Safe Routes -->
+        <a href="safe-route.html" class="stat-card"
+          style="padding:20px;text-decoration:none;border-left:4px solid #10b981;">
+          <div class="stat-icon teal" style="background:#d1fae5;color:#059669;">🗺️</div>
+          <div>
+            <h3 style="font-size:1.1rem;color:var(--navy);margin-bottom:4px;">Safe Evacuation Route</h3>
+            <p style="font-size:0.82rem;color:var(--text-muted);line-height:1.45;">Map navigation that dynamically
+              circumvents submerged bridges and roads.</p>
+          </div>
+        </a>
+
+        <!-- 8. Live Alerts -->
+        <a href="alerts.html" class="stat-card"
+          style="padding:20px;text-decoration:none;border-left:4px solid var(--amber-warning);">
+          <div class="stat-icon amber">🔔</div>
+          <div>
+            <h3 style="font-size:1.1rem;color:var(--navy);margin-bottom:4px;">Live Disaster Alerts</h3>
+            <p style="font-size:0.82rem;color:var(--text-muted);line-height:1.45;">Red/Orange/Yellow warnings with voice
+              siren announcement in Hindi & English.</p>
+          </div>
+        </a>
+
+        <!-- 9. Community Reports -->
+        <a href="community.html" class="stat-card"
+          style="padding:20px;text-decoration:none;border-left:4px solid #8b5cf6;">
+          <div class="stat-icon blue" style="background:#ede9fe;color:#7c3aed;">📢</div>
+          <div>
+            <h3 style="font-size:1.1rem;color:var(--navy);margin-bottom:4px;">Community Incident Feed</h3>
+            <p style="font-size:0.82rem;color:var(--text-muted);line-height:1.45;">Crowdsourced damage reports,
+              waterlogged hazards, and local alerts.</p>
+          </div>
+        </a>
+
+        <!-- 10. Family Safety -->
+        <a href="family.html" class="stat-card"
+          style="padding:20px;text-decoration:none;border-left:4px solid #ec4899;">
+          <div class="stat-icon red" style="background:#fce7f3;color:#db2777;">👨‍👩‍👧</div>
+          <div>
+            <h3 style="font-size:1.1rem;color:var(--navy);margin-bottom:4px;">Family Safety Check-in</h3>
+            <p style="font-size:0.82rem;color:var(--text-muted);line-height:1.45;">One-click 'I Am Safe' ping with
+              location coordinates and offline SMS alert.</p>
+          </div>
+        </a>
+
+        <!-- 11. Relief Donation -->
+        <a href="donation.html" class="stat-card"
+          style="padding:20px;text-decoration:none;border-left:4px solid #f43f5e;">
+          <div class="stat-icon red" style="background:#ffe4e6;color:#e11d48;">❤️</div>
+          <div>
+            <h3 style="font-size:1.1rem;color:var(--navy);margin-bottom:4px;">Disaster Relief Donation</h3>
+            <p style="font-size:0.82rem;color:var(--text-muted);line-height:1.45;">Verified UPI QR code donations with
+              transparent relief fund accounting.</p>
+          </div>
+        </a>
+
+        <!-- 12. AI Assistant -->
+        <a href="chatbot.html" class="stat-card"
+          style="padding:20px;text-decoration:none;border-left:4px solid #14b8a6;">
+          <div class="stat-icon teal" style="background:#ccfbf1;color:#0d9488;">💬</div>
+          <div>
+            <h3 style="font-size:1.1rem;color:var(--navy);margin-bottom:4px;">AapdaMitra AI Assistant</h3>
+            <p style="font-size:0.82rem;color:var(--text-muted);line-height:1.45;">24x7 Multilingual AI guide for flash
+              flood survival and first aid advice.</p>
+          </div>
+        </a>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================= UNIFIED FOOTER ================= -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div class="footer-grid">
+        <div class="footer-brand-col">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div
+              style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#1677ff,#0fa98c);display:grid;place-items:center;font-size:18px;">
+              🚨</div>
+            <strong style="font-size:1.3rem;color:#fff;font-family:'Outfit',sans-serif;">AapdaSetu</strong>
+          </div>
+          <p>
+            National Disaster Response & Flood Intelligence Portal. Powered by AI predictive models, IoT river gauge
+            telemetry, and citizen-first evacuation networks.
+          </p>
+          <div style="display:flex;gap:10px;">
+            <span class="badge-pill active"><span class="pulse-dot green"></span> Live Server</span>
+            <span class="badge-pill safe">NDMA Ground Compliant</span>
+          </div>
+        </div>
+
+        <div class="footer-col">
+          <h4>Core Features</h4>
+          <ul class="footer-links">
+            <li><a href="prediction.html">AI Flood Prediction</a></li>
+            <li><a href="weather.html">Weather Monitoring</a></li>
+            <li><a href="monitoring.html">Rivers & Reservoirs</a></li>
+            <li><a href="safe-route.html">Safe Route Navigation</a></li>
+            <li><a href="alerts.html">Disaster Alerts & Voice</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Emergency Relief</h4>
+          <ul class="footer-links">
+            <li><a href="emergency.html">SOS Emergency Call</a></li>
+            <li><a href="rescue.html">Request Rescue Team</a></li>
+            <li><a href="shelters.html">Verified Relief Shelters</a></li>
+            <li><a href="family.html">Family Safety Circle</a></li>
+            <li><a href="donation.html">Relief Fund UPI Donation</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>24x7 Emergency Helplines</h4>
+          <div class="emergency-chips-grid">
+            <div class="emergency-chip">
+              <span>National Emergency</span>
+              <strong>112</strong>
+            </div>
+            <div class="emergency-chip">
+              <span>NDRF Disaster Helpline</span>
+              <strong>1078</strong>
+            </div>
+            <div class="emergency-chip">
+              <span>State Disaster Management</span>
+              <strong>1070</strong>
+            </div>
+            <div class="emergency-chip">
+              <span>Medical Ambulance</span>
+              <strong>108</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <span>© 2026 AapdaSetu Foundation. Dedicated to disaster preparedness and life-saving technology across
+          India.</span>
+        <div style="display:flex;gap:16px;">
+          <a href="admin.html" style="color:#60a5fa;font-weight:600;">Disaster Authority Portal (Admin)</a>
+          <a href="chatbot.html" style="color:#94a3b8;">AapdaMitra AI</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="translations.js"></script>
+  <script src="app.js"></script>
+  <script>
+    const HOME_STATIONS = [
+      { id: "riv_1", name: "Mandakini", state: "Uttarakhand", district: "Rudraprayag", level: 3.6, danger: 3.4, warning: 2.8, lat: 30.2844, lon: 78.9811 },
+      { id: "riv_2", name: "Alaknanda", state: "Uttarakhand", district: "Chamoli", level: 1.8, danger: 3.2, warning: 2.5, lat: 30.2937, lon: 79.5603 },
+      { id: "riv_3", name: "Bhagirathi", state: "Uttarakhand", district: "Uttarkashi", level: 2.6, danger: 3.0, warning: 2.4, lat: 30.7268, lon: 78.4354 },
+      { id: "riv_4", name: "Ganga", state: "Uttarakhand", district: "Haridwar", level: 3.5, danger: 3.6, warning: 3.0, lat: 29.9457, lon: 78.1642 },
+      { id: "riv_5", name: "Beas", state: "Himachal Pradesh", district: "Kullu", level: 3.1, danger: 3.5, warning: 2.8, lat: 31.9579, lon: 77.1095 },
+      { id: "riv_6", name: "Satluj", state: "Himachal Pradesh", district: "Kinnaur", level: 3.2, danger: 3.0, warning: 2.4, lat: 31.6510, lon: 78.4752 },
+      { id: "riv_7", name: "Brahmaputra", state: "Assam", district: "Dhemaji", level: 4.2, danger: 3.8, warning: 3.2, lat: 27.4812, lon: 94.5583 },
+      { id: "riv_8", name: "Brahmaputra", state: "Assam", district: "Barpeta", level: 3.7, danger: 3.6, warning: 3.0, lat: 26.3216, lon: 91.0064 },
+      { id: "riv_9", name: "Kosi", state: "Bihar", district: "Supaul", level: 4.4, danger: 3.8, warning: 3.2, lat: 26.1261, lon: 86.6062 },
+      { id: "riv_10", name: "Kosi", state: "Bihar", district: "Saharsa", level: 4.1, danger: 3.7, warning: 3.1, lat: 25.8835, lon: 86.6006 },
+      { id: "riv_11", name: "Bagmati", state: "Bihar", district: "Darbhanga", level: 3.8, danger: 3.6, warning: 3.0, lat: 26.1542, lon: 85.8918 },
+      { id: "riv_12", name: "Periyar", state: "Kerala", district: "Idukki", level: 3.8, danger: 3.6, warning: 3.0, lat: 9.8494, lon: 76.9804 },
+      { id: "riv_13", name: "Kabini", state: "Kerala", district: "Wayanad", level: 3.5, danger: 3.4, warning: 2.8, lat: 11.6854, lon: 76.1320 },
+      { id: "riv_14", name: "Panchganga", state: "Maharashtra", district: "Kolhapur", level: 3.6, danger: 3.5, warning: 2.9, lat: 16.7050, lon: 74.2433 },
+      { id: "riv_15", name: "Savitri", state: "Maharashtra", district: "Raigad", level: 3.7, danger: 3.5, warning: 2.9, lat: 18.5158, lon: 73.1822 },
+      { id: "riv_16", name: "Brahmani", state: "Odisha", district: "Kendrapara", level: 3.5, danger: 3.4, warning: 2.8, lat: 20.5029, lon: 86.4230 },
+      { id: "riv_17", name: "Tapi", state: "Gujarat", district: "Surat", level: 2.8, danger: 3.5, warning: 2.9, lat: 21.1702, lon: 72.8311 },
+      { id: "riv_18", name: "Rapti", state: "Uttar Pradesh", district: "Gorakhpur", level: 3.6, danger: 3.5, warning: 2.9, lat: 26.7606, lon: 83.3732 },
+      { id: "dam_1", name: "Tehri Dam Reservoir", location: "Uttarkashi, Uttarakhand", current: 820.5, danger: 828.0, full: 830.0, pct: 88, lat: 30.3780, lon: 78.4808, isDam: true },
+      { id: "dam_2", name: "Bhakra Nangal Dam", location: "Mandi, Himachal Pradesh", current: 1660.0, danger: 1675.0, full: 1680.0, pct: 85, lat: 31.4098, lon: 76.4356, isDam: true },
+      { id: "dam_3", name: "Idukki Arch Dam", location: "Idukki, Kerala", current: 2398.0, danger: 2400.0, full: 2403.0, pct: 95, lat: 9.8523, lon: 76.9744, isDam: true },
+      { id: "dam_4", name: "Radhanagari Dam", location: "Kolhapur, Maharashtra", current: 345.0, danger: 348.0, full: 350.0, pct: 90, lat: 16.4167, lon: 73.9833, isDam: true },
+      { id: "dam_5", name: "Hirakud Reservoir", location: "Cuttack, Odisha", current: 625.0, danger: 628.0, full: 630.0, pct: 89, lat: 21.5700, lon: 83.8700, isDam: true },
+      { id: "dam_6", name: "Sardar Sarovar Dam", location: "Bharuch, Gujarat", current: 135.5, danger: 137.0, full: 138.6, pct: 84, lat: 21.8315, lon: 73.7483, isDam: true }
+    ];
+
+    let homeMap;
+    const homeMarkers = [];
+
+    document.addEventListener("DOMContentLoaded", () => {
+      initHomeMap();
+    });
+
+    function initHomeMap() {
+      // 1. Detailed Street Map (High-performance Esri World Street Map - 100% reliable, zero 403 errors, no API key required)
+      const streetLayer = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}", {
+        attribution: "Tiles &copy; Esri &mdash; Detailed Street Map",
+        maxNativeZoom: 19,
+        maxZoom: 20
+      });
+
+      // 2. OpenStreetMap Street Atlas (FOSSGIS High-Definition OSM Atlas - full local streets, bridges & footpaths)
+      const atlasLayer = L.tileLayer("https://tile.openstreetmap.de/{z}/{x}/{y}.png", {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors (de)',
+        maxNativeZoom: 18,
+        maxZoom: 20
+      });
+      atlasLayer.on("tileerror", function (err, tile) {
+        if (!tile._retried) {
+          tile._retried = true;
+          const c = err.coords;
+          tile.src = `https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/${c.z}/${c.y}/${c.x}`;
+        }
+      });
+
+      // 3. Satellite Imagery (HD)
+      const satelliteLayer = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", {
+        attribution: "Tiles &copy; Esri &mdash; Satellite Imagery",
+        maxNativeZoom: 19,
+        maxZoom: 20
+      });
+
+      // 4. Topography & Mountain Terrain
+      const topoLayer = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}", {
+        attribution: "Tiles &copy; Esri &mdash; Topography Map",
+        maxNativeZoom: 19,
+        maxZoom: 20
+      });
+
+      homeMap = L.map("homeMap", {
+        center: [22.8, 82.5],
+        zoom: 5,
+        minZoom: 4,
+        maxZoom: 20,
+        layers: [streetLayer]
+      });
+
+      const baseLayers = {
+        "🗺️ Detailed Street Map": streetLayer,
+        "🧭 OpenStreetMap Street Atlas": atlasLayer,
+        "🛰️ Satellite Imagery (HD)": satelliteLayer,
+        "⛰️ Topography & Elevation": topoLayer
+      };
+
+      L.control.layers(baseLayers, null, { position: "topright" }).addTo(homeMap);
+
+      HOME_STATIONS.forEach(s => {
+        if (s.isDam) {
+          const isHigh = s.pct >= 90;
+          const color = isHigh ? "#dc2626" : "#2563eb";
+          const damIcon = L.divIcon({
+            className: "custom-map-pin",
+            html: `<div style="background:${color};color:#fff;width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(0,0,0,0.3);border:2px solid #fff;font-size:14px;cursor:pointer;">🏗️</div>`,
+            iconSize: [30, 30],
+            iconAnchor: [15, 15]
+          });
+          const m = L.marker([s.lat, s.lon], { icon: damIcon }).addTo(homeMap);
+          m.bindTooltip(`<b>${s.name}</b><br><span style="color:${color};font-weight:700;">${s.pct}% Full</span> (${s.current}m)`, { direction: "top", offset: [0, -10], className: "custom-leaflet-tooltip" });
+          m.bindPopup(`
+            <div style="font-family:'Inter',sans-serif;padding:6px;min-width:200px;">
+              <strong style="color:#0b2341;font-size:13px;">${s.name}</strong><br>
+              <span style="font-size:11px;color:#64748b;">📍 ${s.location}</span>
+              <div style="background:#f8fafc;padding:6px;border-radius:6px;margin:6px 0;font-size:11px;">
+                Water Level: <strong>${s.current}m</strong> / Max: ${s.full}m<br>
+                Capacity: <strong style="color:${color};">${s.pct}%</strong>
+              </div>
+              <a href="monitoring.html" style="font-size:11px;color:#2563eb;font-weight:700;">View Live Telemetry →</a>
+            </div>
+          `);
+          homeMarkers.push({ marker: m, data: s });
+        } else {
+          const isDanger = s.level >= s.danger;
+          const isWarning = s.level >= s.warning && !isDanger;
+          const color = isDanger ? "#e02424" : (isWarning ? "#f59e0b" : "#10b981");
+
+          const marker = L.circleMarker([s.lat, s.lon], {
+            radius: isDanger ? 12 : 9,
+            fillColor: color,
+            color: "#ffffff",
+            weight: 2.5,
+            opacity: 1,
+            fillOpacity: 0.95,
+            className: isDanger ? "custom-map-pin pulse-danger-pin" : "custom-map-pin"
+          }).addTo(homeMap);
+
+          marker.bindTooltip(`<b>${s.name} River</b> (${s.district})<br><span style="color:${color};font-weight:700;">${s.level}m / Danger: ${s.danger}m</span>`, { direction: "top", offset: [0, -8], className: "custom-leaflet-tooltip" });
+
+          marker.bindPopup(`
+            <div style="font-family:'Inter',sans-serif;padding:6px;min-width:200px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                <strong style="color:#0b2341;font-size:13px;">${s.name} River</strong>
+                <span style="font-size:10px;font-weight:800;color:${color};background:${isDanger ? '#fee2e2' : isWarning ? '#fef3c7' : '#dcfce7'};padding:2px 6px;border-radius:99px;">
+                  ${isDanger ? 'DANGER' : isWarning ? 'WARNING' : 'NORMAL'}
+                </span>
+              </div>
+              <span style="font-size:11px;color:#64748b;">📍 ${s.district}, ${s.state}</span>
+              <div style="background:#f8fafc;padding:6px;border-radius:6px;margin:6px 0;font-size:11px;">
+                Current Level: <strong>${s.level}m</strong><br>
+                Danger Mark: <strong style="color:#dc2626;">${s.danger}m</strong>
+              </div>
+              <div style="display:flex;gap:6px;margin-top:6px;">
+                <a href="monitoring.html" style="font-size:11px;color:#2563eb;font-weight:700;">Telemetry Feed</a> • 
+                <a href="safe-route.html" style="font-size:11px;color:#059669;font-weight:700;">Safe Route</a>
+              </div>
+            </div>
+          `);
+          homeMarkers.push({ marker: marker, data: s });
+        }
+      });
+
+      fitHomeMapIndia();
+
+      setTimeout(() => {
+        if (homeMap) {
+          homeMap.invalidateSize();
+          fitHomeMapIndia();
+        }
+      }, 250);
+
+      setTimeout(() => {
+        if (homeMap) homeMap.invalidateSize();
+      }, 700);
+
+      window.addEventListener("resize", () => {
+        if (homeMap) homeMap.invalidateSize();
+      });
+    }
+
+    function fitHomeMapIndia() {
+      const allPoints = HOME_STATIONS.map(s => [s.lat, s.lon]);
+      if (homeMap && allPoints.length > 0) {
+        homeMap.fitBounds(allPoints, {
+          padding: [40, 40],
+          maxZoom: 6,
+          animate: true
+        });
+      }
+      document.querySelectorAll("[data-basin]").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.basin === "ALL");
+      });
+    }
+
+    function filterHomeMap(stateName) {
+      document.querySelectorAll("[data-basin]").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.basin === stateName);
+      });
+      if (stateName === "ALL") {
+        fitHomeMapIndia();
+        return;
+      }
+      const matched = HOME_STATIONS.filter(s => (s.state && s.state === stateName) || (s.location && s.location.includes(stateName)));
+      if (matched.length > 0 && homeMap) {
+        const pts = matched.map(s => [s.lat, s.lon]);
+        homeMap.fitBounds(pts, { padding: [60, 60], maxZoom: 8, animate: true });
+      }
+    }
+
+    function toggleHomeMapFullscreen() {
+      const card = document.getElementById("homeMapSection");
+      if (!card) return;
+      const isFs = card.classList.toggle("map-fullscreen-active");
+      const btn = document.getElementById("fsHomeToggleBtn");
+      if (btn) {
+        btn.innerHTML = isFs ? "<span>✕ Exit Fullscreen</span>" : "<span>⛶ Fullscreen</span>";
+      }
+      setTimeout(() => {
+        if (homeMap) {
+          homeMap.invalidateSize();
+          if (!isFs) fitHomeMapIndia();
+        }
+      }, 250);
+    }
+  </script>
+</body>
+
+</html>

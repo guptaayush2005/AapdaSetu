@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AapdaSetu | Family Safety Check-in & Locator</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👨‍👩‍👧</text></svg>">
+</head>
+<body>
+
+  <!-- ================= NAVBAR ================= -->
+  <header class="site-nav">
+    <div class="nav-container">
+      <a href="index.html" class="nav-brand">
+        <div class="brand-icon-box">🚨</div>
+        <div class="brand-name-wrap">
+          <span class="brand-name">AapdaSetu</span>
+          <span class="brand-tagline">Disaster Response</span>
+        </div>
+      </a>
+
+      <nav class="nav-links-wrap" aria-label="Main Navigation">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="prediction.html" class="nav-link">AI Prediction</a>
+        <a href="weather.html" class="nav-link">Weather</a>
+        <a href="monitoring.html" class="nav-link">Rivers & Dams</a>
+        <a href="emergency.html" class="nav-link">Emergency SOS</a>
+        <a href="rescue.html" class="nav-link">Rescue Help</a>
+        <a href="shelters.html" class="nav-link">Safe Shelters</a>
+        <a href="safe-route.html" class="nav-link">Safe Routes</a>
+        <a href="alerts.html" class="nav-link">Live Alerts</a>
+        <a href="community.html" class="nav-link">Community</a>
+        <a href="family.html" class="nav-link active">Family Check-in</a>
+        <a href="donation.html" class="nav-link">Relief Fund</a>
+        <a href="chatbot.html" class="nav-link">AI Assistant</a>
+      </nav>
+
+      <div class="nav-actions">
+        <div class="lang-select-box">
+          <span>🌐</span>
+          <select id="languageSelector">
+            <option value="en">English</option>
+            <option value="hi">हिन्दी</option>
+            <option value="hinglish" selected>Hinglish</option>
+          </select>
+        </div>
+        <a href="emergency.html" class="sos-header-btn">🚨 SOS 112</a>
+        <button class="mobile-menu-btn" onclick="toggleMobileNav()">☰</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Drawer -->
+  <div id="mobileNavDrawer" class="mobile-nav-drawer">
+    <a href="index.html">🏠 Home</a>
+    <a href="prediction.html">🤖 AI Flood Prediction</a>
+    <a href="weather.html">🌤️ Weather Forecast</a>
+    <a href="monitoring.html">🌊 Rivers & Dams</a>
+    <a href="emergency.html">🚨 Emergency Help 112</a>
+    <a href="rescue.html">🚑 Rescue Help</a>
+    <a href="shelters.html">🏕️ Safe Shelters</a>
+    <a href="safe-route.html">🗺️ Safe Routes</a>
+    <a href="alerts.html">🔔 Live Alerts</a>
+    <a href="community.html">📢 Community Reports</a>
+    <a href="family.html" class="active">👨‍👩‍👧 Family Safety</a>
+    <a href="donation.html">❤️ Relief Fund</a>
+    <a href="chatbot.html">💬 AI Assistant</a>
+  </div>
+
+  <!-- ================= MAIN CONTENT ================= -->
+  <main class="main-wrapper">
+
+    <!-- Hero Banner -->
+    <section class="page-hero">
+      <span class="hero-pill">👨‍👩‍👧 KINSHIP PROTECTION & CHECK-IN NETWORK</span>
+      <h1 class="hero-title">Family Safety Circle & <span>Instant Check-in</span></h1>
+      <p class="hero-subtitle">
+        Stay connected with your loved ones during floods. Broadcast your "I Am Safe" status with GPS coordinates and generate emergency SMS templates for low-bandwidth situations.
+      </p>
+    </section>
+
+    <!-- One-Tap "I Am Safe" Action Banner -->
+    <section class="content-card" style="background:linear-gradient(135deg,#ecfdf5,#d1fae5);border:1px solid #6ee7b7;padding:26px 30px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;">
+        <div>
+          <span style="font-size:0.75rem;font-weight:800;color:#047857;letter-spacing:0.06em;text-transform:uppercase;">INSTANT REASSURANCE BROADCAST</span>
+          <h2 style="font-size:1.6rem;color:#065f46;margin:4px 0 6px;">Are you safe from floodwaters?</h2>
+          <p style="font-size:0.9rem;color:#064e3b;max-width:580px;line-height:1.5;">
+            Broadcast your safety status to your registered family circle with your current timestamp and approximate location.
+          </p>
+        </div>
+
+        <button onclick="markIAmSafe()" class="btn-primary" style="background:linear-gradient(135deg,#059669,#047857);padding:14px 28px;font-size:1.05rem;box-shadow:0 4px 16px rgba(5,150,105,0.35);">
+          <span>✅ I Am Safe (Mark Safe)</span>
+        </button>
+      </div>
+
+      <div id="safeConfirmedBox" style="display:none;margin-top:16px;padding:12px 18px;background:#ffffff;border-radius:var(--radius-sm);border:1px solid #10b981;font-size:0.88rem;color:#065f46;font-weight:600;">
+        ✅ <strong>Status Broadcasted:</strong> You have been marked <strong>SAFE</strong> at <span id="safeTimeText">Just now</span>.
+      </div>
+    </section>
+
+    <!-- Family Grid: Add Member & Registered Circle -->
+    <div style="display:grid;grid-template-columns:360px 1fr;gap:24px;align-items:start;">
+      
+      <!-- Add Member Form -->
+      <section class="content-card">
+        <div class="card-header-bar">
+          <div class="card-title-group">
+            <div class="card-title-icon" style="background:#e0f2fe;color:#0284c7;">➕</div>
+            <div>
+              <h2 class="card-title">Add Family Member</h2>
+              <p class="card-subtitle">Add members to track during disasters.</p>
+            </div>
+          </div>
+        </div>
+
+        <form id="addMemberForm" onsubmit="event.preventDefault(); addFamilyMember();">
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div class="input-group">
+              <label for="memberName" class="input-label">Full Name *</label>
+              <input type="text" id="memberName" class="form-input" placeholder="e.g. Priya Sharma" required>
+            </div>
+
+            <div class="input-group">
+              <label for="memberPhone" class="input-label">Phone Number *</label>
+              <input type="tel" id="memberPhone" class="form-input" placeholder="e.g. 9876543210" required>
+            </div>
+
+            <div class="input-group">
+              <label for="memberRelation" class="input-label">Relationship *</label>
+              <select id="memberRelation" class="form-select" required>
+                <option value="Parent">Father / Mother</option>
+                <option value="Spouse">Spouse / Partner</option>
+                <option value="Child">Son / Daughter</option>
+                <option value="Sibling">Brother / Sister</option>
+                <option value="Relative">Relative / Neighbor</option>
+              </select>
+            </div>
+
+            <div class="input-group">
+              <label for="memberLocation" class="input-label">Current City / District *</label>
+              <input type="text" id="memberLocation" class="form-input" placeholder="e.g. Rudraprayag, Dehradun" required>
+            </div>
+
+            <button type="submit" class="btn-primary" style="width:100%;margin-top:6px;">
+              <span>➕ Add to Family Circle</span>
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- Registered Circle List -->
+      <section class="content-card">
+        <div class="card-header-bar">
+          <div class="card-title-group">
+            <div class="card-title-icon" style="background:#fce7f3;color:#db2777;">👨‍👩‍👧</div>
+            <div>
+              <h2 class="card-title">My Family Circle Status</h2>
+              <p class="card-subtitle">Real-time status updates and emergency contact actions.</p>
+            </div>
+          </div>
+          <span id="circleCountBadge" class="badge-pill safe">3 Members Protected</span>
+        </div>
+
+        <div id="familyMembersList" style="display:flex;flex-direction:column;gap:14px;">
+          <!-- Dynamic members rendered here -->
+        </div>
+      </section>
+
+    </div>
+
+  </main>
+
+  <!-- ================= UNIFIED FOOTER ================= -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div class="footer-bottom">
+        <span>© 2026 AapdaSetu. Family safety circle encrypted and saved to your device.</span>
+        <a href="emergency.html" style="color:#f87171;font-weight:700;">🚨 24x7 Emergency Help: Call 112</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="translations.js"></script>
+  <script src="app.js"></script>
+  <script>
+    const INITIAL_MEMBERS = [
+      {
+        name: "Sunita Sharma",
+        phone: "9876543211",
+        relation: "Mother",
+        location: "Rudraprayag, Uttarakhand",
+        status: "SAFE",
+        lastPing: "Today at 9:45 AM"
+      },
+      {
+        name: "Aman Sharma",
+        phone: "9876543212",
+        relation: "Brother",
+        location: "Dehradun, Uttarakhand",
+        status: "SAFE",
+        lastPing: "Today at 10:15 AM"
+      },
+      {
+        name: "Rameshwar Prasad",
+        phone: "9876543213",
+        relation: "Grandfather",
+        location: "Chamoli, Uttarakhand",
+        status: "AT_SHELTER",
+        lastPing: "Joshimath Relief Center #1"
+      }
+    ];
+
+    let members = INITIAL_MEMBERS;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      renderMembers();
+    });
+
+    function renderMembers() {
+      const container = document.getElementById("familyMembersList");
+      container.innerHTML = "";
+
+      document.getElementById("circleCountBadge").textContent = `${members.length} Members Protected`;
+
+      members.forEach((m, idx) => {
+        const isSafe = m.status === "SAFE";
+        const isShelter = m.status === "AT_SHELTER";
+        const badgeClass = isSafe ? "safe" : (isShelter ? "active" : "critical");
+        const badgeText = isSafe ? "✅ SAFE" : (isShelter ? "🏕️ IN RELIEF CAMP" : "⚠️ NEEDS HELP");
+
+        const card = document.createElement("div");
+        card.style.cssText = "background:#f8fafc;border:1px solid var(--border-light);border-radius:var(--radius-sm);padding:18px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;";
+        card.innerHTML = `
+          <div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+              <strong style="font-size:1.1rem;color:var(--navy);">${m.name}</strong>
+              <span class="badge-pill ${badgeClass}" style="font-size:0.75rem;">${badgeText}</span>
+            </div>
+            <div style="font-size:0.85rem;color:var(--text-muted);display:flex;gap:14px;flex-wrap:wrap;">
+              <span><strong>Relation:</strong> ${m.relation}</span>
+              <span><strong>Location:</strong> 📍 ${m.location}</span>
+              <span><strong>Last Update:</strong> ${m.lastPing}</span>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:10px;">
+            <a href="tel:${m.phone}" class="btn-secondary" style="padding:8px 14px;font-size:0.85rem;">
+              📞 Call
+            </a>
+            <a href="sms:${m.phone}?body=Hi ${m.name}, this is AapdaSetu emergency alert. I am currently safe. Please reply with your status." class="btn-primary" style="padding:8px 14px;font-size:0.85rem;">
+              💬 SMS Ping
+            </a>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function addFamilyMember() {
+      const name = document.getElementById("memberName").value.trim();
+      const phone = document.getElementById("memberPhone").value.trim();
+      const relation = document.getElementById("memberRelation").value;
+      const loc = document.getElementById("memberLocation").value.trim();
+
+      if (!name || !phone) return;
+
+      members.push({
+        name,
+        phone,
+        relation,
+        location: loc,
+        status: "SAFE",
+        lastPing: "Just now"
+      });
+
+      renderMembers();
+      document.getElementById("addMemberForm").reset();
+      showToast(`${name} added to family protection circle!`, "success");
+    }
+
+    function markIAmSafe() {
+      const box = document.getElementById("safeConfirmedBox");
+      const timeSpan = document.getElementById("safeTimeText");
+      box.style.display = "block";
+      timeSpan.textContent = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      showToast("Your 'I Am Safe' status was recorded!", "success");
+    }
+  </script>
+</body>
+</html>

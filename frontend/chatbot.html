@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AapdaSetu | AI Disaster Assistant & Voice Guidance</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
+  <style>
+    .chat-layout-grid {
+      display: grid;
+      grid-template-columns: 310px 1fr;
+      gap: 24px;
+      margin-top: 24px;
+      align-items: start;
+    }
+
+    .chat-sidebar {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .quick-chip-btn {
+      width: 100%;
+      text-align: left;
+      background: #f8fafc;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      padding: 11px 14px;
+      margin-bottom: 9px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--navy);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .quick-chip-btn:hover {
+      background: #eff6ff;
+      border-color: #93c5fd;
+      color: var(--blue-primary);
+      transform: translateX(3px);
+    }
+
+    .chat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      display: flex;
+      flex-direction: column;
+      height: 640px;
+      overflow: hidden;
+    }
+
+    .chat-header-bar {
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border-light);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f8fafc;
+    }
+
+    .bot-status-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .bot-avatar-badge {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #2563eb, #0d9488);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      box-shadow: 0 4px 12px rgba(37,99,235,0.25);
+    }
+
+    .chat-messages-container {
+      flex: 1;
+      padding: 24px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      background: #fafcff;
+    }
+
+    .chat-msg-row {
+      display: flex;
+      gap: 10px;
+      max-width: 82%;
+      animation: fadeIn 0.25s ease;
+    }
+
+    .chat-msg-row.user {
+      align-self: flex-end;
+      flex-direction: row-reverse;
+    }
+
+    .chat-msg-row.bot {
+      align-self: flex-start;
+    }
+
+    .msg-bubble {
+      padding: 14px 18px;
+      border-radius: 16px;
+      font-size: 0.92rem;
+      line-height: 1.6;
+      position: relative;
+    }
+
+    .chat-msg-row.bot .msg-bubble {
+      background: #ffffff;
+      color: var(--navy);
+      border: 1px solid #e2e8f0;
+      border-bottom-left-radius: 4px;
+      box-shadow: 0 2px 8px rgba(15,23,42,0.04);
+    }
+
+    .chat-msg-row.user .msg-bubble {
+      background: linear-gradient(135deg, var(--blue-primary), var(--blue-dark));
+      color: #ffffff;
+      border-bottom-right-radius: 4px;
+      box-shadow: 0 4px 14px rgba(37,99,235,0.22);
+    }
+
+    .msg-time {
+      font-size: 0.72rem;
+      opacity: 0.65;
+      display: block;
+      margin-top: 5px;
+    }
+
+    .speech-read-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 3px 8px;
+      font-size: 0.72rem;
+      cursor: pointer;
+      color: #475569;
+      margin-top: 6px;
+      font-weight: 600;
+      transition: all 0.15s ease;
+    }
+
+    .speech-read-btn:hover {
+      background: #e2e8f0;
+      color: var(--navy);
+    }
+
+    .typing-loader {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      padding: 12px 18px;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      border-bottom-left-radius: 4px;
+      width: fit-content;
+    }
+
+    .typing-loader.active {
+      display: flex;
+    }
+
+    .dot-pulse {
+      width: 7px;
+      height: 7px;
+      background: #94a3b8;
+      border-radius: 50%;
+      animation: typingDots 1.2s infinite ease-in-out;
+    }
+
+    .dot-pulse:nth-child(2) { animation-delay: 0.2s; }
+    .dot-pulse:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes typingDots {
+      0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+      40% { transform: scale(1.1); opacity: 1; }
+    }
+
+    .chat-input-bar {
+      padding: 16px 20px;
+      background: #ffffff;
+      border-top: 1px solid var(--border-light);
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .chat-text-input {
+      flex: 1;
+      height: 48px;
+      padding: 0 16px;
+      border: 1.5px solid var(--border-light);
+      border-radius: var(--radius-md);
+      font-size: 0.95rem;
+      color: var(--navy);
+      outline: none;
+      transition: border-color var(--transition-fast);
+    }
+
+    .chat-text-input:focus {
+      border-color: var(--blue-primary);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+    }
+
+    @media (max-width: 900px) {
+      .chat-layout-grid {
+        grid-template-columns: 1fr;
+      }
+      .chat-card {
+        height: 540px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ================= NAVBAR ================= -->
+  <header class="site-nav">
+    <div class="nav-container">
+      <a href="index.html" class="nav-brand">
+        <div class="brand-icon-box">🚨</div>
+        <div class="brand-name-wrap">
+          <span class="brand-name">AapdaSetu</span>
+          <span class="brand-tagline">Disaster Response</span>
+        </div>
+      </a>
+
+      <nav class="nav-links-wrap" aria-label="Main Navigation">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="prediction.html" class="nav-link">AI Prediction</a>
+        <a href="weather.html" class="nav-link">Weather</a>
+        <a href="monitoring.html" class="nav-link">Rivers & Dams</a>
+        <a href="emergency.html" class="nav-link">Emergency SOS</a>
+        <a href="rescue.html" class="nav-link">Rescue Help</a>
+        <a href="shelters.html" class="nav-link">Safe Shelters</a>
+        <a href="safe-route.html" class="nav-link">Safe Routes</a>
+        <a href="alerts.html" class="nav-link">Live Alerts</a>
+        <a href="community.html" class="nav-link">Community</a>
+        <a href="family.html" class="nav-link">Family Check-in</a>
+        <a href="donation.html" class="nav-link">Relief Fund</a>
+        <a href="chatbot.html" class="nav-link active">AI Assistant</a>
+      </nav>
+
+      <div class="nav-actions">
+        <div class="lang-select-box">
+          <span>🌐</span>
+          <select id="languageSelector">
+            <option value="en">English</option>
+            <option value="hi">हिन्दी</option>
+            <option value="hinglish" selected>Hinglish</option>
+          </select>
+        </div>
+        <a href="emergency.html" class="sos-header-btn">🚨 SOS 112</a>
+        <button class="mobile-menu-btn" onclick="toggleMobileNav()">☰</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Drawer -->
+  <div id="mobileNavDrawer" class="mobile-nav-drawer">
+    <a href="index.html">🏠 Home</a>
+    <a href="prediction.html">🤖 AI Flood Prediction</a>
+    <a href="weather.html">🌤️ Weather Forecast</a>
+    <a href="monitoring.html">🌊 Rivers & Dams</a>
+    <a href="emergency.html">🚨 Emergency Help 112</a>
+    <a href="rescue.html">🚑 Rescue Help</a>
+    <a href="shelters.html">🏕️ Safe Shelters</a>
+    <a href="safe-route.html">🗺️ Safe Routes</a>
+    <a href="alerts.html">🔔 Live Alerts</a>
+    <a href="community.html">📢 Community Reports</a>
+    <a href="family.html">👨‍👩‍👧 Family Safety</a>
+    <a href="donation.html">❤️ Relief Fund</a>
+    <a href="chatbot.html" class="active">💬 AI Assistant</a>
+  </div>
+
+  <!-- ================= MAIN CONTENT ================= -->
+  <main class="main-wrapper">
+
+    <!-- Hero Banner -->
+    <section class="page-hero">
+      <span class="hero-pill">🤖 MULTILINGUAL DISASTER SAFETY AI</span>
+      <h1 class="hero-title">AapdaSetu Emergency <span>Virtual Copilot</span></h1>
+      <p class="hero-subtitle">
+        Instant real-time answers in Hindi, Hinglish, and English on flood warnings, safe evacuation protocols, rescue tickets, emergency first aid, and disaster preparedness.
+      </p>
+    </section>
+
+    <!-- Chat Layout -->
+    <div class="chat-layout-grid">
+
+      <!-- Left Sidebar: Quick Prompts & Safety Guidelines -->
+      <aside class="chat-sidebar">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+          <h3 style="font-size:1rem;color:var(--navy);margin:0;">⚡ Quick Inquiries</h3>
+          <span style="font-size:0.75rem;color:var(--text-muted);">Tap to ask</span>
+        </div>
+
+        <button class="quick-chip-btn" onclick="askQuickPrompt('Flood ke time pehli priority kya honi chahiye?')">
+          <span>🌊</span> Pehli priority flood me?
+        </button>
+
+        <button class="quick-chip-btn" onclick="askQuickPrompt('Flash flood hone par kaise bachein?')">
+          <span>⚠️</span> Flash flood se kaise bachein?
+        </button>
+
+        <button class="quick-chip-btn" onclick="askQuickPrompt('Rescue help ke liye immediate ticket kaise raise karein?')">
+          <span>🚑</span> Rescue ticket kaise raise karein?
+        </button>
+
+        <button class="quick-chip-btn" onclick="askQuickPrompt('Flood water me car ya bike chalana kitna dangerous hai?')">
+          <span>🚗</span> Flood water me driving safe hai?
+        </button>
+
+        <button class="quick-chip-btn" onclick="askQuickPrompt('Family safety pack me kya kya zaroori cheezein honi chahiye?')">
+          <span>🎒</span> Disaster Emergency Kit me kya rakhein?
+        </button>
+
+        <button class="quick-chip-btn" onclick="askQuickPrompt('Drinking water purify kaise karein flood ke waqt?')">
+          <span>💧</span> Drinking water safety in floods?
+        </button>
+
+        <!-- Voice Narration Toggle -->
+        <div style="margin-top:18px;padding:14px;background:#f1f5f9;border-radius:var(--radius-md);border:1px solid #cbd5e1;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:0.85rem;font-weight:700;color:var(--navy);">🔊 Voice Readout</span>
+            <input type="checkbox" id="voiceToggle" checked style="width:18px;height:18px;cursor:pointer;">
+          </div>
+          <p style="font-size:0.75rem;color:var(--text-muted);margin-top:4px;">
+            Automatically read AI assistant advice aloud in selected language.
+          </p>
+        </div>
+
+        <!-- Life-threatening Callout -->
+        <div style="margin-top:18px;padding:16px;background:#fef2f2;border-radius:var(--radius-md);border:1px solid #fecaca;">
+          <strong style="color:var(--red-primary);font-size:0.85rem;display:flex;align-items:center;gap:6px;">
+            <span>🚨</span> Life-Threatening Emergency?
+          </strong>
+          <p style="font-size:0.8rem;color:#7f1d1d;line-height:1.5;margin-top:6px;">
+            Do not wait for AI responses during critical trapped situations. Dial 112 or NDRF instantly.
+          </p>
+          <a href="tel:112" class="btn-danger" style="display:inline-block;width:100%;text-align:center;padding:10px;margin-top:10px;font-size:0.85rem;">
+            📞 Call Emergency 112
+          </a>
+        </div>
+      </aside>
+
+      <!-- Right Column: Interactive Chat Card -->
+      <section class="chat-card">
+
+        <!-- Chat Header Bar -->
+        <div class="chat-header-bar">
+          <div class="bot-status-group">
+            <div class="bot-avatar-badge">🤖</div>
+            <div>
+              <div style="font-size:1rem;font-weight:800;color:var(--navy);font-family:'Outfit',sans-serif;">
+                AapdaSetu Safety Copilot
+              </div>
+              <div style="display:flex;align-items:center;gap:6px;font-size:0.75rem;color:#059669;font-weight:600;margin-top:2px;">
+                <span style="width:8px;height:8px;border-radius:50%;background:#10b981;display:inline-block;animation:pulse 2s infinite;"></span>
+                <span>Active 24x7 • Ground Disaster Protocol Engine</span>
+              </div>
+            </div>
+          </div>
+
+          <button onclick="clearChatHistory()" class="btn-outline" style="padding:6px 12px;font-size:0.8rem;">
+            🧹 Clear Chat
+          </button>
+        </div>
+
+        <!-- Message Flow -->
+        <div class="chat-messages-container" id="chatMessages">
+
+          <!-- Welcome Message -->
+          <div class="chat-msg-row bot">
+            <div class="msg-bubble">
+              <strong>Namaste! 🙏 I am AapdaSetu AI Disaster Assistant.</strong><br><br>
+              Aap mujhse flood alerts, flash flood warnings, safe shelters, rescue procedures, ya water safety ke bare mein kisi bhi bhasha (Hindi, English, Hinglish) me pooch sakte hain.
+              <span class="msg-time">Just now</span>
+              <button class="speech-read-btn" onclick="speakText(this.parentElement.textContent)">
+                🔊 Listen
+              </button>
+            </div>
+          </div>
+
+          <!-- Typing Animation Container -->
+          <div class="typing-loader" id="typingLoader">
+            <div class="dot-pulse"></div>
+            <div class="dot-pulse"></div>
+            <div class="dot-pulse"></div>
+          </div>
+
+        </div>
+
+        <!-- Composer Form -->
+        <form class="chat-input-bar" id="chatComposerForm">
+          <input
+            type="text"
+            id="chatUserInput"
+            class="chat-text-input"
+            placeholder="Ask anything about flood evacuation, rescue, weather..."
+            autocomplete="off"
+            required
+          >
+          <button type="submit" id="chatSubmitBtn" class="btn-primary" style="padding:0 24px;height:48px;">
+            <span>Send 🚀</span>
+          </button>
+        </form>
+
+      </section>
+
+    </div>
+
+    <!-- Helpful Quick Action Cards -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-top:32px;">
+      <a href="shelters.html" class="feature-action-card" style="background:#fff;border:1px solid var(--border-light);border-radius:var(--radius-md);padding:18px;display:flex;gap:14px;align-items:center;text-decoration:none;box-shadow:var(--shadow-sm);">
+        <div style="font-size:1.8rem;background:#eff6ff;padding:12px;border-radius:12px;">🏕️</div>
+        <div>
+          <h4 style="color:var(--navy);font-size:0.95rem;margin:0 0 4px;">Locate Safe Shelters</h4>
+          <p style="color:var(--text-muted);font-size:0.8rem;margin:0;">22 verified relief camps with food & beds.</p>
+        </div>
+      </a>
+
+      <a href="rescue.html" class="feature-action-card" style="background:#fff;border:1px solid var(--border-light);border-radius:var(--radius-md);padding:18px;display:flex;gap:14px;align-items:center;text-decoration:none;box-shadow:var(--shadow-sm);">
+        <div style="font-size:1.8rem;background:#fef2f2;padding:12px;border-radius:12px;">🚤</div>
+        <div>
+          <h4 style="color:var(--navy);font-size:0.95rem;margin:0 0 4px;">Request Rescue Team</h4>
+          <p style="color:var(--text-muted);font-size:0.8rem;margin:0;">Dispatch NDRF/SDRF motor boats & vehicles.</p>
+        </div>
+      </a>
+
+      <a href="safe-route.html" class="feature-action-card" style="background:#fff;border:1px solid var(--border-light);border-radius:var(--radius-md);padding:18px;display:flex;gap:14px;align-items:center;text-decoration:none;box-shadow:var(--shadow-sm);">
+        <div style="font-size:1.8rem;background:#f0fdf4;padding:12px;border-radius:12px;">🗺️</div>
+        <div>
+          <h4 style="color:var(--navy);font-size:0.95rem;margin:0 0 4px;">Safe Evacuation Map</h4>
+          <p style="color:var(--text-muted);font-size:0.8rem;margin:0;">Avoid submerged bridges & blocked highways.</p>
+        </div>
+      </a>
+    </div>
+
+  </main>
+
+  <!-- ================= UNIFIED FOOTER ================= -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div class="footer-top-grid">
+        <div class="footer-col">
+          <div class="footer-brand">
+            <div class="brand-icon-box">🚨</div>
+            <span class="brand-name">AapdaSetu</span>
+          </div>
+          <p class="footer-desc">
+            National AI-Powered Flood Early Warning, Evacuation Routing & Emergency Coordination System.
+          </p>
+        </div>
+        <div class="footer-col">
+          <h4 class="footer-title">Emergency Response</h4>
+          <div class="footer-links">
+            <a href="emergency.html">🚨 112 Unified Emergency</a>
+            <a href="rescue.html">🚑 Live Rescue Tracking</a>
+            <a href="shelters.html">🏕️ Relief Camp Directory</a>
+            <a href="alerts.html">🔔 State Warning Broadcasts</a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4 class="footer-title">National Helplines</h4>
+          <div class="footer-links">
+            <a href="tel:112">National Helpline: 112</a>
+            <a href="tel:1078">NDRF Headquarters: 1078</a>
+            <a href="tel:1070">Disaster Management: 1070</a>
+            <a href="tel:108">Ambulance Service: 108</a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 AapdaSetu. Built for saving lives across vulnerable flood districts in India.</span>
+        <a href="emergency.html" style="color:#f87171;font-weight:700;">🚨 Immediate Rescue Assistance: Call 112</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="translations.js"></script>
+  <script src="app.js"></script>
+  <script>
+    const form = document.getElementById("chatComposerForm");
+    const input = document.getElementById("chatUserInput");
+    const submitBtn = document.getElementById("chatSubmitBtn");
+    const messagesBox = document.getElementById("chatMessages");
+    const loader = document.getElementById("typingLoader");
+    const voiceToggle = document.getElementById("voiceToggle");
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = "";
+      sendQuery(text);
+    });
+
+    function askQuickPrompt(prompt) {
+      input.value = prompt;
+      sendQuery(prompt);
+      input.value = "";
+    }
+
+    function appendMessage(text, sender) {
+      const row = document.createElement("div");
+      row.className = `chat-msg-row ${sender}`;
+
+      const bubble = document.createElement("div");
+      bubble.className = "msg-bubble";
+      bubble.innerHTML = text.replace(/\n/g, "<br>");
+
+      const timeSpan = document.createElement("span");
+      timeSpan.className = "msg-time";
+      timeSpan.textContent = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      bubble.appendChild(timeSpan);
+
+      if (sender === "bot") {
+        const speakBtn = document.createElement("button");
+        speakBtn.className = "speech-read-btn";
+        speakBtn.innerHTML = "🔊 Listen";
+        speakBtn.onclick = () => speakText(text);
+        bubble.appendChild(speakBtn);
+      }
+
+      row.appendChild(bubble);
+      messagesBox.insertBefore(row, loader);
+      messagesBox.scrollTop = messagesBox.scrollHeight;
+    }
+
+    function speakText(text) {
+      if (!('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel(); // Stop prior
+      const clean = text.replace(/<[^>]*>?/gm, '').replace(/https?:\/\/\S+/gi, '');
+      const utter = new SpeechSynthesisUtterance(clean);
+      utter.rate = 0.95;
+      const lang = document.getElementById("languageSelector") ? document.getElementById("languageSelector").value : "en";
+      const langSpeechMap = {
+        hi: "hi-IN", hinglish: "hi-IN", bn: "bn-IN", mr: "mr-IN", te: "te-IN",
+        ta: "ta-IN", gu: "gu-IN", kn: "kn-IN", ml: "ml-IN", pa: "pa-IN",
+        or: "or-IN", as: "as-IN", ur: "ur-IN", bho: "hi-IN", mai: "hi-IN",
+        raj: "hi-IN", hne: "hi-IN", bgc: "hi-IN", doi: "hi-IN", ks: "ur-IN",
+        kok: "mr-IN", mni: "bn-IN", ne: "ne-NP", sat: "or-IN", brx: "as-IN",
+        gbm: "hi-IN", kfy: "hi-IN", kha: "en-IN", lus: "en-IN", sa: "hi-IN", en: "en-IN"
+      };
+      utter.lang = langSpeechMap[lang] || "en-IN";
+      window.speechSynthesis.speak(utter);
+    }
+
+    async function sendQuery(query) {
+      appendMessage(query, "user");
+      submitBtn.disabled = true;
+      input.disabled = true;
+      loader.classList.add("active");
+      messagesBox.scrollTop = messagesBox.scrollHeight;
+
+      const lang = document.getElementById("languageSelector") ? document.getElementById("languageSelector").value : "hinglish";
+
+      try {
+        const res = await fetch(`${API_BASE}/chat`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: query, language: lang }),
+          signal: AbortSignal.timeout(6000)
+        });
+
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const data = await res.json();
+        const reply = data.reply || data.response || data.message || "Aapke question ka jawab abhi generate nahi ho paya.";
+        loader.classList.remove("active");
+        appendMessage(reply, "bot");
+        if (voiceToggle.checked) speakText(reply);
+
+      } catch (err) {
+        console.log("Using offline fallback responder:", err.message);
+        loader.classList.remove("active");
+        const fallback = getSmartFallback(query, lang);
+        appendMessage(fallback, "bot");
+        if (voiceToggle.checked) speakText(fallback);
+      } finally {
+        submitBtn.disabled = false;
+        input.disabled = false;
+        input.focus();
+      }
+    }
+
+    function getSmartFallback(q, lang) {
+      const s = q.toLowerCase();
+
+      if (s.includes("flash flood")) {
+        return "⚠️ FLASH FLOOD ALERT PROTOCOL:\n1. Flash flood bina warning ke 15-30 minute me paani ka level badha deta hai.\n2. Sabse pehle low-lying nala, riverbed aur bridges se turant unchai (higher elevation) par bhaagein.\n3. Koi vehicle ya bike paani me lekar na niklein.\n4. Official evacuation alerts ke liye 112 par call karein.";
+      }
+
+      if (s.includes("priority") || s.includes("flood") || s.includes("baadh") || s.includes("बाढ़")) {
+        return "🌊 FLOOD SAFETY RULES:\n1. Main power switch aur LPG gas connection band karein.\n2. Bachhon, buzurgo aur medicines ko sabse pehle upper floor ya safe shelter shift karein.\n3. Drinking water ko boil karke piyein ya chlorine tablets use karein.\n4. Flood water me walk mat karein, submerged wires ya drain open ho sakte hain.";
+      }
+
+      if (s.includes("rescue") || s.includes("bachao") || s.includes("help") || s.includes("fas gaya")) {
+        return "🚑 RESCUE DEPLOYMENT PROCEDURE:\n1. AapdaSetu ke 'Rescue Help' page par jaakar Pickup Location aur No. of People ke saath ticket raise karein.\n2. GPS location share karein jisse NDRF/SDRF motor boats seedhe pahunch sakein.\n3. Critical danger me phone se 112 ya 1078 (NDRF) dial karein.";
+      }
+
+      if (s.includes("drive") || s.includes("car") || s.includes("bike") || s.includes("road")) {
+        return "🚗 VEHICLE SAFETY WARNING:\nKhabardar! Sirf 6 inch ka moving flood water aapke pair gira sakta hai, aur 12-18 inch water badi SUV ko bhi baha sakta hai. Never drive into submerged roads! AapdaSetu 'Safe Routes' page se bypass highway check karein.";
+      }
+
+      if (s.includes("kit") || s.includes("pack") || s.includes("family")) {
+        return "🎒 EMERGENCY GO-BAG CHECKLIST:\n1. 3 din ka dry food & sealed drinking water.\n2. Essential prescription medicines & First Aid kit.\n3. Waterproof pouch me Aadhaar/Bank papers & cash.\n4. Powerbank, torch & emergency whistle.";
+      }
+
+      if (s.includes("water") || s.includes("paani") || s.includes("purify")) {
+        return "💧 DRINKING WATER PURIFICATION:\nFlood ke dauran tap water contaminated ho sakta hai. Paani ko kam se kam 1 minute ubaal kar piyein (rolling boil). Ya per liter paani me 1 chlorine tablet/halogen tablet daal kar 30 mins wait karein.";
+      }
+
+      return "AapdaSetu Safety Assistant: Main flood safety, evacuation routes, rescue team dispatch, river monitoring aur emergency kit guidance provide karta hoon. Kripya apna prashna thoda detail me poochhein ya Emergency 112 call karein.";
+    }
+
+    function clearChatHistory() {
+      if (!confirm("Are you sure you want to clear conversation history?")) return;
+      messagesBox.innerHTML = `
+        <div class="chat-msg-row bot">
+          <div class="msg-bubble">
+            Chat cleared. 👋 Ask any disaster safety or flood emergency question below.
+            <span class="msg-time">Just now</span>
+          </div>
+        </div>
+        <div class="typing-loader" id="typingLoader">
+          <div class="dot-pulse"></div>
+          <div class="dot-pulse"></div>
+          <div class="dot-pulse"></div>
+        </div>
+      `;
+    }
+  </script>
+</body>
+</html>

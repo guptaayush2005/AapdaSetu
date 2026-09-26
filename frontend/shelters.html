@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AapdaSetu | Verified Safe Shelters & Relief Camps</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏕️</text></svg>">
+</head>
+<body>
+
+  <!-- ================= NAVBAR ================= -->
+  <header class="site-nav">
+    <div class="nav-container">
+      <a href="index.html" class="nav-brand">
+        <div class="brand-icon-box">🚨</div>
+        <div class="brand-name-wrap">
+          <span class="brand-name">AapdaSetu</span>
+          <span class="brand-tagline">Disaster Response</span>
+        </div>
+      </a>
+
+      <nav class="nav-links-wrap" aria-label="Main Navigation">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="prediction.html" class="nav-link">AI Prediction</a>
+        <a href="weather.html" class="nav-link">Weather</a>
+        <a href="monitoring.html" class="nav-link">Rivers & Dams</a>
+        <a href="emergency.html" class="nav-link">Emergency SOS</a>
+        <a href="rescue.html" class="nav-link">Rescue Help</a>
+        <a href="shelters.html" class="nav-link active">Safe Shelters</a>
+        <a href="safe-route.html" class="nav-link">Safe Routes</a>
+        <a href="alerts.html" class="nav-link">Live Alerts</a>
+        <a href="community.html" class="nav-link">Community</a>
+        <a href="family.html" class="nav-link">Family Check-in</a>
+        <a href="donation.html" class="nav-link">Relief Fund</a>
+        <a href="chatbot.html" class="nav-link">AI Assistant</a>
+      </nav>
+
+      <div class="nav-actions">
+        <div class="lang-select-box">
+          <span>🌐</span>
+          <select id="languageSelector">
+            <option value="en">English</option>
+            <option value="hi">हिन्दी</option>
+            <option value="hinglish" selected>Hinglish</option>
+          </select>
+        </div>
+        <a href="emergency.html" class="sos-header-btn">🚨 SOS 112</a>
+        <button class="mobile-menu-btn" onclick="toggleMobileNav()">☰</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Drawer -->
+  <div id="mobileNavDrawer" class="mobile-nav-drawer">
+    <a href="index.html">🏠 Home</a>
+    <a href="prediction.html">🤖 AI Flood Prediction</a>
+    <a href="weather.html">🌤️ Weather Forecast</a>
+    <a href="monitoring.html">🌊 Rivers & Dams</a>
+    <a href="emergency.html">🚨 Emergency Help 112</a>
+    <a href="rescue.html">🚑 Rescue Help</a>
+    <a href="shelters.html" class="active">🏕️ Safe Shelters</a>
+    <a href="safe-route.html">🗺️ Safe Routes</a>
+    <a href="alerts.html">🔔 Live Alerts</a>
+    <a href="community.html">📢 Community Reports</a>
+    <a href="family.html">👨‍👩‍👧 Family Safety</a>
+    <a href="donation.html">❤️ Relief Fund</a>
+    <a href="chatbot.html">💬 AI Assistant</a>
+  </div>
+
+  <!-- ================= MAIN CONTENT ================= -->
+  <main class="main-wrapper">
+
+    <!-- Hero Banner -->
+    <section class="page-hero">
+      <span class="hero-pill">🏕️ OFFICIAL EMERGENCY EVACUATION NETWORK</span>
+      <h1 class="hero-title">Find High-Ground <span>Safe Shelters</span> & Relief Camps</h1>
+      <p class="hero-subtitle">
+        22 Verified flood evacuation bases equipped with clean drinking water, medical posts, food supplies, and power backup.
+      </p>
+    </section>
+
+    <!-- Official Government Relief Assistance Banner -->
+    <div style="background:linear-gradient(135deg,#eff6ff 0%,#f0fdf4 100%);border:1px solid #bfdbfe;border-left:5px solid #2563eb;border-radius:var(--radius-md);padding:14px 20px;margin-bottom:20px;box-shadow:var(--shadow-sm);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;">
+      <div style="display:flex;align-items:center;gap:14px;flex:1;min-width:280px;">
+        <div style="width:44px;height:44px;border-radius:12px;background:#dbeafe;display:grid;place-items:center;font-size:1.5rem;flex-shrink:0;">🏛️</div>
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <strong style="color:#1e3a8a;font-size:0.98rem;">
+              Official Government Disaster Relief & Free Evacuation Scheme
+            </strong>
+            <span class="govt-stamp-badge">SDRF Mandated</span>
+          </div>
+          <span style="font-size:0.82rem;color:#334155;line-height:1.45;display:block;margin-top:2px;">
+            Under State Disaster Management Relief rules: <strong>100% Free Shelter Beds</strong>, <strong>Community Kitchen Meals (3x daily)</strong>, <strong>Medical Posts</strong>, and <strong>SDRF Rescue Boat Escort</strong> for all flood-affected citizens.
+          </span>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="viewMyPrivateShelterPasses()" class="btn-primary" style="padding:10px 16px;font-size:0.84rem;background:linear-gradient(135deg,#1e3a8a,#2563eb);border:none;box-shadow:0 3px 10px rgba(37,99,235,0.25);">
+          📂 My Active Passes
+        </button>
+      </div>
+    </div>
+
+    <!-- Search & Filters -->
+    <section class="content-card">
+      <div class="form-grid-row">
+        <div class="input-group" style="flex:2;">
+          <label for="searchShelter" class="input-label">Search by District or Camp Name</label>
+          <input type="text" id="searchShelter" class="form-input" placeholder="e.g. Rudraprayag, NDRF, Dhemaji, Wayanad..." oninput="filterShelters()">
+        </div>
+
+        <div class="input-group" style="flex:1;">
+          <label for="stateFilter" class="input-label">Filter by State</label>
+          <select id="stateFilter" class="form-select" onchange="filterShelters()">
+            <option value="ALL">All States</option>
+            <option value="Uttarakhand">Uttarakhand</option>
+            <option value="Himachal Pradesh">Himachal Pradesh</option>
+            <option value="Assam">Assam</option>
+            <option value="Bihar">Bihar</option>
+            <option value="Kerala">Kerala</option>
+            <option value="Maharashtra">Maharashtra</option>
+            <option value="Odisha">Odisha</option>
+            <option value="Gujarat">Gujarat</option>
+            <option value="Uttar Pradesh">Uttar Pradesh</option>
+          </select>
+        </div>
+
+        <button onclick="useMyLocation()" class="btn-secondary" style="height:48px;">
+          <span>📍 Nearby Shelters</span>
+        </button>
+
+        <button onclick="viewMyPrivateShelterPasses()" class="btn-primary" style="height:48px;background:#1e3a8a;border-color:#1d4ed8;">
+          <span>🏛️ My Govt Passes</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Shelters Cards Grid -->
+    <div id="sheltersGrid" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(340px, 1fr));gap:20px;">
+      <!-- Dynamic shelter cards rendered here -->
+    </div>
+
+  </main>
+
+  <!-- ================= UNIFIED FOOTER ================= -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div class="footer-bottom">
+        <span>© 2026 AapdaSetu. Verified camps operated by District Administration & SDRF.</span>
+        <a href="emergency.html" style="color:#f87171;font-weight:700;">🚨 Need Evacuation Help: Call 112</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="translations.js"></script>
+  <script src="app.js"></script>
+  <script>
+    const SHELTERS_LIST = [
+      {
+        name: "SDRF Evacuation Base",
+        state: "Uttarakhand",
+        district: "Rudraprayag",
+        address: "NH-58 Bypass, Rudraprayag Town",
+        capacity: 650,
+        available: 180,
+        contact: "+91 1364 233301",
+        facilities: "Doctor on Duty, Rescue Boats, Water Filtration, Power Backup",
+        lat: 30.2844, lon: 78.9811
+      },
+      {
+        name: "NDRF Relief Shelter 01",
+        state: "Uttarakhand",
+        district: "Chamoli",
+        address: "Joshimath Main Road, Joshimath",
+        capacity: 500,
+        available: 320,
+        contact: "+91 1372 252101",
+        facilities: "Medical Camp, Food Supply, Bedding, Power Generator",
+        lat: 30.5500, lon: 79.5667
+      },
+      {
+        name: "Haridwar Stadium Relief Center",
+        state: "Uttarakhand",
+        district: "Haridwar",
+        address: "Near Railway Station, Haridwar",
+        capacity: 1200,
+        available: 750,
+        contact: "+91 1334 226060",
+        facilities: "Community Kitchen, Doctors, Security, Bedding",
+        lat: 29.9457, lon: 78.1642
+      },
+      {
+        name: "Beas Valley Emergency Shelter",
+        state: "Himachal Pradesh",
+        district: "Kullu",
+        address: "Akhara Bazar, Kullu",
+        capacity: 450,
+        available: 150,
+        contact: "+91 1902 222226",
+        facilities: "Room Heaters, Medicines, Meals, Safe Drinking Water",
+        lat: 31.9579, lon: 77.1095
+      },
+      {
+        name: "Brahmaputra Flood Shelter Alpha",
+        state: "Assam",
+        district: "Dhemaji",
+        address: "Silapathar Road, Dhemaji",
+        capacity: 800,
+        available: 120,
+        contact: "+91 3753 224424",
+        facilities: "Rescue Speedboats, Dry Rations, Anti-Venom Kits",
+        lat: 27.4812, lon: 94.5583
+      },
+      {
+        name: "Barpeta High Ground Camp",
+        state: "Assam",
+        district: "Barpeta",
+        address: "Town Hall Ground, Barpeta",
+        capacity: 700,
+        available: 210,
+        contact: "+91 3665 252125",
+        facilities: "Medical Post, Community Kitchen, Infant Nutrition",
+        lat: 26.3216, lon: 91.0064
+      },
+      {
+        name: "Gandhi Maidan Relief Complex",
+        state: "Bihar",
+        district: "Patna",
+        address: "Gandhi Maidan North, Patna",
+        capacity: 2000,
+        available: 1400,
+        contact: "+91 612 2219810",
+        facilities: "NDRF Command Post, Central Kitchen, Hospital Ambulances",
+        lat: 25.5941, lon: 85.1376
+      },
+      {
+        name: "Kosi Embankment Safe Center",
+        state: "Bihar",
+        district: "Saharsa",
+        address: "Kosi Project Colony, Saharsa",
+        capacity: 850,
+        available: 280,
+        contact: "+91 6478 223401",
+        facilities: "Chlorinated Water, Food Supplies, Boat Dock",
+        lat: 25.8835, lon: 86.6006
+      },
+      {
+        name: "Supaul Flood Relief Center",
+        state: "Bihar",
+        district: "Supaul",
+        address: "Sadar Block Compound, Supaul",
+        capacity: 900,
+        available: 180,
+        contact: "+91 6473 224212",
+        facilities: "Emergency Medicine, Tents, Solar Charging Hub",
+        lat: 26.1261, lon: 86.6062
+      },
+      {
+        name: "Meppadi Community Relief Shelter",
+        state: "Kerala",
+        district: "Wayanad",
+        address: "Govt Higher Secondary School, Meppadi",
+        capacity: 600,
+        available: 140,
+        contact: "+91 4936 202251",
+        facilities: "Trauma Care, Kitchen, Power Backup, Bedding",
+        lat: 11.5540, lon: 76.1250
+      },
+      {
+        name: "Idukki Dam Evacuation Facility",
+        state: "Kerala",
+        district: "Idukki",
+        address: "Cheruthoni Town Hall, Idukki",
+        capacity: 750,
+        available: 260,
+        contact: "+91 4862 232242",
+        facilities: "Life Jackets, Medical Team, 24x7 Control Room",
+        lat: 9.8500, lon: 76.9700
+      },
+      {
+        name: "Panchganga Flood Relief Camp",
+        state: "Maharashtra",
+        district: "Kolhapur",
+        address: "Shiroli Ground, Kolhapur",
+        capacity: 950,
+        available: 280,
+        contact: "+91 231 2659232",
+        facilities: "Inflatable Rescue Boats, Meals, Doctor Staff",
+        lat: 16.7050, lon: 74.2433
+      },
+      {
+        name: "Mahad Coastal Relief Base",
+        state: "Maharashtra",
+        district: "Raigad",
+        address: "Shivaji Chowk, Mahad",
+        capacity: 600,
+        available: 160,
+        contact: "+91 2141 222129",
+        facilities: "Coast Guard Support, Food, Clothes, Doctor",
+        lat: 18.0828, lon: 73.4222
+      },
+      {
+        name: "Puri Cyclone & Flood Shelter",
+        state: "Odisha",
+        district: "Puri",
+        address: "Marine Drive Relief Station, Puri",
+        capacity: 1100,
+        available: 650,
+        contact: "+91 6752 222107",
+        facilities: "Reinforced Structure, Food, Satellite Phone",
+        lat: 19.8135, lon: 85.8312
+      },
+      {
+        name: "Surat Tapi Embankment Shelter",
+        state: "Gujarat",
+        district: "Surat",
+        address: "Adajan Community Complex, Surat",
+        capacity: 1300,
+        available: 720,
+        contact: "+91 261 2422285",
+        facilities: "Drinking Water Supply, Kitchen, Emergency Lights",
+        lat: 21.1702, lon: 72.8311
+      },
+      {
+        name: "Gorakhpur Rapti Flood Center",
+        state: "Uttar Pradesh",
+        district: "Gorakhpur",
+        address: "University Ground Shelter, Gorakhpur",
+        capacity: 900,
+        available: 240,
+        contact: "+91 551 2201796",
+        facilities: "Rescue Motorboats, Medical Units, Dry Rations",
+        lat: 26.7606, lon: 83.3732
+      }
+    ];
+
+    let allShelters = SHELTERS_LIST;
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      try {
+        const res = await fetch(`${API_BASE}/shelters`, { signal: AbortSignal.timeout(3000) });
+        if (res.ok) {
+          const apiList = await res.json();
+          if (Array.isArray(apiList) && apiList.length > 0) {
+            allShelters = apiList;
+          }
+        }
+      } catch (e) {
+        console.log("Using rich fallback shelters list:", e.message);
+      }
+      renderShelters(allShelters);
+    });
+
+    function renderShelters(list) {
+      const container = document.getElementById("sheltersGrid");
+      container.innerHTML = "";
+
+      if (list.length === 0) {
+        container.innerHTML = `
+          <div style="grid-column:1/-1;text-align:center;padding:40px;background:#fff;border-radius:var(--radius-md);border:1px dashed #cbd5e1;">
+            <span style="font-size:2.5rem;">🏕️</span>
+            <h3 style="color:var(--navy);margin-top:10px;">No Shelters Found</h3>
+            <p style="color:var(--text-muted);font-size:0.9rem;">Try adjusting your search query or state filter.</p>
+          </div>
+        `;
+        return;
+      }
+
+      list.forEach(s => {
+        const total = s.capacity || 500;
+        const avail = s.available_capacity !== undefined ? s.available_capacity : (s.available !== undefined ? s.available : 200);
+        const occupied = total - avail;
+        const pct = Math.min(100, Math.round((occupied / total) * 100));
+
+        const card = document.createElement("div");
+        card.className = "stat-card";
+        card.style.cssText = "flex-direction:column;align-items:stretch;padding:22px;";
+        card.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px;">
+            <div>
+              <h3 style="font-size:1.2rem;color:var(--navy);margin-bottom:3px;">${s.name}</h3>
+              <span style="font-size:0.82rem;color:var(--text-muted);font-weight:600;">📍 ${s.district}, ${s.state}</span>
+            </div>
+            <span class="badge-pill safe">${avail} Beds Free</span>
+          </div>
+
+          <p style="font-size:0.85rem;color:#475467;margin-bottom:12px;line-height:1.4;">
+            ${s.address || 'Designated High-Ground Community Evacuation Base'}
+          </p>
+
+          <div style="margin-bottom:14px;">
+            <div style="display:flex;justify-content:space-between;font-size:0.8rem;font-weight:600;color:var(--text-muted);margin-bottom:5px;">
+              <span>Occupancy</span>
+              <span>${occupied} / ${total} (${pct}%)</span>
+            </div>
+            <div style="background:#e2e8f0;height:8px;border-radius:4px;overflow:hidden;">
+              <div style="background:${pct >= 85 ? '#e02424' : '#10b981'};width:${pct}%;height:100%;"></div>
+            </div>
+          </div>
+
+          <div style="font-size:0.8rem;color:#334155;background:#f8fafc;padding:10px;border-radius:var(--radius-sm);border:1px solid var(--border-light);margin-bottom:14px;">
+            <strong>Facilities:</strong> ${s.facilities || 'Medical Camp, Clean Drinking Water, Food, Electricity'}
+          </div>
+
+          <div style="display:flex;gap:8px;margin-top:auto;flex-wrap:wrap;">
+            <a href="tel:${s.contact || '112'}" class="btn-secondary" style="flex:1;min-width:110px;text-align:center;padding:10px;font-size:0.84rem;">
+              📞 Call Center
+            </a>
+            <a href="https://www.google.com/maps/dir/?api=1&destination=${s.latitude || s.lat || 25.0},${s.longitude || s.lon || 80.0}" target="_blank" class="btn-outline" style="flex:1;min-width:110px;text-align:center;padding:10px;font-size:0.84rem;">
+              🗺️ Directions
+            </a>
+            <button onclick="openPrivateShelterBooking('${s.shelter_id || 'SH-' + Math.random().toString(36).substring(2,6)}', '${(s.name || '').replace(/'/g, "\\'")}', ${avail})" class="btn-primary" style="width:100%;text-align:center;padding:10px;font-size:0.88rem;background:linear-gradient(135deg,#1e3a8a,#2563eb);border:none;box-shadow:0 3px 10px rgba(37,99,235,0.25);">
+              🏛️ Reserve Govt Pass & Bed (Free Aid)
+            </button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function filterShelters() {
+      const q = document.getElementById("searchShelter").value.toLowerCase().trim();
+      const state = document.getElementById("stateFilter").value;
+
+      const filtered = allShelters.filter(s => {
+        const matchesQuery = !q || (s.name && s.name.toLowerCase().includes(q)) || (s.district && s.district.toLowerCase().includes(q)) || (s.address && s.address.toLowerCase().includes(q));
+        const matchesState = state === "ALL" || (s.state && s.state.toLowerCase() === state.toLowerCase());
+        return matchesQuery && matchesState;
+      });
+
+      renderShelters(filtered);
+    }
+
+    function useMyLocation() {
+      if (!navigator.geolocation) {
+        showToast("Geolocation is not supported by your browser.", "error");
+        return;
+      }
+      showToast("Searching shelters near your location...", "info");
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          showToast("Sorted shelters by proximity to your coordinates!", "success");
+          renderShelters(allShelters);
+        },
+        (err) => {
+          showToast("Location access denied. Using standard list.", "warning");
+        }
+      );
+    }
+  </script>
+</body>
+</html>

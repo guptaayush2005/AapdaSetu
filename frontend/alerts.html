@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AapdaSetu | Real-time Emergency Disaster Alerts</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔔</text></svg>">
+</head>
+<body>
+
+  <!-- ================= NAVBAR ================= -->
+  <header class="site-nav">
+    <div class="nav-container">
+      <a href="index.html" class="nav-brand">
+        <div class="brand-icon-box">🚨</div>
+        <div class="brand-name-wrap">
+          <span class="brand-name">AapdaSetu</span>
+          <span class="brand-tagline">Disaster Response</span>
+        </div>
+      </a>
+
+      <nav class="nav-links-wrap" aria-label="Main Navigation">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="prediction.html" class="nav-link">AI Prediction</a>
+        <a href="weather.html" class="nav-link">Weather</a>
+        <a href="monitoring.html" class="nav-link">Rivers & Dams</a>
+        <a href="emergency.html" class="nav-link">Emergency SOS</a>
+        <a href="rescue.html" class="nav-link">Rescue Help</a>
+        <a href="shelters.html" class="nav-link">Safe Shelters</a>
+        <a href="safe-route.html" class="nav-link">Safe Routes</a>
+        <a href="alerts.html" class="nav-link active">Live Alerts</a>
+        <a href="community.html" class="nav-link">Community</a>
+        <a href="family.html" class="nav-link">Family Check-in</a>
+        <a href="donation.html" class="nav-link">Relief Fund</a>
+        <a href="chatbot.html" class="nav-link">AI Assistant</a>
+      </nav>
+
+      <div class="nav-actions">
+        <div class="lang-select-box">
+          <span>🌐</span>
+          <select id="languageSelector">
+            <option value="en">English</option>
+            <option value="hi">हिन्दी</option>
+            <option value="hinglish" selected>Hinglish</option>
+          </select>
+        </div>
+        <a href="emergency.html" class="sos-header-btn">🚨 SOS 112</a>
+        <button class="mobile-menu-btn" onclick="toggleMobileNav()">☰</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Drawer -->
+  <div id="mobileNavDrawer" class="mobile-nav-drawer">
+    <a href="index.html">🏠 Home</a>
+    <a href="prediction.html">🤖 AI Flood Prediction</a>
+    <a href="weather.html">🌤️ Weather Forecast</a>
+    <a href="monitoring.html">🌊 Rivers & Dams</a>
+    <a href="emergency.html">🚨 Emergency Help 112</a>
+    <a href="rescue.html">🚑 Rescue Help</a>
+    <a href="shelters.html">🏕️ Safe Shelters</a>
+    <a href="safe-route.html">🗺️ Safe Routes</a>
+    <a href="alerts.html" class="active">🔔 Live Alerts</a>
+    <a href="community.html">📢 Community Reports</a>
+    <a href="family.html">👨‍👩‍👧 Family Safety</a>
+    <a href="donation.html">❤️ Relief Fund</a>
+    <a href="chatbot.html">💬 AI Assistant</a>
+  </div>
+
+  <!-- ================= MAIN CONTENT ================= -->
+  <main class="main-wrapper">
+
+    <!-- Hero Banner -->
+    <section class="page-hero">
+      <span class="hero-pill">🔔 NATIONAL EMERGENCY BROADCAST SYSTEM</span>
+      <h1 class="hero-title">Live Disaster Alerts & <span>Voice Siren</span></h1>
+      <p class="hero-subtitle">
+        Immediate official flood warnings, flash flood advisories, and dam discharge bulletins synchronized with State Disaster Management Authorities.
+      </p>
+    </section>
+
+    <!-- Quick Audio Alert Broadcast Player -->
+    <section class="content-card" style="background:linear-gradient(135deg,#071b32,#0b2341);color:#fff;border:none;">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;">
+        <div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+            <span class="pulse-dot red"></span>
+            <strong style="color:#f87171;font-size:0.95rem;">EMERGENCY AUDIO BROADCAST (ध्वनि चेतावनी)</strong>
+          </div>
+          <h2 style="font-size:1.45rem;color:#ffffff;margin-bottom:4px;">Listen to Voice Warning Bulletins</h2>
+          <p style="font-size:0.85rem;color:#cbd5e1;max-width:620px;">
+            AapdaSetu automatically translates emergency notifications into synthesized speech in Hindi & English for high-accessibility alerting.
+          </p>
+        </div>
+
+        <div style="display:flex;gap:12px;">
+          <button onclick="playVoiceAlert('hi')" class="btn-danger" style="padding:12px 20px;">
+            <span>🔊 हिन्दी में सुनें</span>
+          </button>
+          <button onclick="playVoiceAlert('en')" class="btn-primary" style="padding:12px 20px;">
+            <span>🔊 Listen in English</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Severity Filter Bar -->
+    <section class="content-card" style="padding:18px 24px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:0.9rem;font-weight:700;color:var(--navy);">Filter by Severity:</span>
+          <button onclick="filterSeverity('ALL')" class="badge-pill active" style="cursor:pointer;border:none;">All Alerts</button>
+          <button onclick="filterSeverity('CRITICAL')" class="badge-pill critical" style="cursor:pointer;border:none;">🔴 Critical (Red)</button>
+          <button onclick="filterSeverity('WARNING')" class="badge-pill warning" style="cursor:pointer;border:none;">🟠 Warning (Orange)</button>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:0.85rem;color:var(--text-muted);">Active Warnings:</span>
+          <strong id="activeAlertCount" style="color:#dc2626;font-size:1.1rem;">5</strong>
+        </div>
+      </div>
+    </section>
+
+    <!-- Live Alert Feed Grid -->
+    <div id="alertsContainer" style="display:flex;flex-direction:column;gap:16px;">
+      <!-- Dynamic alert cards inserted here -->
+    </div>
+
+  </main>
+
+  <!-- ================= UNIFIED FOOTER ================= -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div class="footer-bottom">
+        <span>© 2026 AapdaSetu. Automated early warnings based on satellite rainfall and river discharge.</span>
+        <a href="emergency.html" style="color:#f87171;font-weight:700;">🚨 Life-Threatening Emergency: Call 112</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="translations.js"></script>
+  <script src="app.js"></script>
+  <script>
+    const ALERTS_DATA = [
+      {
+        id: "AS-ALT-101",
+        state: "Uttarakhand",
+        district: "Rudraprayag",
+        level: "CRITICAL",
+        color: "#e02424",
+        title: "🚨 RED ALERT: Mandakini Water Level Breaching Danger Mark",
+        message: "Continuous cloudburst rainfall (142mm/24h) has elevated Mandakini river to 3.6m, surpassing the 3.4m danger mark. Immediate low-lying inundation is occurring.",
+        action: "Immediate evacuation ordered for Riverside Ward 3 and lower market. Proceed to SDRF Base on NH-58 bypass.",
+        source: "AapdaSetu AI Early Warning System",
+        time: "15 minutes ago"
+      },
+      {
+        id: "AS-ALT-102",
+        state: "Assam",
+        district: "Dhemaji",
+        level: "CRITICAL",
+        color: "#e02424",
+        title: "🚨 SEVERE INUNDATION: Brahmaputra Embankment Breach Alert",
+        message: "Water level is at 4.2m against danger mark of 3.8m. 18 villages in Silapathar sub-division currently waterlogged.",
+        action: "Move immediately to Brahmaputra Flood Shelter Alpha. Rescue motorboats deployed along Silapathar corridor.",
+        source: "Central Water Commission Telemetry",
+        time: "32 minutes ago"
+      },
+      {
+        id: "AS-ALT-103",
+        state: "Bihar",
+        district: "Supaul",
+        level: "CRITICAL",
+        color: "#e02424",
+        title: "🚨 KOSI BARRAGE DISCHARGE: Heavy Influx Warning",
+        message: "Discharge of over 3.2 lakh cusecs combined with 162mm rainfall. High risk for Kosi embankment villages.",
+        action: "Evacuation to Sadar Block compound center. Avoid all rural causeways.",
+        source: "Bihar State Disaster Management Authority",
+        time: "1 hour ago"
+      },
+      {
+        id: "AS-ALT-104",
+        state: "Kerala",
+        district: "Wayanad",
+        level: "CRITICAL",
+        color: "#e02424",
+        title: "🚨 FLASH FLOOD & LANDSLIDE ALERT: Meppadi & Vythiri",
+        message: "Torrential downpours (138mm) have saturated hill slopes. Minor debris flows detected on Meppadi school road.",
+        action: "Evacuate hillside dwellings to Meppadi Community Relief Shelter immediately.",
+        source: "Kerala SDMA & Geological Survey",
+        time: "2 hours ago"
+      },
+      {
+        id: "AS-ALT-105",
+        state: "Himachal Pradesh",
+        district: "Kullu",
+        level: "WARNING",
+        color: "#f59e0b",
+        title: "⚠️ ORANGE ALERT: Beas River Spate Warning",
+        message: "Beas river rising rapidly near Akhara Bazar, currently at 3.1m towards 3.5m danger mark. Heavy catchment rain.",
+        action: "Tourists and residents prohibited from entering riverbanks or roadside viewpoints.",
+        source: "HP State Disaster Management Authority",
+        time: "3 hours ago"
+      }
+    ];
+
+    let currentFilter = "ALL";
+
+    document.addEventListener("DOMContentLoaded", () => {
+      renderAlerts(ALERTS_DATA);
+    });
+
+    function renderAlerts(list) {
+      const container = document.getElementById("alertsContainer");
+      container.innerHTML = "";
+
+      const filtered = currentFilter === "ALL" ? list : list.filter(a => a.level === currentFilter);
+      document.getElementById("activeAlertCount").textContent = filtered.length;
+
+      filtered.forEach(a => {
+        const isCritical = a.level === "CRITICAL";
+        const badgeClass = isCritical ? "critical" : "warning";
+        const dotColor = isCritical ? "red" : "amber";
+
+        const card = document.createElement("div");
+        card.className = "content-card";
+        card.style.cssText = `border-left: 6px solid ${isCritical ? '#e02424' : '#f59e0b'}; padding: 24px; margin-bottom: 0;`;
+        card.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px;gap:12px;flex-wrap:wrap;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span class="badge-pill ${badgeClass}"><span class="pulse-dot ${dotColor}"></span> ${a.level}</span>
+              <strong style="font-size:0.85rem;color:var(--text-muted);">${a.district}, ${a.state}</strong>
+            </div>
+            <span style="font-size:0.8rem;color:#94a3b8;font-weight:600;">🕒 ${a.time} • ${a.id}</span>
+          </div>
+
+          <h3 style="font-size:1.25rem;color:var(--navy);margin-bottom:8px;">${a.title}</h3>
+          <p style="font-size:0.92rem;color:#334155;line-height:1.55;margin-bottom:14px;">${a.message}</p>
+
+          <div style="background:#f8fafc;border:1px solid var(--border-light);border-radius:var(--radius-sm);padding:14px;margin-bottom:14px;">
+            <strong style="color:#b91c1c;font-size:0.85rem;display:block;margin-bottom:4px;">📋 MANDATORY PUBLIC ACTION:</strong>
+            <span style="font-size:0.88rem;color:#1e293b;font-weight:600;">${a.action}</span>
+          </div>
+
+          <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.8rem;color:var(--text-muted);border-top:1px solid var(--border-light);padding-top:12px;">
+            <span>Source: <strong>${a.source}</strong></span>
+            <div style="display:flex;gap:10px;">
+              <a href="shelters.html" style="color:var(--blue-primary);font-weight:700;">Find Shelter →</a>
+              <a href="rescue.html" style="color:#e02424;font-weight:700;">Request Rescue →</a>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function filterSeverity(lvl) {
+      currentFilter = lvl;
+      renderAlerts(ALERTS_DATA);
+    }
+
+    function playVoiceAlert(lang) {
+      if (!('speechSynthesis' in window)) {
+        showToast("Voice synthesizer not supported on this device.", "error");
+        return;
+      }
+
+      window.speechSynthesis.cancel();
+
+      let text = "";
+      let langCode = "en-IN";
+
+      if (lang === "hi") {
+        text = "चेतावनी! रुद्रप्रयाग और धेमाजी में मंदाकिनी और ब्रह्मपुत्र नदी खतरे के निशान से ऊपर बह रही हैं। सभी नागरिक तुरंत सुरक्षित शेल्टर में जाएं।";
+        langCode = "hi-IN";
+      } else {
+        text = "Emergency Warning! Mandakini and Brahmaputra rivers have breached danger levels in Rudraprayag and Dhemaji. Evacuate to high ground shelters immediately.";
+        langCode = "en-IN";
+      }
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = langCode;
+      utterance.rate = 0.95;
+      utterance.pitch = 1.0;
+
+      window.speechSynthesis.speak(utterance);
+      showToast(`Playing audio alert in ${lang === 'hi' ? 'Hindi' : 'English'}...`, "info");
+    }
+  </script>
+</body>
+</html>

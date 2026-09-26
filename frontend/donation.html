@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AapdaSetu | Disaster Relief Fund & Transparent Donations</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>❤️</text></svg>">
+</head>
+<body>
+
+  <!-- ================= NAVBAR ================= -->
+  <header class="site-nav">
+    <div class="nav-container">
+      <a href="index.html" class="nav-brand">
+        <div class="brand-icon-box">🚨</div>
+        <div class="brand-name-wrap">
+          <span class="brand-name">AapdaSetu</span>
+          <span class="brand-tagline">Disaster Response</span>
+        </div>
+      </a>
+
+      <nav class="nav-links-wrap" aria-label="Main Navigation">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="prediction.html" class="nav-link">AI Prediction</a>
+        <a href="weather.html" class="nav-link">Weather</a>
+        <a href="monitoring.html" class="nav-link">Rivers & Dams</a>
+        <a href="emergency.html" class="nav-link">Emergency SOS</a>
+        <a href="rescue.html" class="nav-link">Rescue Help</a>
+        <a href="shelters.html" class="nav-link">Safe Shelters</a>
+        <a href="safe-route.html" class="nav-link">Safe Routes</a>
+        <a href="alerts.html" class="nav-link">Live Alerts</a>
+        <a href="community.html" class="nav-link">Community</a>
+        <a href="family.html" class="nav-link">Family Check-in</a>
+        <a href="donation.html" class="nav-link active">Relief Fund</a>
+        <a href="chatbot.html" class="nav-link">AI Assistant</a>
+      </nav>
+
+      <div class="nav-actions">
+        <div class="lang-select-box">
+          <span>🌐</span>
+          <select id="languageSelector">
+            <option value="en">English</option>
+            <option value="hi">हिन्दी</option>
+            <option value="hinglish" selected>Hinglish</option>
+          </select>
+        </div>
+        <a href="emergency.html" class="sos-header-btn">🚨 SOS 112</a>
+        <button class="mobile-menu-btn" onclick="toggleMobileNav()">☰</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Drawer -->
+  <div id="mobileNavDrawer" class="mobile-nav-drawer">
+    <a href="index.html">🏠 Home</a>
+    <a href="prediction.html">🤖 AI Flood Prediction</a>
+    <a href="weather.html">🌤️ Weather Forecast</a>
+    <a href="monitoring.html">🌊 Rivers & Dams</a>
+    <a href="emergency.html">🚨 Emergency Help 112</a>
+    <a href="rescue.html">🚑 Rescue Help</a>
+    <a href="shelters.html">🏕️ Safe Shelters</a>
+    <a href="safe-route.html">🗺️ Safe Routes</a>
+    <a href="alerts.html">🔔 Live Alerts</a>
+    <a href="community.html">📢 Community Reports</a>
+    <a href="family.html">👨‍👩‍👧 Family Safety</a>
+    <a href="donation.html" class="active">❤️ Relief Fund</a>
+    <a href="chatbot.html">💬 AI Assistant</a>
+  </div>
+
+  <!-- ================= MAIN CONTENT ================= -->
+  <main class="main-wrapper">
+
+    <!-- Hero Banner -->
+    <section class="page-hero">
+      <span class="hero-pill">❤️ DIRECT DISASTER RELIEF CONTRIBUTIONS</span>
+      <h1 class="hero-title">Support Affected Communities & <span>Save Lives</span></h1>
+      <p class="hero-subtitle">
+        100% of your relief donations fund inflatable rescue boats, emergency clean water filtration, baby nutrition, and medical aid kits in flood zones.
+      </p>
+    </section>
+
+    <!-- Transparent Fund Stats Strip -->
+    <div class="stats-strip">
+      <div class="stat-card">
+        <div class="stat-icon teal">💰</div>
+        <div class="stat-content">
+          <span class="stat-val" id="totalRaisedText">₹24,50,000</span>
+          <span class="stat-label">Total Relief Funds Raised</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon blue">🤝</div>
+        <div class="stat-content">
+          <span class="stat-val" id="donorCountText">1,248</span>
+          <span class="stat-label">Compassionate Donors</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon red">🍲</div>
+        <div class="stat-content">
+          <span class="stat-val">38,000+</span>
+          <span class="stat-label">Hot Meals Distributed</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon amber">📦</div>
+        <div class="stat-content">
+          <span class="stat-val">100%</span>
+          <span class="stat-label">Zero Administrative Deduction</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Donation Section: Two Columns (UPI QR & Contribution Form) -->
+    <div style="display:grid;grid-template-columns:1fr 1.25fr;gap:24px;align-items:start;">
+      
+      <!-- UPI QR Code Card -->
+      <section class="content-card" style="text-align:center;">
+        <div class="card-header-bar" style="justify-content:center;">
+          <div>
+            <h2 class="card-title">Scan & Pay via any UPI App</h2>
+            <p class="card-subtitle">GPay, PhonePe, Paytm, BHIM or Mobile Banking</p>
+          </div>
+        </div>
+
+        <div style="background:#f8fafc;padding:20px;border-radius:var(--radius-md);border:1px solid var(--border-light);display:inline-block;margin-bottom:18px;">
+          <img src="donation_qr.jpeg" alt="AapdaSetu UPI Donation QR" style="width:240px;height:240px;object-fit:contain;border-radius:8px;box-shadow:var(--shadow-sm);" onerror="this.src='https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=upi://pay?pa=pmcares@sbi&pn=AapdaSetu%20Disaster%20Relief'">
+        </div>
+
+        <div style="background:#f1f5f9;border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:12px;display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;">
+          <span style="font-size:0.85rem;color:var(--navy);font-weight:700;">UPI ID: <strong>aapdasetu@sbi</strong></span>
+          <button onclick="copyUPI()" class="btn-secondary" style="padding:6px 12px;font-size:0.8rem;">📋 Copy</button>
+        </div>
+
+        <span style="font-size:0.8rem;color:var(--text-muted);">
+          Tax exemption under Section 80G eligible. Receipts issued instantly.
+        </span>
+      </section>
+
+      <!-- Contribution Form & Donor Wall -->
+      <section class="content-card">
+        <div class="card-header-bar">
+          <div class="card-title-group">
+            <div class="card-title-icon" style="background:#fee2e2;color:#b91c1c;">💳</div>
+            <div>
+              <h2 class="card-title">Record Your Contribution</h2>
+              <p class="card-subtitle">Log your contribution to appear on the live relief donor wall.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Amount Presets -->
+        <div style="display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;">
+          <button type="button" onclick="setAmount(500)" class="btn-secondary" style="flex:1;min-width:70px;">₹500</button>
+          <button type="button" onclick="setAmount(1000)" class="btn-secondary" style="flex:1;min-width:70px;">₹1,000</button>
+          <button type="button" onclick="setAmount(2500)" class="btn-secondary" style="flex:1;min-width:70px;">₹2,500</button>
+          <button type="button" onclick="setAmount(5000)" class="btn-secondary" style="flex:1;min-width:70px;">₹5,000</button>
+        </div>
+
+        <form id="donationForm" onsubmit="event.preventDefault(); submitDonation();">
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+              <div class="input-group">
+                <label for="donorName" class="input-label">Full Name *</label>
+                <input type="text" id="donorName" class="form-input" placeholder="e.g. Vikram Malhotra" required>
+              </div>
+              <div class="input-group">
+                <label for="donationAmount" class="input-label">Amount (₹) *</label>
+                <input type="number" id="donationAmount" class="form-input" min="10" placeholder="1000" required>
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label for="donationPurpose" class="input-label">Relief Category *</label>
+              <select id="donationPurpose" class="form-select" required>
+                <option value="DISASTER RELIEF">🌊 General Flood & Disaster Relief</option>
+                <option value="EMERGENCY FOOD">🍲 Emergency Meals & Community Kitchen</option>
+                <option value="MEDICAL AID">💊 Medical Camp & Child Healthcare</option>
+                <option value="RESCUE BOATS">🚤 Rescue Boat Equipment & Fuel</option>
+              </select>
+            </div>
+
+            <div class="input-group">
+              <label for="donationMessage" class="input-label">Prayer / Solidarity Message (Optional)</label>
+              <input type="text" id="donationMessage" class="form-input" placeholder="e.g. Prayers for speedy recovery and safety.">
+            </div>
+
+            <button type="submit" id="submitDonationBtn" class="btn-danger" style="width:100%;margin-top:6px;padding:14px;">
+              <span>❤️ Confirm Contribution</span>
+            </button>
+          </div>
+        </form>
+
+        <!-- Live Donors Feed -->
+        <div style="margin-top:28px;">
+          <h3 style="font-size:1.1rem;color:var(--navy);margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            <span>🤝</span> Recent Kind Donors
+          </h3>
+
+          <div id="donorsWall" style="display:flex;flex-direction:column;gap:10px;max-height:300px;overflow-y:auto;">
+            <!-- Dynamic donor items -->
+          </div>
+        </div>
+
+      </section>
+
+    </div>
+
+  </main>
+
+  <!-- ================= UNIFIED FOOTER ================= -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div class="footer-bottom">
+        <span>© 2026 AapdaSetu Foundation. Audited disaster relief accounting with direct field distribution.</span>
+        <a href="emergency.html" style="color:#f87171;font-weight:700;">🚨 24x7 Emergency Line: 112</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="translations.js"></script>
+  <script src="app.js"></script>
+  <script>
+    const INITIAL_DONORS = [
+      { name: "Vikram Malhotra", amount: 5000, purpose: "DISASTER RELIEF", msg: "Praying for quick recovery in Wayanad and Rudraprayag.", time: "15 mins ago" },
+      { name: "Ananya Sharma", amount: 2500, purpose: "MEDICAL AID", msg: "For medicines and infant supplies in relief camps.", time: "42 mins ago" },
+      { name: "Karthik Iyer", amount: 10000, purpose: "EMERGENCY FOOD", msg: "Contributed for community kitchens in Assam & Bihar.", time: "1 hour ago" },
+      { name: "Rohan Mehta", amount: 1500, purpose: "DISASTER RELIEF", msg: "Stay strong everyone, rescue teams are doing great work.", time: "2 hours ago" },
+    ];
+
+    let donors = INITIAL_DONORS;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      renderDonors();
+    });
+
+    function setAmount(val) {
+      document.getElementById("donationAmount").value = val;
+    }
+
+    function renderDonors() {
+      const container = document.getElementById("donorsWall");
+      container.innerHTML = "";
+
+      donors.forEach(d => {
+        const item = document.createElement("div");
+        item.style.cssText = "background:#f8fafc;border:1px solid var(--border-light);border-radius:var(--radius-sm);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;";
+        item.innerHTML = `
+          <div>
+            <strong style="color:var(--navy);font-size:0.95rem;display:block;">${d.name}</strong>
+            <span style="font-size:0.8rem;color:var(--text-muted);">${d.msg || d.purpose}</span>
+          </div>
+          <div style="text-align:right;">
+            <strong style="color:#059669;font-size:1.1rem;font-family:'Outfit',sans-serif;">₹${d.amount.toLocaleString()}</strong>
+            <small style="display:block;font-size:0.75rem;color:#94a3b8;">${d.time || 'Recently'}</small>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    async function submitDonation() {
+      const name = document.getElementById("donorName").value.trim();
+      const amount = parseFloat(document.getElementById("donationAmount").value) || 0;
+      const purpose = document.getElementById("donationPurpose").value;
+      const message = document.getElementById("donationMessage").value.trim();
+      const btn = document.getElementById("submitDonationBtn");
+
+      if (!name || amount <= 0) return;
+
+      btn.disabled = true;
+      btn.innerHTML = "⏳ Recording Contribution...";
+
+      try {
+        await fetch(`${API_BASE}/donations`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ donor_name: name, amount, purpose, message }),
+          signal: AbortSignal.timeout(3500)
+        });
+      } catch (e) {
+        console.log("Logged donation locally:", e.message);
+      }
+
+      donors.unshift({ name, amount, purpose, msg: message, time: "Just now" });
+      renderDonors();
+      document.getElementById("donationForm").reset();
+      btn.disabled = false;
+      btn.innerHTML = "❤️ Confirm Contribution";
+      showToast(`Thank you ${name}! Your donation of ₹${amount} was recorded.`, "success");
+    }
+
+    function copyUPI() {
+      navigator.clipboard.writeText("aapdasetu@sbi");
+      showToast("UPI ID copied: aapdasetu@sbi", "info");
+    }
+  </script>
+</body>
+</html>

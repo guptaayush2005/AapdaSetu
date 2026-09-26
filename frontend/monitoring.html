@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AapdaSetu | River & Reservoir Real-time Monitoring</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌊</text></svg>">
+</head>
+<body>
+
+  <!-- ================= NAVBAR ================= -->
+  <header class="site-nav">
+    <div class="nav-container">
+      <a href="index.html" class="nav-brand">
+        <div class="brand-icon-box">🚨</div>
+        <div class="brand-name-wrap">
+          <span class="brand-name">AapdaSetu</span>
+          <span class="brand-tagline">Disaster Response</span>
+        </div>
+      </a>
+
+      <nav class="nav-links-wrap" aria-label="Main Navigation">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="prediction.html" class="nav-link">AI Prediction</a>
+        <a href="weather.html" class="nav-link">Weather</a>
+        <a href="monitoring.html" class="nav-link active">Rivers & Dams</a>
+        <a href="emergency.html" class="nav-link">Emergency SOS</a>
+        <a href="rescue.html" class="nav-link">Rescue Help</a>
+        <a href="shelters.html" class="nav-link">Safe Shelters</a>
+        <a href="safe-route.html" class="nav-link">Safe Routes</a>
+        <a href="alerts.html" class="nav-link">Live Alerts</a>
+        <a href="community.html" class="nav-link">Community</a>
+        <a href="family.html" class="nav-link">Family Check-in</a>
+        <a href="donation.html" class="nav-link">Relief Fund</a>
+        <a href="chatbot.html" class="nav-link">AI Assistant</a>
+      </nav>
+
+      <div class="nav-actions">
+        <div class="lang-select-box">
+          <span>🌐</span>
+          <select id="languageSelector">
+            <option value="en">English</option>
+            <option value="hi">हिन्दी</option>
+            <option value="hinglish" selected>Hinglish</option>
+          </select>
+        </div>
+        <a href="emergency.html" class="sos-header-btn">🚨 SOS 112</a>
+        <button class="mobile-menu-btn" onclick="toggleMobileNav()">☰</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Drawer -->
+  <div id="mobileNavDrawer" class="mobile-nav-drawer">
+    <a href="index.html">🏠 Home</a>
+    <a href="prediction.html">🤖 AI Flood Prediction</a>
+    <a href="weather.html">🌤️ Weather Forecast</a>
+    <a href="monitoring.html" class="active">🌊 Rivers & Dams</a>
+    <a href="emergency.html">🚨 Emergency Help 112</a>
+    <a href="rescue.html">🚑 Rescue Help</a>
+    <a href="shelters.html">🏕️ Safe Shelters</a>
+    <a href="safe-route.html">🗺️ Safe Routes</a>
+    <a href="alerts.html">🔔 Live Alerts</a>
+    <a href="community.html">📢 Community Reports</a>
+    <a href="family.html">👨‍👩‍👧 Family Safety</a>
+    <a href="donation.html">❤️ Relief Fund</a>
+    <a href="chatbot.html">💬 AI Assistant</a>
+  </div>
+
+  <!-- ================= MAIN CONTENT ================= -->
+  <main class="main-wrapper">
+
+    <!-- Hero Banner -->
+    <section class="page-hero">
+      <span class="hero-pill">🌊 HYDROLOGICAL TELEMETRY NETWORK</span>
+      <h1 class="hero-title">Real-time <span>River & Reservoir</span> Water Levels</h1>
+      <p class="hero-subtitle">
+        Continuous gauge data tracking river spates, discharge rates, and dam capacities against CWC danger benchmarks across vulnerable basins.
+      </p>
+    </section>
+
+    <!-- Map & State Summary Grid -->
+    <div style="display:grid;grid-template-columns:1fr;gap:24px;margin-bottom:28px;">
+      
+      <!-- Interactive Leaflet Map Card -->
+      <section id="mapCardSection" class="content-card" style="padding:22px;position:relative;">
+        <div class="card-header-bar" style="flex-wrap:wrap;gap:12px;">
+          <div class="card-title-group">
+            <div class="card-title-icon" style="background:#e0f2fe;color:#0284c7;">🗺️</div>
+            <div>
+              <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                <h2 class="card-title" style="margin:0;">National Water Station Map</h2>
+                <span class="badge-pill active"><span class="pulse-dot green"></span> 24 Active Stations</span>
+              </div>
+              <p class="card-subtitle" style="margin-top:2px;">Live CWC Telemetry: Real-time river water levels and dam capacities across India.</p>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+            <div style="display:flex;gap:6px;">
+              <span class="badge-pill critical"><span class="pulse-dot red"></span> Danger</span>
+              <span class="badge-pill warning"><span class="pulse-dot amber"></span> Warning</span>
+              <span class="badge-pill safe"><span class="pulse-dot green"></span> Normal</span>
+            </div>
+            <button type="button" onclick="fitAllIndia()" class="btn-primary" style="padding:7px 14px;font-size:0.82rem;display:inline-flex;align-items:center;gap:6px;" title="Reset view to show every station across India">
+              <span>🇮🇳 Reset / Fit All India</span>
+            </button>
+            <button type="button" id="fsToggleBtn" onclick="toggleMapFullscreen()" class="btn-outline" style="padding:7px 14px;font-size:0.82rem;display:inline-flex;align-items:center;gap:6px;" title="Toggle Fullscreen">
+              <span>⛶ Fullscreen</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Quick State Filter Chips -->
+        <div class="map-quick-chips-bar" style="margin-bottom:12px;">
+          <span style="font-size:0.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;margin-right:4px;">Quick Basins:</span>
+          <button type="button" class="map-chip-btn active" data-state="ALL" onclick="zoomToState('ALL')">🇮🇳 Entire India (24)</button>
+          <button type="button" class="map-chip-btn" data-state="Uttarakhand" onclick="zoomToState('Uttarakhand')">🏔️ Uttarakhand (5)</button>
+          <button type="button" class="map-chip-btn" data-state="Himachal Pradesh" onclick="zoomToState('Himachal Pradesh')">⛰️ Himachal (3)</button>
+          <button type="button" class="map-chip-btn" data-state="Assam" onclick="zoomToState('Assam')">🌊 Assam (2)</button>
+          <button type="button" class="map-chip-btn" data-state="Bihar" onclick="zoomToState('Bihar')">🌾 Bihar (3)</button>
+          <button type="button" class="map-chip-btn" data-state="Kerala" onclick="zoomToState('Kerala')">🌴 Kerala (3)</button>
+          <button type="button" class="map-chip-btn" data-state="Maharashtra" onclick="zoomToState('Maharashtra')">🚜 Maharashtra (3)</button>
+          <button type="button" class="map-chip-btn" data-state="Odisha" onclick="zoomToState('Odisha')">🏖️ Odisha (2)</button>
+          <button type="button" class="map-chip-btn" data-state="Gujarat" onclick="zoomToState('Gujarat')">☀️ Gujarat (2)</button>
+          <button type="button" class="map-chip-btn" data-state="Uttar Pradesh" onclick="zoomToState('Uttar Pradesh')">🏛️ Uttar Pradesh (1)</button>
+        </div>
+
+        <div id="monitoringMap" style="height:580px;min-height:480px;border-radius:var(--radius-md);overflow:hidden;border:1px solid var(--border-light);box-shadow:inset 0 2px 6px rgba(0,0,0,0.1);position:relative;"></div>
+      </section>
+
+    </div>
+
+    <!-- Active Gauges Table & Cards -->
+    <section class="content-card">
+      <div class="card-header-bar">
+        <div class="card-title-group">
+          <div class="card-title-icon" style="background:#ecfdf5;color:#059669;">🌊</div>
+          <div>
+            <h2 class="card-title">River Gauge Telemetry Feed</h2>
+            <p class="card-subtitle">Current water levels compared with warning and danger thresholds.</p>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:10px;">
+          <select id="stateFilter" class="form-select" style="padding:6px 12px;font-size:0.85rem;" onchange="filterRivers()">
+            <option value="ALL">All States</option>
+            <option value="Uttarakhand">Uttarakhand</option>
+            <option value="Himachal Pradesh">Himachal Pradesh</option>
+            <option value="Assam">Assam</option>
+            <option value="Bihar">Bihar</option>
+            <option value="Kerala">Kerala</option>
+            <option value="Maharashtra">Maharashtra</option>
+            <option value="Odisha">Odisha</option>
+            <option value="Gujarat">Gujarat</option>
+            <option value="Uttar Pradesh">Uttar Pradesh</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- River Gauges Grid -->
+      <div id="riversGrid" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(310px, 1fr));gap:18px;">
+        <!-- Dynamic River Cards inserted here -->
+      </div>
+    </section>
+
+    <!-- Major Dams & Reservoirs Section -->
+    <section class="content-card">
+      <div class="card-header-bar">
+        <div class="card-title-group">
+          <div class="card-title-icon" style="background:#fef3c7;color:#d97706;">🏗️</div>
+          <div>
+            <h2 class="card-title">Major Dam & Reservoir Capacity Monitors</h2>
+            <p class="card-subtitle">Live water retention levels vs maximum safe reservoir storage.</p>
+          </div>
+        </div>
+      </div>
+
+      <div id="reservoirsGrid" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:18px;">
+        <!-- Dynamic Reservoir Cards inserted here -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================= UNIFIED FOOTER ================= -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div class="footer-bottom">
+        <span>© 2026 AapdaSetu. River telemetry grounded in Central Water Commission (CWC) & State Hydrology reports.</span>
+        <a href="emergency.html" style="color:#f87171;font-weight:700;">🚨 24x7 Emergency Line: 112</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="translations.js"></script>
+  <script src="app.js"></script>
+  <script>
+    const RIVERS_DATA = [
+      { id: "riv_1", name: "Mandakini", state: "Uttarakhand", district: "Rudraprayag", level: 3.6, danger: 3.4, warning: 2.8, lat: 30.2844, lon: 78.9811 },
+      { id: "riv_2", name: "Alaknanda", state: "Uttarakhand", district: "Chamoli", level: 1.8, danger: 3.2, warning: 2.5, lat: 30.2937, lon: 79.5603 },
+      { id: "riv_3", name: "Bhagirathi", state: "Uttarakhand", district: "Uttarkashi", level: 2.6, danger: 3.0, warning: 2.4, lat: 30.7268, lon: 78.4354 },
+      { id: "riv_4", name: "Ganga", state: "Uttarakhand", district: "Haridwar", level: 3.5, danger: 3.6, warning: 3.0, lat: 29.9457, lon: 78.1642 },
+      { id: "riv_5", name: "Beas", state: "Himachal Pradesh", district: "Kullu", level: 3.1, danger: 3.5, warning: 2.8, lat: 31.9579, lon: 77.1095 },
+      { id: "riv_6", name: "Satluj", state: "Himachal Pradesh", district: "Kinnaur", level: 3.2, danger: 3.0, warning: 2.4, lat: 31.6510, lon: 78.4752 },
+      { id: "riv_7", name: "Brahmaputra", state: "Assam", district: "Dhemaji", level: 4.2, danger: 3.8, warning: 3.2, lat: 27.4812, lon: 94.5583 },
+      { id: "riv_8", name: "Brahmaputra", state: "Assam", district: "Barpeta", level: 3.7, danger: 3.6, warning: 3.0, lat: 26.3216, lon: 91.0064 },
+      { id: "riv_9", name: "Kosi", state: "Bihar", district: "Supaul", level: 4.4, danger: 3.8, warning: 3.2, lat: 26.1261, lon: 86.6062 },
+      { id: "riv_10", name: "Kosi", state: "Bihar", district: "Saharsa", level: 4.1, danger: 3.7, warning: 3.1, lat: 25.8835, lon: 86.6006 },
+      { id: "riv_11", name: "Bagmati", state: "Bihar", district: "Darbhanga", level: 3.8, danger: 3.6, warning: 3.0, lat: 26.1542, lon: 85.8918 },
+      { id: "riv_12", name: "Periyar", state: "Kerala", district: "Idukki", level: 3.8, danger: 3.6, warning: 3.0, lat: 9.8494, lon: 76.9804 },
+      { id: "riv_13", name: "Kabini", state: "Kerala", district: "Wayanad", level: 3.5, danger: 3.4, warning: 2.8, lat: 11.6854, lon: 76.1320 },
+      { id: "riv_14", name: "Panchganga", state: "Maharashtra", district: "Kolhapur", level: 3.6, danger: 3.5, warning: 2.9, lat: 16.7050, lon: 74.2433 },
+      { id: "riv_15", name: "Savitri", state: "Maharashtra", district: "Raigad", level: 3.7, danger: 3.5, warning: 2.9, lat: 18.5158, lon: 73.1822 },
+      { id: "riv_16", name: "Brahmani", state: "Odisha", district: "Kendrapara", level: 3.5, danger: 3.4, warning: 2.8, lat: 20.5029, lon: 86.4230 },
+      { id: "riv_17", name: "Tapi", state: "Gujarat", district: "Surat", level: 2.8, danger: 3.5, warning: 2.9, lat: 21.1702, lon: 72.8311 },
+      { id: "riv_18", name: "Rapti", state: "Uttar Pradesh", district: "Gorakhpur", level: 3.6, danger: 3.5, warning: 2.9, lat: 26.7606, lon: 83.3732 },
+    ];
+
+    const RESERVOIRS_DATA = [
+      { id: "dam_1", name: "Tehri Dam Reservoir", location: "Uttarkashi, Uttarakhand", current: 820.5, danger: 828.0, full: 830.0, pct: 88, lat: 30.3780, lon: 78.4808 },
+      { id: "dam_2", name: "Bhakra Nangal Dam", location: "Mandi, Himachal Pradesh", current: 1660.0, danger: 1675.0, full: 1680.0, pct: 85, lat: 31.4098, lon: 76.4356 },
+      { id: "dam_3", name: "Idukki Arch Dam", location: "Idukki, Kerala", current: 2398.0, danger: 2400.0, full: 2403.0, pct: 95, lat: 9.8523, lon: 76.9744 },
+      { id: "dam_4", name: "Radhanagari Dam", location: "Kolhapur, Maharashtra", current: 345.0, danger: 348.0, full: 350.0, pct: 90, lat: 16.4167, lon: 73.9833 },
+      { id: "dam_5", name: "Hirakud Reservoir", location: "Cuttack, Odisha", current: 625.0, danger: 628.0, full: 630.0, pct: 89, lat: 21.5700, lon: 83.8700 },
+      { id: "dam_6", name: "Sardar Sarovar Dam", location: "Bharuch, Gujarat", current: 135.5, danger: 137.0, full: 138.6, pct: 84, lat: 21.8315, lon: 73.7483 },
+    ];
+
+    let map;
+    const riverMarkerMap = {};
+    const reservoirMarkerMap = {};
+    let riversLayerGroup;
+    let reservoirsLayerGroup;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      initMap();
+      renderRivers(RIVERS_DATA);
+      renderReservoirs(RESERVOIRS_DATA);
+    });
+
+    function initMap() {
+      // 1. Detailed Street Map (High-performance Esri World Street Map - 100% reliable, zero 403 errors, no API key required)
+      const streetLayer = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}", {
+        attribution: "Tiles &copy; Esri &mdash; Detailed Street Map",
+        maxNativeZoom: 19,
+        maxZoom: 20
+      });
+
+      // 2. OpenStreetMap Street Atlas (FOSSGIS High-Definition OSM Atlas - full local streets, bridges & footpaths)
+      const atlasLayer = L.tileLayer("https://tile.openstreetmap.de/{z}/{x}/{y}.png", {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors (de)',
+        maxNativeZoom: 18,
+        maxZoom: 20
+      });
+      atlasLayer.on("tileerror", function (err, tile) {
+        if (!tile._retried) {
+          tile._retried = true;
+          const c = err.coords;
+          tile.src = `https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/${c.z}/${c.y}/${c.x}`;
+        }
+      });
+
+      // 3. Satellite Imagery (HD)
+      const satelliteLayer = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", {
+        attribution: "Tiles &copy; Esri &mdash; Satellite Imagery",
+        maxNativeZoom: 19,
+        maxZoom: 20
+      });
+
+      // 4. Topography & Mountain Terrain
+      const topoLayer = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}", {
+        attribution: "Tiles &copy; Esri &mdash; Topography Map",
+        maxNativeZoom: 19,
+        maxZoom: 20
+      });
+
+      riversLayerGroup = L.layerGroup();
+      reservoirsLayerGroup = L.layerGroup();
+
+      map = L.map("monitoringMap", {
+        center: [22.8, 82.5],
+        zoom: 5,
+        minZoom: 4,
+        maxZoom: 20,
+        layers: [streetLayer, riversLayerGroup, reservoirsLayerGroup]
+      });
+
+      const baseMaps = {
+        "🗺️ Detailed Street Map": streetLayer,
+        "🧭 OpenStreetMap Street Atlas": atlasLayer,
+        "🛰️ Satellite Imagery (HD)": satelliteLayer,
+        "⛰️ Topography & Elevation": topoLayer
+      };
+
+      const overlayMaps = {
+        "🌊 River Gauge Stations (18)": riversLayerGroup,
+        "🏗️ Dam & Reservoir Monitors (6)": reservoirsLayerGroup
+      };
+
+      L.control.layers(baseMaps, overlayMaps, { position: "topright" }).addTo(map);
+
+      // Plot Rivers
+      RIVERS_DATA.forEach(r => {
+        const isDanger = r.level >= r.danger;
+        const isWarning = r.level >= r.warning && !isDanger;
+        const color = isDanger ? "#e02424" : (isWarning ? "#f59e0b" : "#10b981");
+
+        const marker = L.circleMarker([r.lat, r.lon], {
+          radius: isDanger ? 12 : 9,
+          fillColor: color,
+          color: "#ffffff",
+          weight: 2.5,
+          opacity: 1,
+          fillOpacity: 0.95,
+          className: isDanger ? "custom-map-pin pulse-danger-pin" : "custom-map-pin"
+        });
+
+        // Hover tooltip for quick viewing without clicking
+        marker.bindTooltip(`
+          <div style="font-family:'Inter',sans-serif;font-size:12px;padding:2px;">
+            <strong style="color:#ffffff;display:block;">${r.name} River</strong>
+            <span style="color:#94a3b8;font-size:11px;">📍 ${r.district}, ${r.state}</span><br>
+            <strong style="color:${isDanger ? '#f87171' : isWarning ? '#fbbf24' : '#34d399'};font-size:12px;">${r.level} m</strong> 
+            <span style="font-size:10px;color:#cbd5e1;">(Danger: ${r.danger}m) • ${isDanger ? '⚠️ DANGER' : isWarning ? '⚡ WARNING' : '✅ NORMAL'}</span>
+          </div>
+        `, { direction: "top", offset: [0, -8], className: "custom-leaflet-tooltip" });
+
+        marker.bindPopup(`
+          <div style="font-family:'Inter',sans-serif;padding:6px;min-width:210px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+              <strong style="color:#0b2341;font-size:14px;">${r.name} River</strong>
+              <span style="background:${isDanger ? '#fee2e2' : (isWarning ? '#fef3c7' : '#dcfce7')};color:${color};font-size:11px;font-weight:800;padding:2px 7px;border-radius:999px;">
+                ${isDanger ? 'DANGER' : (isWarning ? 'WARNING' : 'NORMAL')}
+              </span>
+            </div>
+            <div style="font-size:12px;color:#64748b;margin-bottom:8px;">📍 ${r.district}, ${r.state} Basin</div>
+            <div style="background:#f8fafc;padding:8px 10px;border-radius:8px;border:1px solid #e2e8f0;font-size:12px;margin-bottom:8px;">
+              <div style="display:flex;justify-content:space-between;font-weight:700;color:${color};margin-bottom:4px;">
+                <span>Current Level:</span> <span>${r.level} m</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;color:#475467;margin-top:2px;">
+                <span>Warning Level:</span> <span>${r.warning} m</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;color:#dc2626;font-weight:600;margin-top:2px;">
+                <span>Danger Mark:</span> <span>${r.danger} m</span>
+              </div>
+            </div>
+            <a href="safe-route.html" class="btn-primary" style="display:block;text-align:center;padding:6px 10px;font-size:0.78rem;border-radius:6px;color:#fff;">
+              🗺️ Evacuation Safe Route →
+            </a>
+          </div>
+        `);
+
+        marker.addTo(riversLayerGroup);
+        riverMarkerMap[r.id] = marker;
+      });
+
+      // Plot Reservoirs
+      RESERVOIRS_DATA.forEach(res => {
+        const isHigh = res.pct >= 90;
+        const color = isHigh ? "#dc2626" : "#2563eb";
+
+        const damIcon = L.divIcon({
+          className: "custom-map-pin",
+          html: `<div style="background:${color};color:#fff;width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(0,0,0,0.3);border:2px solid #fff;font-size:15px;cursor:pointer;">🏗️</div>`,
+          iconSize: [32, 32],
+          iconAnchor: [16, 16]
+        });
+
+        const damMarker = L.marker([res.lat, res.lon], { icon: damIcon });
+
+        // Hover tooltip
+        damMarker.bindTooltip(`
+          <div style="font-family:'Inter',sans-serif;font-size:12px;padding:2px;">
+            <strong style="color:#ffffff;display:block;">${res.name}</strong>
+            <span style="color:#94a3b8;font-size:11px;">📍 ${res.location}</span><br>
+            <strong style="color:${isHigh ? '#f87171' : '#60a5fa'};font-size:12px;">${res.pct}% Capacity</strong> 
+            <span style="font-size:10px;color:#cbd5e1;">(${res.current}m / Max: ${res.full}m)</span>
+          </div>
+        `, { direction: "top", offset: [0, -12], className: "custom-leaflet-tooltip" });
+
+        damMarker.bindPopup(`
+          <div style="font-family:'Inter',sans-serif;padding:6px;min-width:220px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+              <strong style="color:#0b2341;font-size:13px;">${res.name}</strong>
+              <span style="background:${isHigh ? '#fee2e2' : '#e0f2fe'};color:${color};font-size:10px;font-weight:800;padding:2px 6px;border-radius:4px;">
+                ${res.pct}% FULL
+              </span>
+            </div>
+            <div style="font-size:11px;color:#64748b;margin-bottom:8px;">📍 ${res.location}</div>
+            <div style="background:#f8fafc;padding:8px;border-radius:8px;border:1px solid #e2e8f0;font-size:11px;line-height:1.6;margin-bottom:6px;">
+              <div>Current Level: <strong>${res.current} m</strong></div>
+              <div>Danger Threshold: <strong style="color:#dc2626;">${res.danger} m</strong></div>
+              <div>Full Reservoir Level (FRL): <strong>${res.full} m</strong></div>
+            </div>
+          </div>
+        `);
+
+        damMarker.addTo(reservoirsLayerGroup);
+        reservoirMarkerMap[res.id] = damMarker;
+      });
+
+      // Fit all stations across India on initial load so the ENTIRE map is visible!
+      fitAllIndia();
+
+      // Invalidate map size after DOM & font rendering to ensure tiles load seamlessly
+      setTimeout(() => {
+        if (map) {
+          map.invalidateSize();
+          fitAllIndia();
+        }
+      }, 250);
+
+      setTimeout(() => {
+        if (map) map.invalidateSize();
+      }, 700);
+
+      window.addEventListener("resize", () => {
+        if (map) map.invalidateSize();
+      });
+    }
+
+    function fitAllIndia() {
+      const allPoints = [
+        ...RIVERS_DATA.map(r => [r.lat, r.lon]),
+        ...RESERVOIRS_DATA.map(d => [d.lat, d.lon])
+      ];
+      if (map && allPoints.length > 0) {
+        map.fitBounds(allPoints, {
+          padding: [45, 45],
+          maxZoom: 6,
+          animate: true
+        });
+      }
+
+      // Sync Quick Basin Chips
+      document.querySelectorAll(".map-chip-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.state === "ALL");
+      });
+
+      const stFilter = document.getElementById("stateFilter");
+      if (stFilter && stFilter.value !== "ALL") {
+        stFilter.value = "ALL";
+        renderRivers(RIVERS_DATA);
+      }
+    }
+
+    function toggleMapFullscreen() {
+      const card = document.getElementById("mapCardSection");
+      if (!card) return;
+      const isFs = card.classList.toggle("map-fullscreen-active");
+      const btn = document.getElementById("fsToggleBtn");
+      if (btn) {
+        btn.innerHTML = isFs ? "<span>✕ Exit Fullscreen</span>" : "<span>⛶ Fullscreen</span>";
+      }
+      setTimeout(() => {
+        map.invalidateSize();
+        if (!isFs) fitAllIndia();
+      }, 250);
+    }
+
+    function zoomToState(stateName) {
+      document.querySelectorAll(".map-chip-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.state === stateName);
+      });
+
+      const stFilter = document.getElementById("stateFilter");
+      if (stFilter) {
+        stFilter.value = stateName;
+      }
+
+      if (stateName === "ALL") {
+        renderRivers(RIVERS_DATA);
+        fitAllIndia();
+        return;
+      }
+
+      const filtered = RIVERS_DATA.filter(r => r.state === stateName);
+      renderRivers(filtered);
+
+      const matchingDams = RESERVOIRS_DATA.filter(d => d.location.toLowerCase().includes(stateName.toLowerCase()));
+      const points = [
+        ...filtered.map(r => [r.lat, r.lon]),
+        ...matchingDams.map(d => [d.lat, d.lon])
+      ];
+
+      if (points.length > 0) {
+        map.fitBounds(points, { padding: [60, 60], maxZoom: 8, animate: true });
+      }
+    }
+
+    function locateRiverOnMap(id, lat, lon) {
+      const marker = riverMarkerMap[id];
+      if (!marker) return;
+      document.getElementById("monitoringMap").scrollIntoView({ behavior: "smooth", block: "center" });
+      map.flyTo([lat, lon], 9, { duration: 1.2 });
+      setTimeout(() => {
+        marker.openPopup();
+      }, 700);
+    }
+
+    function locateReservoirOnMap(id, lat, lon) {
+      const marker = reservoirMarkerMap[id];
+      if (!marker) return;
+      document.getElementById("monitoringMap").scrollIntoView({ behavior: "smooth", block: "center" });
+      map.flyTo([lat, lon], 9, { duration: 1.2 });
+      setTimeout(() => {
+        marker.openPopup();
+      }, 700);
+    }
+
+    function renderRivers(list) {
+      const container = document.getElementById("riversGrid");
+      container.innerHTML = "";
+
+      list.forEach(r => {
+        const isDanger = r.level >= r.danger;
+        const isWarning = r.level >= r.warning && !isDanger;
+        const badgeClass = isDanger ? "critical" : (isWarning ? "warning" : "safe");
+        const badgeText = isDanger ? "DANGER MARK" : (isWarning ? "WARNING" : "NORMAL");
+        const dotColor = isDanger ? "red" : (isWarning ? "amber" : "green");
+
+        const pct = Math.min(100, Math.round((r.level / r.danger) * 100));
+
+        const card = document.createElement("div");
+        card.className = "stat-card";
+        card.style.cssText = "flex-direction:column;align-items:stretch;padding:18px;";
+        card.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px;">
+            <div>
+              <h3 style="font-size:1.15rem;color:var(--navy);margin-bottom:2px;">${r.name} River</h3>
+              <span style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">📍 ${r.district}, ${r.state}</span>
+            </div>
+            <span class="badge-pill ${badgeClass}"><span class="pulse-dot ${dotColor}"></span> ${badgeText}</span>
+          </div>
+
+          <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:6px;">
+            <span style="color:var(--text-muted);">Current Water Level</span>
+            <strong style="color:var(--navy);font-size:1rem;">${r.level} m</strong>
+          </div>
+
+          <div style="background:#e2e8f0;height:8px;border-radius:4px;overflow:hidden;margin-bottom:10px;">
+            <div style="background:${isDanger ? '#e02424' : (isWarning ? '#f59e0b' : '#10b981')};width:${pct}%;height:100%;"></div>
+          </div>
+
+          <div style="display:flex;justify-content:space-between;font-size:0.75rem;color:var(--text-muted);font-weight:600;margin-bottom:12px;">
+            <span>Warning: ${r.warning}m</span>
+            <span>Danger: ${r.danger}m</span>
+          </div>
+
+          <button onclick="locateRiverOnMap('${r.id}', ${r.lat}, ${r.lon})" class="btn-outline" style="width:100%;padding:8px;font-size:0.82rem;display:flex;align-items:center;justify-content:center;gap:6px;">
+            <span>📍 Focus Station on Map</span>
+          </button>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function renderReservoirs(list) {
+      const container = document.getElementById("reservoirsGrid");
+      container.innerHTML = "";
+
+      list.forEach(res => {
+        const card = document.createElement("div");
+        card.className = "stat-card";
+        card.style.cssText = "flex-direction:column;align-items:stretch;padding:18px;";
+        card.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px;">
+            <div>
+              <h3 style="font-size:1.1rem;color:var(--navy);margin-bottom:2px;">${res.name}</h3>
+              <span style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">📍 ${res.location}</span>
+            </div>
+            <span class="badge-pill ${res.pct >= 90 ? 'critical' : 'active'}">${res.pct}% Capacity</span>
+          </div>
+
+          <div style="background:#e2e8f0;height:10px;border-radius:5px;overflow:hidden;margin-bottom:10px;">
+            <div style="background:${res.pct >= 90 ? '#e02424' : '#1677ff'};width:${res.pct}%;height:100%;"></div>
+          </div>
+
+          <div style="display:flex;justify-content:space-between;font-size:0.78rem;color:#334155;font-weight:600;margin-bottom:12px;">
+            <span>Current: ${res.current}m</span>
+            <span>Danger: ${res.danger}m</span>
+            <span>FRL: ${res.full}m</span>
+          </div>
+
+          <button onclick="locateReservoirOnMap('${res.id}', ${res.lat}, ${res.lon})" class="btn-outline" style="width:100%;padding:8px;font-size:0.82rem;display:flex;align-items:center;justify-content:center;gap:6px;">
+            <span>🏗️ Focus Dam on Map</span>
+          </button>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function filterRivers() {
+      const selected = document.getElementById("stateFilter").value;
+      zoomToState(selected);
+    }
+  </script>
+</body>
+</html>

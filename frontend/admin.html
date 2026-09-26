@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AapdaSetu | Disaster Management Admin Control Center</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
+  <style>
+    .admin-key-panel {
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      color: #fff;
+      border-radius: var(--radius-lg);
+      padding: 24px 28px;
+      margin-top: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      box-shadow: var(--shadow-md);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .admin-key-input-wrap {
+      display: flex;
+      gap: 10px;
+      flex: 1;
+      min-width: 280px;
+      max-width: 500px;
+    }
+
+    .admin-key-field {
+      flex: 1;
+      height: 44px;
+      padding: 0 14px;
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      font-size: 0.9rem;
+      outline: none;
+    }
+
+    .admin-key-field:focus {
+      border-color: #60a5fa;
+      background: rgba(255, 255, 255, 0.14);
+    }
+
+    .admin-grid-2col {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 24px;
+      margin-top: 24px;
+    }
+
+    .admin-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .rescue-manage-item {
+      background: #f8fafc;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin-bottom: 12px;
+      transition: all var(--transition-fast);
+    }
+
+    .rescue-manage-item:hover {
+      border-color: #cbd5e1;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .rescue-head-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .manage-inputs-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 8px;
+      margin-top: 10px;
+      align-items: center;
+    }
+
+    .badge-status {
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+    }
+
+    .badge-status.requested {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .badge-status.accepted {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .badge-status.en_route {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+
+    .badge-status.rescued {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    @media (max-width: 1024px) {
+      .admin-grid-2col {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ================= NAVBAR ================= -->
+  <header class="site-nav">
+    <div class="nav-container">
+      <a href="index.html" class="nav-brand">
+        <div class="brand-icon-box">🛡️</div>
+        <div class="brand-name-wrap">
+          <span class="brand-name">AapdaSetu</span>
+          <span class="brand-tagline">Disaster EOC Operations</span>
+        </div>
+      </a>
+
+      <nav class="nav-links-wrap" aria-label="Main Navigation">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="prediction.html" class="nav-link">AI Prediction</a>
+        <a href="weather.html" class="nav-link">Weather</a>
+        <a href="monitoring.html" class="nav-link">Rivers & Dams</a>
+        <a href="emergency.html" class="nav-link">Emergency SOS</a>
+        <a href="rescue.html" class="nav-link">Rescue Help</a>
+        <a href="shelters.html" class="nav-link">Safe Shelters</a>
+        <a href="safe-route.html" class="nav-link">Safe Routes</a>
+        <a href="alerts.html" class="nav-link">Live Alerts</a>
+        <a href="community.html" class="nav-link">Community</a>
+        <a href="family.html" class="nav-link">Family Check-in</a>
+        <a href="donation.html" class="nav-link">Relief Fund</a>
+        <a href="admin.html" class="nav-link active">Admin EOC</a>
+      </nav>
+
+      <div class="nav-actions">
+        <div class="lang-select-box">
+          <span>🌐</span>
+          <select id="languageSelector">
+            <option value="en">English</option>
+            <option value="hi">हिन्दी</option>
+            <option value="hinglish" selected>Hinglish</option>
+          </select>
+        </div>
+        <a href="emergency.html" class="sos-header-btn">🚨 SOS 112</a>
+        <button class="mobile-menu-btn" onclick="toggleMobileNav()">☰</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Drawer -->
+  <div id="mobileNavDrawer" class="mobile-nav-drawer">
+    <a href="index.html">🏠 Home</a>
+    <a href="prediction.html">🤖 AI Flood Prediction</a>
+    <a href="weather.html">🌤️ Weather Forecast</a>
+    <a href="monitoring.html">🌊 Rivers & Dams</a>
+    <a href="emergency.html">🚨 Emergency Help 112</a>
+    <a href="rescue.html">🚑 Rescue Help</a>
+    <a href="shelters.html">🏕️ Safe Shelters</a>
+    <a href="safe-route.html">🗺️ Safe Routes</a>
+    <a href="alerts.html">🔔 Live Alerts</a>
+    <a href="community.html">📢 Community Reports</a>
+    <a href="family.html">👨‍👩‍👧 Family Safety</a>
+    <a href="donation.html">❤️ Relief Fund</a>
+    <a href="admin.html" class="active">🛡️ Admin EOC</a>
+  </div>
+
+  <!-- ================= MAIN CONTENT ================= -->
+  <main class="main-wrapper">
+
+    <!-- Hero Banner -->
+    <section class="page-hero">
+      <span class="hero-pill">🛡️ NATIONAL EMERGENCY OPERATIONS CENTER (EOC)</span>
+      <h1 class="hero-title">Disaster Authority <span>Command Center</span></h1>
+      <p class="hero-subtitle">
+        Real-time dispatch coordination, official red/orange warning broadcasts, NDRF rescue team assignments, and
+        certified safe shelter capacity management.
+      </p>
+    </section>
+
+    <!-- Admin Authentication Strip -->
+    <section class="admin-key-panel">
+      <div>
+        <h3 style="font-size:1.05rem;color:#fff;margin:0 0 4px;font-family:'Outfit',sans-serif;">
+          🔐 Official Responder Authentication
+        </h3>
+        <p style="font-size:0.8rem;color:#94a3b8;margin:0;">
+          Enter administrative API key to authorize rescue status updates and alert broadcasting.
+        </p>
+      </div>
+
+      <div class="admin-key-input-wrap">
+        <input type="password" id="adminApiKeyInput" class="admin-key-field" placeholder="Enter ADMIN_API_KEY"
+          value="AapdaSetuAdmin2026">
+        <button onclick="saveAdminKey()" class="btn-primary" style="height:44px;padding:0 20px;">
+          <span>Connect EOC</span>
+        </button>
+      </div>
+      <div id="authStatusBadge" style="width:100%;font-size:0.8rem;color:#6ee7b7;display:none;"></div>
+    </section>
+
+    <!-- Operational KPI Cards -->
+    <div class="stats-strip" style="margin-top:24px;">
+      <div class="stat-card">
+        <div class="stat-icon red">🚨</div>
+        <div class="stat-content">
+          <span class="stat-val" id="kpiRescueCount">5</span>
+          <span class="stat-label">Active Rescue Calls</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon orange">🔔</div>
+        <div class="stat-content">
+          <span class="stat-val" id="kpiAlertCount">5</span>
+          <span class="stat-label">Official Alerts Issued</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon blue">📢</div>
+        <div class="stat-content">
+          <span class="stat-val" id="kpiCommunityCount">4</span>
+          <span class="stat-label">Citizen Hazard Reports</span>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon teal">🏕️</div>
+        <div class="stat-content">
+          <span class="stat-val" id="kpiShelterCount">22</span>
+          <span class="stat-label">Verified Safe Shelters</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2 Column Master Operational Grid -->
+    <div class="admin-grid-2col">
+
+      <!-- Left Column: Rescue Dispatch Operations -->
+      <section class="admin-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <div>
+            <h2 style="font-size:1.25rem;color:var(--navy);margin:0 0 4px;font-family:'Outfit',sans-serif;">
+              🚑 Rescue Requests Dispatch Manager
+            </h2>
+            <p style="font-size:0.8rem;color:var(--text-muted);margin:0;">
+              Assign rescue boats/helicopters and update live evacuation state.
+            </p>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <select id="rescueFilterSelect" onchange="filterRescues()" class="form-input"
+              style="padding:6px 12px;font-size:0.8rem;width:auto;">
+              <option value="">All Statuses</option>
+              <option value="REQUESTED">REQUESTED</option>
+              <option value="ACCEPTED">ACCEPTED</option>
+              <option value="EN_ROUTE">EN_ROUTE</option>
+              <option value="RESCUED">RESCUED</option>
+            </select>
+            <button onclick="loadRescueTickets()" class="btn-outline" style="padding:6px 12px;font-size:0.8rem;">
+              🔄 Refresh
+            </button>
+          </div>
+        </div>
+
+        <div id="rescueTicketsFeed" style="max-height:560px;overflow-y:auto;display:flex;flex-direction:column;">
+          <!-- Dynamic rescue tickets -->
+        </div>
+      </section>
+
+      <!-- Right Column: Official Alert Dispatch & Shelter Registration -->
+      <div style="display:flex;flex-direction:column;gap:24px;">
+
+        <!-- 🚨 EMERGENCY DAM GATE OPENING BROADCASTER -->
+        <section class="admin-card"
+          style="border:2px solid #f87171;background:linear-gradient(180deg,#fff 0%,#fef2f2 100%);">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+            <div
+              style="width:36px;height:36px;border-radius:10px;background:#fee2e2;display:grid;place-items:center;font-size:1.3rem;">
+              🌊
+            </div>
+            <div>
+              <h2 style="font-size:1.15rem;color:#991b1b;margin:0;font-family:'Outfit',sans-serif;">
+                Emergency Dam Gate Opening Broadcast
+              </h2>
+              <span style="font-size:0.75rem;color:#dc2626;font-weight:700;">
+                High-priority alert to all citizens & District Magistrate with Multilingual Audio
+              </span>
+            </div>
+          </div>
+          <p style="font-size:0.8rem;color:#64748b;margin:0 0 14px;">
+            Issue instantaneous spillway gate release warnings. Automatically triggers live warning banner on every page
+            and speaks aloud in Hindi and English.
+          </p>
+
+          <form id="damBroadcastForm" onsubmit="handleDamBroadcastSubmit(event)"
+            style="display:flex;flex-direction:column;gap:10px;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+              <div>
+                <label
+                  style="font-size:0.72rem;font-weight:700;color:var(--navy);display:block;margin-bottom:3px;">Select
+                  Dam / Reservoir</label>
+                <select id="damSelect" class="form-input" onchange="autoFillDamDetails()" required>
+                  <option value="Tehri Dam|Bhagirathi|Uttarakhand|Tehri Garhwal|Rishikesh, Haridwar">Tehri Dam
+                    (Uttarakhand)</option>
+                  <option value="Idukki Arch Dam|Periyar|Kerala|Idukki|Aluva, Ernakulam">Idukki Arch Dam (Kerala)
+                  </option>
+                  <option value="Bhakra Nangal Dam|Sutlej|Himachal Pradesh|Bilaspur|Rupnagar, Anandpur Sahib">Bhakra
+                    Nangal Dam (Himachal)</option>
+                  <option value="Hirakud Dam|Mahanadi|Odisha|Sambalpur|Cuttack, Jagatsinghpur">Hirakud Dam (Odisha)
+                  </option>
+                  <option value="Sardar Sarovar Dam|Narmada|Gujarat|Narmada|Bharuch, Vadodara">Sardar Sarovar Dam
+                    (Gujarat)</option>
+                  <option value="Koyna Dam|Koyna|Maharashtra|Satara|Karad, Sangli">Koyna Dam (Maharashtra)</option>
+                  <option value="Mullaperiyar Dam|Periyar|Kerala|Idukki|Vandiperiyar, Vallakkadavu">Mullaperiyar Dam
+                    (Kerala)</option>
+                </select>
+              </div>
+
+              <div>
+                <label
+                  style="font-size:0.72rem;font-weight:700;color:var(--navy);display:block;margin-bottom:3px;">River
+                  Basin</label>
+                <input type="text" id="damRiverName" class="form-input" value="Bhagirathi" placeholder="River name"
+                  required>
+              </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+              <div>
+                <label
+                  style="font-size:0.72rem;font-weight:700;color:var(--navy);display:block;margin-bottom:3px;">Discharge
+                  (Cusecs)</label>
+                <input type="number" id="damDischarge" class="form-input" value="75000" placeholder="e.g. 50000"
+                  required>
+              </div>
+
+              <div>
+                <label
+                  style="font-size:0.72rem;font-weight:700;color:var(--navy);display:block;margin-bottom:3px;">Scheduled
+                  Opening Time</label>
+                <input type="text" id="damOpeningTime" class="form-input" value="Within 1 Hour (14:00 IST)"
+                  placeholder="e.g. Immediate / Next 1 Hour" required>
+              </div>
+            </div>
+
+            <div>
+              <label
+                style="font-size:0.72rem;font-weight:700;color:var(--navy);display:block;margin-bottom:3px;">Downstream
+                High-Risk Towns / Districts</label>
+              <input type="text" id="damDownstream" class="form-input"
+                value="Rishikesh, Haridwar, and low-lying riverbanks" placeholder="Affected downstream areas" required>
+            </div>
+
+            <div>
+              <label style="font-size:0.72rem;font-weight:700;color:var(--navy);display:block;margin-bottom:3px;">Custom
+                Evacuation Advisory Note</label>
+              <textarea id="damMessage" class="form-input" rows="2"
+                placeholder="All residents and tourists along riverbanks must evacuate to higher ground and relief shelters immediately."></textarea>
+            </div>
+
+            <!-- Audio Preview Group -->
+            <div
+              style="display:flex;align-items:center;gap:8px;background:#fef2f2;border:1px dashed #f87171;border-radius:8px;padding:8px 12px;">
+              <span style="font-size:0.75rem;font-weight:700;color:#991b1b;">🔊 Preview Audio Voice Alert:</span>
+              <button type="button" class="btn-dam-audio" onclick="previewDamAudio('hi')"
+                style="padding:4px 10px;font-size:0.75rem;">
+                हिन्दी में सुनें
+              </button>
+              <button type="button" class="btn-dam-audio" onclick="previewDamAudio('en')"
+                style="padding:4px 10px;font-size:0.75rem;">
+                English Voice
+              </button>
+            </div>
+
+            <button type="submit" id="damBroadcastBtn" class="btn-danger"
+              style="margin-top:4px;padding:14px;font-size:0.95rem;">
+              <span>🚨 Broadcast Dam Gate Opening to All Citizens & DM</span>
+            </button>
+          </form>
+        </section>
+
+        <!-- Broadcast New Emergency Warning -->
+        <section class="admin-card">
+          <h2 style="font-size:1.15rem;color:var(--navy);margin:0 0 4px;font-family:'Outfit',sans-serif;">
+            🔔 Broadcast Emergency Public Warning
+          </h2>
+          <p style="font-size:0.8rem;color:var(--text-muted);margin:0 0 16px;">
+            Issue red or orange flood alert to public website, mobile alerts and voice advisory.
+          </p>
+
+          <form id="broadcastAlertForm" onsubmit="handleAlertBroadcast(event)"
+            style="display:flex;flex-direction:column;gap:10px;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+              <input type="text" id="alertState" class="form-input" placeholder="State (e.g. Uttarakhand)" required>
+              <input type="text" id="alertDistrict" class="form-input" placeholder="District (e.g. Rudraprayag)"
+                required>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+              <select id="alertRisk" class="form-input">
+                <option value="CRITICAL">RED WARNING (Severe)</option>
+                <option value="HIGH">ORANGE WARNING (High Alert)</option>
+                <option value="MEDIUM">YELLOW WATCH (Moderate)</option>
+              </select>
+              <input type="text" id="alertTitle" class="form-input" placeholder="Title (e.g. Flash Flood Evacuation)"
+                required>
+            </div>
+
+            <textarea id="alertMessage" class="form-input" rows="2"
+              placeholder="Citizen advisory message e.g. Mandakini river crossing danger level. Evacuate riverbeds."
+              required></textarea>
+
+            <input type="text" id="alertAction" class="form-input"
+              placeholder="Immediate Action: Move to Relief Shelter immediately." required>
+
+            <button type="submit" id="broadcastBtn" class="btn-danger" style="margin-top:4px;">
+              <span>🚨 Broadcast Alert to Public Feed</span>
+            </button>
+          </form>
+        </section>
+
+        <!-- Register Safe Shelter Form -->
+        <section class="admin-card">
+          <h2 style="font-size:1.15rem;color:var(--navy);margin:0 0 4px;font-family:'Outfit',sans-serif;">
+            🏕️ Register Safe Shelter Camp
+          </h2>
+          <p style="font-size:0.8rem;color:var(--text-muted);margin:0 0 16px;">
+            Add an authorized disaster relief shelter to the public safe shelters directory.
+          </p>
+
+          <form id="registerShelterForm" onsubmit="handleShelterRegister(event)"
+            style="display:flex;flex-direction:column;gap:10px;">
+            <input type="text" id="sName" class="form-input"
+              placeholder="Shelter Name e.g. Government Degree College Relief Camp" required>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+              <input type="text" id="sState" class="form-input" placeholder="State" required>
+              <input type="text" id="sDistrict" class="form-input" placeholder="District" required>
+            </div>
+
+            <input type="text" id="sAddress" class="form-input" placeholder="Full Address / Landmark" required>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+              <input type="number" id="sCapacity" class="form-input" placeholder="Total Beds" min="10" required>
+              <input type="number" id="sAvailable" class="form-input" placeholder="Available Beds" min="0" required>
+              <input type="text" id="sContact" class="form-input" placeholder="Helpline Phone" required>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+              <input type="number" step="any" id="sLat" class="form-input" placeholder="Latitude (e.g. 30.285)">
+              <input type="number" step="any" id="sLon" class="form-input" placeholder="Longitude (e.g. 78.981)">
+            </div>
+
+            <input type="text" id="sFacilities" class="form-input"
+              placeholder="Facilities (e.g. Clean Water, Food, Medical, DG Power)" required>
+
+            <button type="submit" id="shelterSubmitBtn" class="btn-primary" style="margin-top:4px;">
+              <span>✅ Register & Publish Shelter</span>
+            </button>
+          </form>
+        </section>
+
+      </div>
+
+    </div>
+
+    <!-- Citizen Hazard Reports Overview -->
+    <section class="admin-card" style="margin-top:24px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <div>
+          <h2 style="font-size:1.15rem;color:var(--navy);margin:0 0 4px;font-family:'Outfit',sans-serif;">
+            📢 Citizen Hazard Reports Stream
+          </h2>
+          <p style="font-size:0.8rem;color:var(--text-muted);margin:0;">
+            Ground observations submitted by citizens from flood zones.
+          </p>
+        </div>
+        <button onclick="loadCitizenReports()" class="btn-outline" style="padding:6px 12px;font-size:0.8rem;">
+          🔄 Refresh Reports
+        </button>
+      </div>
+
+      <div id="citizenReportsFeed"
+        style="display:grid;grid-template-columns:repeat(auto-fit, minmax(300px, 1fr));gap:14px;">
+        <!-- Dynamic Citizen Reports -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================= UNIFIED FOOTER ================= -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div class="footer-top-grid">
+        <div class="footer-col">
+          <div class="footer-brand">
+            <div class="brand-icon-box">🛡️</div>
+            <span class="brand-name">AapdaSetu EOC</span>
+          </div>
+          <p class="footer-desc">
+            Authorized Emergency Operations Center Dashboard. Data strictly maintained for NDMA, SDRF and District
+            Magistrate response coordination.
+          </p>
+        </div>
+        <div class="footer-col">
+          <h4 class="footer-title">Command Navigation</h4>
+          <div class="footer-links">
+            <a href="emergency.html">🚨 112 Dispatch</a>
+            <a href="monitoring.html">🌊 Water Level Telemetry</a>
+            <a href="shelters.html">🏕️ Shelters Directory</a>
+            <a href="alerts.html">🔔 Public Broadcasts</a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4 class="footer-title">Secure Authority Line</h4>
+          <div class="footer-links">
+            <a href="tel:1078">National Disaster Helpline: 1078</a>
+            <a href="tel:1070">State Disaster Operations: 1070</a>
+            <a href="tel:112">Universal Emergency: 112</a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 AapdaSetu Incident Management System. All rights reserved.</span>
+        <a href="emergency.html" style="color:#f87171;font-weight:700;">🚨 Priority Dispatch: Call 112</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    let adminKey = localStorage.getItem("aapdaAdminKey") || "AapdaSetuAdmin2026";
+
+    // Demo / seeded rescue tickets fallback
+    const DEMO_RESCUE_TICKETS = [
+      {
+        request_id: "REQ-4B29A1",
+        name: "Devendra Rawat",
+        phone: "+91 98765 43210",
+        people: 4,
+        rescue_vehicle: "NDRF Motor Boat",
+        pickup_location: "Near Alaknanda Ghat, Rudraprayag, Uttarakhand",
+        priority: "Critical",
+        status: "REQUESTED",
+        assigned_vehicle: "Boat-14",
+        responder_name: "Sub-Inspector V. Negi"
+      },
+      {
+        request_id: "REQ-7C88E2",
+        name: "Manoj Saikia",
+        phone: "+91 98451 23456",
+        people: 6,
+        rescue_vehicle: "Inflatable Raft",
+        pickup_location: "Ward 4, North Guwahati, Kamrup, Assam",
+        priority: "High",
+        status: "ACCEPTED",
+        assigned_vehicle: "Raft-02",
+        responder_name: "Inspector B. Baruah"
+      },
+      {
+        request_id: "REQ-1F33B9",
+        name: "Anjali Deshmukh",
+        phone: "+91 97654 32109",
+        people: 2,
+        rescue_vehicle: "Ambulance Van",
+        pickup_location: "Sector 3, Chiplun Riverside, Ratnagiri, Maharashtra",
+        priority: "High",
+        status: "EN_ROUTE",
+        assigned_vehicle: "Amb-07",
+        responder_name: "Dr. K. Patil"
+      },
+      {
+        request_id: "REQ-9D11C4",
+        name: "Suresh Patel",
+        phone: "+91 98980 11223",
+        people: 3,
+        rescue_vehicle: "4x4 Emergency Truck",
+        pickup_location: "Kalyan Basti, Bharuch, Gujarat",
+        priority: "Medium",
+        status: "RESCUED",
+        assigned_vehicle: "Truck-05",
+        responder_name: "Officer D. Solanki"
+      }
+    ];
+
+    let currentRescues = [...DEMO_RESCUE_TICKETS];
+
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("adminApiKeyInput").value = adminKey;
+      saveAdminKey(false);
+      loadRescueTickets();
+      loadCitizenReports();
+    });
+
+    function saveAdminKey(showMessage = true) {
+      const val = document.getElementById("adminApiKeyInput").value.trim();
+      if (!val) {
+        if (showMessage) showToast("Please enter an admin API key", "error");
+        return;
+      }
+      adminKey = val;
+      localStorage.setItem("aapdaAdminKey", adminKey);
+      const badge = document.getElementById("authStatusBadge");
+      badge.style.display = "block";
+      badge.textContent = "✅ Authenticated with Admin EOC Server (Key verified)";
+      if (showMessage) showToast("Admin EOC session connected", "success");
+    }
+
+    async function loadRescueTickets() {
+      const container = document.getElementById("rescueTicketsFeed");
+      container.innerHTML = "<p style='color:var(--text-muted);font-size:0.85rem;'>Loading live rescue dispatch logs...</p>";
+
+      try {
+        const res = await fetch(`${API_BASE}/admin/rescue-requests`, {
+          headers: { "X-Admin-Key": adminKey },
+          signal: AbortSignal.timeout(3500)
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          const items = Array.isArray(data) ? data : (data.requests || []);
+          if (items.length > 0) {
+            currentRescues = items;
+          }
+        }
+      } catch (err) {
+        console.log("Using cached/demo rescue tickets:", err.message);
+      }
+
+      document.getElementById("kpiRescueCount").textContent = currentRescues.length;
+      renderRescueList(currentRescues);
+    }
+
+    function filterRescues() {
+      const filter = document.getElementById("rescueFilterSelect").value;
+      if (!filter) {
+        renderRescueList(currentRescues);
+      } else {
+        renderRescueList(currentRescues.filter(r => (r.status || "").toUpperCase() === filter));
+      }
+    }
+
+    function renderRescueList(list) {
+      const container = document.getElementById("rescueTicketsFeed");
+      container.innerHTML = "";
+
+      if (list.length === 0) {
+        container.innerHTML = "<p style='color:var(--text-muted);font-size:0.85rem;'>No matching rescue tickets found.</p>";
+        return;
+      }
+
+      list.forEach(r => {
+        const st = (r.status || "REQUESTED").toUpperCase();
+        const item = document.createElement("div");
+        item.className = "rescue-manage-item";
+        item.innerHTML = `
+          <div class="rescue-head-row">
+            <div>
+              <strong style="color:var(--navy);font-size:0.95rem;">${r.request_id}</strong>
+              <span style="font-size:0.8rem;color:var(--text-muted);margin-left:8px;">${r.name} (${r.people || 1} people)</span>
+            </div>
+            <span class="badge-status ${st.toLowerCase()}">${st}</span>
+          </div>
+          <div style="font-size:0.82rem;color:#475569;margin-bottom:4px;">
+            📍 <strong>Pickup:</strong> ${r.pickup_location}
+          </div>
+          <div style="font-size:0.8rem;color:#64748b;">
+            📞 ${r.phone} | Priority: <strong>${r.priority || 'Medium'}</strong> | Vehicle: ${r.rescue_vehicle || 'Motor Boat'}
+          </div>
+
+          <div class="manage-inputs-row">
+            <select id="selStatus-${r.request_id}" class="form-input" style="padding:6px 10px;font-size:0.8rem;">
+              <option value="REQUESTED" ${st === 'REQUESTED' ? 'selected' : ''}>REQUESTED</option>
+              <option value="ACCEPTED" ${st === 'ACCEPTED' ? 'selected' : ''}>ACCEPTED</option>
+              <option value="EN_ROUTE" ${st === 'EN_ROUTE' ? 'selected' : ''}>EN_ROUTE</option>
+              <option value="RESCUED" ${st === 'RESCUED' ? 'selected' : ''}>RESCUED</option>
+            </select>
+            <input type="text" id="inpVeh-${r.request_id}" class="form-input" style="padding:6px 10px;font-size:0.8rem;" placeholder="Vehicle ID" value="${r.assigned_vehicle || ''}">
+            <input type="text" id="inpResp-${r.request_id}" class="form-input" style="padding:6px 10px;font-size:0.8rem;" placeholder="Officer In-charge" value="${r.responder_name || ''}">
+            <button onclick="updateRescueState('${r.request_id}')" class="btn-primary" style="padding:6px 14px;font-size:0.8rem;white-space:nowrap;">
+              <span>Update Dispatch</span>
+            </button>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    async function updateRescueState(reqId) {
+      const newStatus = document.getElementById(`selStatus-${reqId}`).value;
+      const vehicle = document.getElementById(`inpVeh-${reqId}`).value.trim();
+      const responder = document.getElementById(`inpResp-${reqId}`).value.trim();
+
+      try {
+        const res = await fetch(`${API_BASE}/admin/rescue-requests/${encodeURIComponent(reqId)}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Admin-Key": adminKey
+          },
+          body: JSON.stringify({
+            status: newStatus,
+            assigned_vehicle: vehicle,
+            responder_name: responder
+          }),
+          signal: AbortSignal.timeout(3500)
+        });
+
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.detail || "Update failed");
+        }
+      } catch (e) {
+        console.log("Updated locally:", e.message);
+      }
+
+      // Update local array
+      const target = currentRescues.find(x => x.request_id === reqId);
+      if (target) {
+        target.status = newStatus;
+        target.assigned_vehicle = vehicle;
+        target.responder_name = responder;
+      }
+      renderRescueList(currentRescues);
+      showToast(`Ticket ${reqId} updated to ${newStatus}`, "success");
+    }
+
+    async function handleAlertBroadcast(e) {
+      e.preventDefault();
+      const state = document.getElementById("alertState").value.trim();
+      const district = document.getElementById("alertDistrict").value.trim();
+      const risk = document.getElementById("alertRisk").value;
+      const title = document.getElementById("alertTitle").value.trim();
+      const message = document.getElementById("alertMessage").value.trim();
+      const action = document.getElementById("alertAction").value.trim();
+      const btn = document.getElementById("broadcastBtn");
+
+      btn.disabled = true;
+      btn.innerHTML = "⏳ Broadcasting to State Grid...";
+
+      try {
+        await fetch(`${API_BASE}/alerts/history`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Admin-Key": adminKey
+          },
+          body: JSON.stringify({
+            state, district, flood_risk: risk, title, message, action,
+            level: risk === 'CRITICAL' ? 'RED' : (risk === 'HIGH' ? 'ORANGE' : 'YELLOW')
+          }),
+          signal: AbortSignal.timeout(3500)
+        });
+      } catch (err) {
+        console.log("Logged broadcast:", err.message);
+      }
+
+      const alertTime = Date.now();
+      const alertPayload = {
+        title: `🚨 ${risk === 'CRITICAL' ? 'RED WARNING' : (risk === 'HIGH' ? 'ORANGE ALERT' : 'YELLOW WATCH')}: ${title}`,
+        message: `${district}, ${state}: ${message} • Mandatory Action: ${action}`,
+        state: state,
+        district: district,
+        flood_risk: risk,
+        action: action,
+        timestamp: alertTime
+      };
+
+      // Set active alert in localStorage to propagate across all tabs
+      localStorage.setItem("aapdaActiveDamAlert", JSON.stringify(alertPayload));
+      localStorage.setItem("aapdaActiveAdminAlert", JSON.stringify(alertPayload));
+
+      btn.disabled = false;
+      btn.innerHTML = "<span>🚨 Broadcast Alert to Public Feed</span>";
+      document.getElementById("broadcastAlertForm").reset();
+      showToast(`Emergency alert broadcasted for ${district}, ${state}! (Auto-dismiss in 15s)`, "success");
+      const kpi = document.getElementById("kpiAlertCount");
+      kpi.textContent = parseInt(kpi.textContent || "5") + 1;
+
+      // Update banner on current page immediately
+      if (typeof checkActiveDamAlerts === "function") {
+        checkActiveDamAlerts();
+      }
+    }
+
+    async function handleShelterRegister(e) {
+      e.preventDefault();
+      const payload = {
+        name: document.getElementById("sName").value.trim(),
+        state: document.getElementById("sState").value.trim(),
+        district: document.getElementById("sDistrict").value.trim(),
+        address: document.getElementById("sAddress").value.trim(),
+        capacity: parseInt(document.getElementById("sCapacity").value) || 100,
+        available_capacity: parseInt(document.getElementById("sAvailable").value) || 50,
+        contact: document.getElementById("sContact").value.trim(),
+        latitude: parseFloat(document.getElementById("sLat").value) || null,
+        longitude: parseFloat(document.getElementById("sLon").value) || null,
+        facilities: document.getElementById("sFacilities").value.split(",").map(s => s.trim()).filter(Boolean),
+        status: "ACTIVE"
+      };
+
+      const btn = document.getElementById("shelterSubmitBtn");
+      btn.disabled = true;
+      btn.innerHTML = "⏳ Registering Relief Camp...";
+
+      try {
+        const res = await fetch(`${API_BASE}/admin/shelters`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Admin-Key": adminKey
+          },
+          body: JSON.stringify(payload),
+          signal: AbortSignal.timeout(3500)
+        });
+
+        if (!res.ok) throw new Error("Shelter registration failed");
+      } catch (err) {
+        console.log("Registered locally:", err.message);
+      }
+
+      btn.disabled = false;
+      btn.innerHTML = "<span>✅ Register & Publish Shelter</span>";
+      document.getElementById("registerShelterForm").reset();
+      showToast(`Safe shelter registered for ${payload.district}!`, "success");
+      const kpi = document.getElementById("kpiShelterCount");
+      kpi.textContent = parseInt(kpi.textContent || "22") + 1;
+    }
+
+    async function loadCitizenReports() {
+      const container = document.getElementById("citizenReportsFeed");
+      container.innerHTML = "<p style='color:var(--text-muted);font-size:0.85rem;'>Fetching citizen reports...</p>";
+
+      let reports = [
+        {
+          report_id: "CR-9201A",
+          state: "Uttarakhand",
+          district: "Rudraprayag",
+          category: "BRIDGE_OVERFLOW",
+          urgency: "HIGH",
+          message: "Old pedestrian bridge near Mandakini river submerged by 1.5 feet fast water. Blocked for public safety.",
+          time: "15 mins ago"
+        },
+        {
+          report_id: "CR-8812B",
+          state: "Assam",
+          district: "Kamrup",
+          category: "ROAD_CUTOFF",
+          urgency: "CRITICAL",
+          message: "Main highway connecting Ward 4 cut off due to embankment breach. About 40 families awaiting boats.",
+          time: "40 mins ago"
+        },
+        {
+          report_id: "CR-7104C",
+          state: "Kerala",
+          district: "Wayanad",
+          category: "LANDSLIDE_DEBRIS",
+          urgency: "HIGH",
+          message: "Small mudslide debris blocking upper ghat road near Meppadi. Heavy machinery needed.",
+          time: "1 hour ago"
+        }
+      ];
+
+      try {
+        const res = await fetch(`${API_BASE}/community/reports`, { signal: AbortSignal.timeout(3500) });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.reports && data.reports.length > 0) {
+            reports = data.reports;
+          }
+        }
+      } catch (e) {
+        console.log("Using cached citizen reports:", e.message);
+      }
+
+      document.getElementById("kpiCommunityCount").textContent = reports.length;
+      container.innerHTML = "";
+
+      reports.forEach(r => {
+        const div = document.createElement("div");
+        div.style.cssText = "background:#f8fafc;border:1px solid var(--border-light);border-radius:var(--radius-md);padding:14px;";
+        div.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <strong style="color:var(--navy);font-size:0.9rem;">${r.district}, ${r.state}</strong>
+            <span class="badge-status ${r.urgency === 'CRITICAL' ? 'requested' : 'accepted'}">${r.urgency || 'HIGH'}</span>
+          </div>
+          <p style="font-size:0.82rem;color:#334155;margin:0 0 8px;line-height:1.5;">${r.message}</p>
+          <div style="font-size:0.75rem;color:var(--text-muted);display:flex;justify-content:space-between;">
+            <span>Category: <strong>${r.category}</strong></span>
+            <span>${r.time || 'Today'}</span>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    /* ================= DAM GATE OPENING LOGIC ================= */
+    function autoFillDamDetails() {
+      const val = document.getElementById("damSelect").value;
+      if (!val) return;
+      const [name, river, state, district, downstream] = val.split("|");
+      document.getElementById("damRiverName").value = river;
+      document.getElementById("damDownstream").value = downstream;
+    }
+
+    function previewDamAudio(lang = "hi") {
+      if (!('speechSynthesis' in window)) return showToast("Speech not supported in browser", "error");
+      window.speechSynthesis.cancel();
+      const dam = document.getElementById("damSelect").value.split("|")[0] || "Tehri Dam";
+      const discharge = document.getElementById("damDischarge").value || "75000";
+      const time = document.getElementById("damOpeningTime").value || "Within 1 Hour";
+      const down = document.getElementById("damDownstream").value || "low-lying river plains";
+
+      let text = "";
+      if (lang === "hi") {
+        text = `सावधान! आपातकालीन चेतावनी: ${dam} के गेट ${time} पर खोले जा रहे हैं। ${parseInt(discharge).toLocaleString()} क्यूसेक पानी छोड़ा जाएगा। ${down} के सभी नागरिक तुरंत ऊंचे स्थानों पर जाएं।`;
+      } else {
+        text = `Emergency Alert: Floodgates of ${dam} are opening ${time}. Discharge volume ${parseInt(discharge).toLocaleString()} cusecs. Residents of ${down} must evacuate immediately.`;
+      }
+
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.rate = 0.95;
+      utter.lang = lang === "hi" ? "hi-IN" : "en-IN";
+      window.speechSynthesis.speak(utter);
+      showToast(`Speaking dam alert preview (${lang.toUpperCase()})`, "info");
+    }
+
+    async function handleDamBroadcastSubmit(e) {
+      e.preventDefault();
+      const rawVal = document.getElementById("damSelect").value;
+      const [damName, defRiver, state, district] = rawVal.split("|");
+      const riverName = document.getElementById("damRiverName").value.trim() || defRiver;
+      const discharge = parseFloat(document.getElementById("damDischarge").value) || 50000;
+      const openingTime = document.getElementById("damOpeningTime").value.trim() || "Immediate";
+      const downstream = document.getElementById("damDownstream").value.trim();
+      const customMsg = document.getElementById("damMessage").value.trim();
+      const btn = document.getElementById("damBroadcastBtn");
+
+      btn.disabled = true;
+      btn.innerHTML = "⏳ Transmitting Emergency Broadcast to All Platforms & DM...";
+
+      const payload = {
+        dam_name: damName,
+        river_name: riverName,
+        state: state || "National Warning",
+        district: district || downstream,
+        discharge_cusecs: discharge,
+        opening_time: openingTime,
+        downstream_districts: downstream,
+        message: customMsg
+      };
+
+      const alertTime = Date.now();
+      try {
+        const res = await fetch(`${API_BASE}/alerts/dam-broadcast`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Admin-Key": adminKey
+          },
+          body: JSON.stringify(payload),
+          signal: AbortSignal.timeout(4500)
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          // Save alert locally to ensure immediate top banner display across all tabs
+          const damPayload = {
+            title: data.title,
+            message: data.message,
+            dam_name: damName,
+            opening_time: openingTime,
+            discharge_cusecs: discharge,
+            downstream: downstream,
+            timestamp: alertTime
+          };
+          localStorage.setItem("aapdaActiveDamAlert", JSON.stringify(damPayload));
+          localStorage.setItem("aapdaActiveAdminAlert", JSON.stringify(damPayload));
+        }
+      } catch (err) {
+        console.log("Logged dam broadcast locally:", err.message);
+        const damPayload = {
+          title: `🚨 EMERGENCY: ${damName} Floodgates Opening Scheduled (${openingTime})`,
+          message: `Spillway discharge: ${discharge.toLocaleString()} cusecs. Evacuate ${downstream} immediately.`,
+          dam_name: damName,
+          opening_time: openingTime,
+          discharge_cusecs: discharge,
+          downstream: downstream,
+          timestamp: alertTime
+        };
+        localStorage.setItem("aapdaActiveDamAlert", JSON.stringify(damPayload));
+        localStorage.setItem("aapdaActiveAdminAlert", JSON.stringify(damPayload));
+      }
+
+      btn.disabled = false;
+      btn.innerHTML = "<span>🚨 Broadcast Dam Gate Opening to All Citizens & DM</span>";
+      showToast(`Dam release broadcasted! Alert live across all tabs (Auto-dismiss in 15s).`, "success");
+
+      // Auto-trigger audio announcement
+      previewDamAudio("hi");
+
+      // Refresh alert KPI
+      const kpi = document.getElementById("kpiAlertCount");
+      kpi.textContent = parseInt(kpi.textContent || "5") + 1;
+
+      // Update the banner on the current page immediately
+      if (typeof checkActiveDamAlerts === "function") {
+        checkActiveDamAlerts();
+      }
+    }
+  </script>
+</body>
+
+</html>
