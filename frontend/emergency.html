@@ -255,40 +255,26 @@
       const box = document.getElementById("gpsStatusBox");
       const text = document.getElementById("gpsStatusText");
       box.style.display = "block";
-      text.textContent = "📡 Querying GPS coordinates via satellite...";
+      text.textContent = "📡 Querying GPS coordinates via satellite & launching emergency SOS...";
 
       if (!navigator.geolocation) {
-        text.textContent = "❌ Geolocation is not supported by your browser. Please call 112 directly.";
+        text.textContent = "❌ Geolocation is not supported by your browser. Dialing 112 directly.";
+        trigger1ClickRescue();
         return;
       }
 
       navigator.geolocation.getCurrentPosition(
-        async (pos) => {
-          const lat = pos.coords.latitude.toFixed(5);
-          const lon = pos.coords.longitude.toFixed(5);
-          text.innerHTML = `✅ <strong>Location Identified:</strong> Lat: ${lat}, Lon: ${lon}. <br><span style="color:#86efac;">Dispatching emergency ping to NDRF command server...</span>`;
-
-          try {
-            await fetch(`${API_BASE}/rescue/quick`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                pickup_location: `GPS Broadcast: Lat ${lat}, Lon ${lon}`,
-                latitude: parseFloat(lat),
-                longitude: parseFloat(lon),
-                priority: "Critical"
-              })
-            });
-            showToast("Emergency coordinates received by rescue network!", "success");
-          } catch (e) {
-            console.log("Offline GPS Broadcast note:", e.message);
-            showToast("GPS coordinates logged locally!", "info");
-          }
+        (pos) => {
+          const lat = pos.coords.latitude;
+          const lon = pos.coords.longitude;
+          text.innerHTML = `✅ <strong>Location Identified:</strong> Lat: ${lat.toFixed(5)}, Lon: ${lon.toFixed(5)}. <br><span style="color:#86efac;">Dispatching emergency ping to NDRF & DM Ayush Gupta...</span>`;
+          trigger1ClickRescue([lat, lon]);
         },
         (err) => {
-          text.innerHTML = `⚠️ Could not access GPS: ${err.message}. Please dial <strong>112</strong> immediately.`;
+          text.innerHTML = `⚠️ Using calibrated location fallback (${err.message}). Launching rescue dispatch...`;
+          trigger1ClickRescue();
         },
-        { timeout: 10000, enableHighAccuracy: true }
+        { timeout: 5000, enableHighAccuracy: true }
       );
     }
   </script>

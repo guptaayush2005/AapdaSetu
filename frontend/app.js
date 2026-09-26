@@ -570,9 +570,6 @@ async function handleAuthSubmit(e) {
 }
 
 /* ================= 1-CLICK INSTANT RESCUE SOS ================= */
-/* ================= 1-CLICK INSTANT PRIVATE RESCUE SOS ================= */
-/* ================= 1-CLICK INSTANT RESCUE SOS ================= */
-/* ================= 1-CLICK INSTANT RESCUE SOS ================= */
 async function trigger1ClickRescue(customOriginCoords) {
   let user = getCurrentUser();
   if (!user) {
@@ -580,22 +577,18 @@ async function trigger1ClickRescue(customOriginCoords) {
     setCurrentUser(user);
   }
 
-  showToast("🚨 EK DUM EMERGENCY: Capturing GPS & Dispatching NDRF...", "warning");
+  showToast("🚨 EK DUM EMERGENCY: 1-Click SOS Activated! Signal Dispatching...", "warning");
   playEmergencyTone();
 
-  // Visual feedback on any active 1-click button on page
-  const sosBtns = document.querySelectorAll(".btn-big-sos-trigger, .btn-1click-sos, .btn-1click-danger, #directDangerSosBtn");
-  sosBtns.forEach(b => {
-    b.dataset.prevHtml = b.innerHTML;
-    b.disabled = true;
-    b.innerHTML = "<span>⏳ Dispatching Priority-1 Rescue...</span>";
-  });
+  // Instant ticket ID generation
+  const pvtToken = "PVT-RES-" + Math.random().toString(36).substring(2, 8).toUpperCase();
+  let ticketId = "REQ-" + Math.random().toString(36).substring(2, 8).toUpperCase();
+  let serverToken = pvtToken;
 
-  // Try to get precise browser GPS location with quick timeout fallback
+  // Resolve initial coordinates immediately
   let lat = 30.2815, lon = 78.9750;
   let locName = "Rudraprayag Riverside (GPS Calibrated)";
 
-  // Check if caller passed coords (e.g. from safe-route currentOriginCoords)
   if (Array.isArray(customOriginCoords) && customOriginCoords.length === 2) {
     lat = customOriginCoords[0];
     lon = customOriginCoords[1];
@@ -609,75 +602,6 @@ async function trigger1ClickRescue(customOriginCoords) {
   const originInput = document.getElementById("routeOrigin");
   if (originInput && originInput.value) {
     locName = originInput.value;
-  }
-
-  if (navigator.geolocation) {
-    try {
-      const pos = await new Promise((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 3000, enableHighAccuracy: true });
-      });
-      lat = pos.coords.latitude;
-      lon = pos.coords.longitude;
-      locName = `Live Satellite GPS (${lat.toFixed(4)}, ${lon.toFixed(4)})`;
-      if (originInput) originInput.value = locName;
-    } catch (e) {
-      console.log("Using approximate location fallback:", e.message);
-    }
-  }
-
-  const pvtToken = "PVT-RES-" + Math.random().toString(36).substring(2, 8).toUpperCase();
-  let ticketId = "REQ-" + Math.random().toString(36).substring(2, 8).toUpperCase();
-  let serverToken = pvtToken;
-
-  const payload = {
-    pickup_location: locName,
-    name: user.display_name || user.username || "Citizen Emergency (1-Click SOS)",
-    phone: user.phone || "+91 98765 43210",
-    user_id: user.username || "kausha123",
-    people: 1,
-    rescue_vehicle: "NDRF Motor Boat / Inflatable Raft",
-    latitude: lat,
-    longitude: lon,
-    priority: "Critical",
-    flood_risk: "CRITICAL",
-    is_private: true,
-    private_token: pvtToken
-  };
-
-  try {
-    const res = await fetch(`${API_BASE}/rescue/quick`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-      signal: AbortSignal.timeout(4000)
-    });
-    if (res.ok) {
-      const data = await res.json();
-      if (data.request_id) ticketId = data.request_id;
-      if (data.private_token) serverToken = data.private_token;
-    }
-  } catch (err) {
-    console.log("Using cached ticket ID:", ticketId);
-  } finally {
-    sosBtns.forEach(b => {
-      b.disabled = false;
-      if (b.dataset.prevHtml) b.innerHTML = b.dataset.prevHtml;
-    });
-  }
-
-  payload.private_token = serverToken;
-
-  // Auto-sync with rescue.html tracker if currently on that page
-  const trackInput = document.getElementById("trackInput");
-  if (trackInput) {
-    trackInput.value = ticketId;
-    if (typeof trackRescue === "function") {
-      trackRescue();
-    }
-    const successBox = document.getElementById("rescueSuccessBox");
-    const displayId = document.getElementById("ticketIdDisplay");
-    if (successBox) successBox.style.display = "block";
-    if (displayId) displayId.textContent = ticketId;
   }
 
   const nowStr = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -701,33 +625,91 @@ async function trigger1ClickRescue(customOriginCoords) {
   // Resolve official District Magistrate (DM / Collector / DDMA) contacts
   const dmDetails = getDistrictDmDetails(lat, lon, locName);
   const dmSubject = `🚨 URGENT: [LIFE-THREAT RESCUE SOS] DDMA / DM Control Room - Citizen Trapped - ${ticketId}`;
-  const dmBody = `TO: ${dmDetails.officer}\nDistrict Emergency Operations Centre (DEOC)\n\nURGENT LIFE-THREAT RESCUE DISPATCH REQUEST\n--------------------------------------------------\nTicket ID: ${ticketId}\nCitizen Name: ${payload.name}\nContact Phone: ${payload.phone}\nUrgency: LEVEL 1 CRITICAL LIFE-THREAT\n\nEXACT LOCATION:\nLocation Name: ${locName}\nGPS Coordinates: ${lat.toFixed(5)}, ${lon.toFixed(5)}\nLive Google Maps: ${mapsLink}\n\nSITUATION DETAILS:\nCitizen is stranded / trapped in a high-risk flood & hazard disaster zone and requires immediate rescue evacuation by NDRF / SDRF / Quick Response Teams.\n\nTimestamp: ${nowStr}, ${new Date().toLocaleDateString('en-IN')}\nDispatched via: AapdaSetu National AI Disaster Response System\n--------------------------------------------------`;
+  const dmBody = `TO: ${dmDetails.officer}\nDistrict Emergency Operations Centre (DEOC)\n\nURGENT LIFE-THREAT RESCUE DISPATCH REQUEST\n--------------------------------------------------\nTicket ID: ${ticketId}\nCitizen Name: ${user.display_name || user.username}\nContact Phone: ${user.phone || '+91 98765 43210'}\nUrgency: LEVEL 1 CRITICAL LIFE-THREAT\n\nEXACT LOCATION:\nLocation Name: ${locName}\nGPS Coordinates: ${lat.toFixed(5)}, ${lon.toFixed(5)}\nLive Google Maps: ${mapsLink}\n\nSITUATION DETAILS:\nCitizen is stranded / trapped in a high-risk flood & hazard disaster zone and requires immediate rescue evacuation by NDRF / SDRF / Quick Response Teams.\n\nTimestamp: ${nowStr}, ${new Date().toLocaleDateString('en-IN')}\nDispatched via: AapdaSetu National AI Disaster Response System\n--------------------------------------------------`;
   const dmMailtoUrl = `mailto:${dmDetails.email}?cc=${encodeURIComponent(dmDetails.backupEmail + ',ndrf-relief@nic.in,seoc.disaster@nic.in')}&subject=${encodeURIComponent(dmSubject)}&body=${encodeURIComponent(dmBody)}`;
   const dmGmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(dmDetails.email)}&cc=${encodeURIComponent(dmDetails.backupEmail + ',ndrf-relief@nic.in,seoc.disaster@nic.in')}&su=${encodeURIComponent(dmSubject)}&body=${encodeURIComponent(dmBody)}`;
 
-  // Automated background dispatch to District Magistrate (DM) control room
-  sendDmEmergencyEmail(ticketId, payload, lat, lon, locName, dmDetails, dmSubject, dmBody);
+  const payload = {
+    pickup_location: locName,
+    name: user.display_name || user.username || "Citizen Emergency (1-Click SOS)",
+    phone: user.phone || "+91 98765 43210",
+    user_id: user.username || "kausha123",
+    people: 1,
+    rescue_vehicle: "NDRF Motor Boat / Inflatable Raft",
+    latitude: lat,
+    longitude: lon,
+    priority: "Critical",
+    flood_risk: "CRITICAL",
+    is_private: true,
+    private_token: pvtToken
+  };
 
-  // 1-Click Direct Launch: Native share on mobile or automatic WhatsApp window
-  let sharedViaNav = false;
-  if (navigator.share) {
-    try {
-      await navigator.share({
-        title: "🚨 EMERGENCY SOS - MAI KHATRE ME HU!",
-        text: rawMessage,
-        url: mapsLink
-      });
-      sharedViaNav = true;
-    } catch (shErr) {
-      console.log("Navigator share dismissed or not supported");
+  // INSTANT FEEDBACK: Show the interactive confirmed modal immediately (0ms delay)!
+  showRescueConfirmedModal(ticketId, payload, rawMessage, mapsLink, whatsappUrl, smsUrl, dmDetails, dmMailtoUrl, dmGmailUrl);
+
+  // Auto-sync with rescue.html tracker if currently on that page
+  const trackInput = document.getElementById("trackInput");
+  if (trackInput) {
+    trackInput.value = ticketId;
+    if (typeof trackRescue === "function") {
+      trackRescue();
     }
+    const successBox = document.getElementById("rescueSuccessBox");
+    const displayId = document.getElementById("ticketIdDisplay");
+    if (successBox) successBox.style.display = "block";
+    if (displayId) displayId.textContent = ticketId;
   }
 
-  if (!sharedViaNav) {
-    window.open(whatsappUrl, "_blank");
-  }
+  // Drop initial Leaflet marker if map active
+  dropSosMapMarker(lat, lon, ticketId, nowStr, dmDetails, whatsappUrl);
 
-  // Active Map Marker Drop (Leaflet on safe-route, home, or monitoring)
+  // ASYNC BACKGROUND TASKS: Geolocation refine, Backend sync & DM Email alert
+  (async () => {
+    // 1. Try high-accuracy live GPS in background without blocking UI
+    if (navigator.geolocation && (!customOriginCoords || !customOriginCoords.length)) {
+      try {
+        const pos = await new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 2500, enableHighAccuracy: true });
+        });
+        lat = pos.coords.latitude;
+        lon = pos.coords.longitude;
+        locName = `Live Satellite GPS (${lat.toFixed(4)}, ${lon.toFixed(4)})`;
+        if (originInput) originInput.value = locName;
+
+        // Update active modal & map marker
+        payload.latitude = lat;
+        payload.longitude = lon;
+        payload.pickup_location = locName;
+        updateRescueConfirmedModalData(ticketId, lat, lon, locName);
+        dropSosMapMarker(lat, lon, ticketId, nowStr, dmDetails, whatsappUrl);
+      } catch (e) {
+        console.log("GPS calibrated fallback used:", e.message);
+      }
+    }
+
+    // 2. Post to backend rescue quick dispatch
+    try {
+      const res = await fetch(`${API_BASE}/rescue/quick`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(3500)
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.request_id) ticketId = data.request_id;
+        if (data.private_token) serverToken = data.private_token;
+      }
+    } catch (err) {
+      console.log("Offline rescue ticket queued:", ticketId);
+    }
+
+    // 3. Automated background dispatch to District Magistrate (DM) control room
+    sendDmEmergencyEmail(ticketId, payload, lat, lon, locName, dmDetails, dmSubject, dmBody);
+  })();
+}
+
+function dropSosMapMarker(lat, lon, ticketId, nowStr, dmDetails, whatsappUrl) {
   const activeMap = (typeof map !== "undefined" && map) || (typeof homeMap !== "undefined" && homeMap) || (typeof monitoringMap !== "undefined" && monitoringMap);
   if (activeMap && typeof L !== "undefined") {
     try {
@@ -752,8 +734,30 @@ async function trigger1ClickRescue(customOriginCoords) {
       activeMap.setView([lat, lon], 16, { animate: true });
     } catch(e) {}
   }
+}
 
-  showRescueConfirmedModal(ticketId, payload, rawMessage, mapsLink, whatsappUrl, smsUrl, dmDetails, dmMailtoUrl, dmGmailUrl);
+function updateRescueConfirmedModalData(ticketId, lat, lon, locName) {
+  const gpsEl = document.getElementById("rescueModalGpsTag");
+  if (gpsEl) gpsEl.textContent = locName;
+
+  const mapLinkEl = document.getElementById("rescueModalMapLink");
+  const newMapUrl = `https://maps.google.com/?q=${lat.toFixed(5)},${lon.toFixed(5)}`;
+  if (mapLinkEl) mapLinkEl.href = newMapUrl;
+
+  const rawMessage = `🚨 *EMERGENCY SOS - MAI KHATRE ME HU!* 🚨\n\n` +
+    `Mujhe turant emergency rescue / madad chahiye!\n` +
+    `📍 *Location:* ${locName}\n` +
+    `🌐 *GPS Coords:* ${lat.toFixed(5)}, ${lon.toFixed(5)}\n` +
+    `🗺️ *Live Google Maps:* ${newMapUrl}\n` +
+    `🎫 *Rescue Ticket:* ${ticketId}\n` +
+    `⚠️ *Priority:* Level 1 Critical Life-Threat Emergency\n\n` +
+    `Kripya turant 112, SDRF ya NDRF ko meri location bhej kar madad team bhejein!`;
+
+  const waEl = document.getElementById("rescueModalWaBtn");
+  if (waEl) waEl.href = `https://api.whatsapp.com/send?text=${encodeURIComponent(rawMessage)}`;
+
+  const smsEl = document.getElementById("rescueModalSmsBtn");
+  if (smsEl) smsEl.href = `sms:112?body=${encodeURIComponent(rawMessage)}`;
 }
 
 /**
@@ -927,6 +931,9 @@ function showRescueConfirmedModal(ticketId, payload, rawMessage, mapsLink, whats
     modal = document.createElement("div");
     modal.id = "rescueTrackModal";
     modal.className = "auth-modal-backdrop active";
+    modal.addEventListener("click", function(e) {
+      if (e.target === modal) modal.classList.remove("active");
+    });
     document.body.appendChild(modal);
   } else {
     modal.classList.add("active");
@@ -961,7 +968,7 @@ function showRescueConfirmedModal(ticketId, payload, rawMessage, mapsLink, whats
           Mai Khatre Me Hu — Signal Dispatched!
         </h2>
         <p style="color:#64748b;font-size:0.85rem;margin:0 0 14px;">
-          Aapka live GPS location seedhe NDRF/SDRF Control Room, WhatsApp channel aur <b>District Magistrate (DM)</b> ko dispatch ho chuka hai.
+          Aapka live GPS location seedhe NDRF/SDRF Control Room, WhatsApp channel aur <b>District Magistrate (DM Ayush Gupta)</b> ko dispatch ho chuka hai.
         </p>
 
         <!-- District Magistrate Official Email Notification Card -->
@@ -979,10 +986,10 @@ function showRescueConfirmedModal(ticketId, payload, rawMessage, mapsLink, whats
             <b>${dmInfo.officer}</b> (<code>${dmInfo.email}</code>)
           </p>
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <a href="${finalDmGmail}" target="_blank" rel="noopener" style="flex:1;background:#ea4335;color:#fff;padding:9px 12px;border-radius:var(--radius-sm);font-weight:800;font-size:0.82rem;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px;box-shadow:0 2px 8px rgba(234,67,53,0.3);">
+            <a href="${finalDmGmail}" target="_blank" rel="noopener" style="flex:1;background:#ea4335;color:#fff;padding:9px 12px;border-radius:var(--radius-sm);font-weight:800;font-size:0.82rem;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px;box-shadow:0 2px 8px rgba(234,67,53,0.3);cursor:pointer;">
               <span>📧</span> <span>Send via Gmail to DM</span>
             </a>
-            <a href="${finalDmMailto}" style="flex:1;background:#2563eb;color:#fff;padding:9px 12px;border-radius:var(--radius-sm);font-weight:800;font-size:0.82rem;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px;">
+            <a href="${finalDmMailto}" style="flex:1;background:#2563eb;color:#fff;padding:9px 12px;border-radius:var(--radius-sm);font-weight:800;font-size:0.82rem;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;">
               <span>✉️</span> <span>Open Email App</span>
             </a>
           </div>
@@ -991,15 +998,15 @@ function showRescueConfirmedModal(ticketId, payload, rawMessage, mapsLink, whats
         <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:14px;text-align:left;font-size:0.84rem;margin-bottom:12px;">
           <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
             <span style="color:#991b1b;font-weight:700;">Ticket ID:</span>
-            <strong style="color:var(--navy);font-family:monospace;font-size:1.05rem;">${ticketId}</strong>
+            <strong id="rescueModalTicketId" style="color:var(--navy);font-family:monospace;font-size:1.05rem;">${ticketId}</strong>
           </div>
           <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
             <span style="color:#991b1b;font-weight:700;">Live GPS Tag:</span>
-            <span style="color:#334155;font-size:0.82rem;font-weight:600;">${payload.pickup_location}</span>
+            <span id="rescueModalGpsTag" style="color:#334155;font-size:0.82rem;font-weight:600;">${payload.pickup_location}</span>
           </div>
           <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
             <span style="color:#991b1b;font-weight:700;">Live Map Link:</span>
-            <a href="${finalMapUrl}" target="_blank" style="color:#2563eb;font-weight:700;text-decoration:underline;font-size:0.82rem;">Google Maps Location ↗</a>
+            <a id="rescueModalMapLink" href="${finalMapUrl}" target="_blank" style="color:#2563eb;font-weight:700;text-decoration:underline;font-size:0.82rem;cursor:pointer;">Google Maps Location ↗</a>
           </div>
           <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
             <span style="color:#991b1b;font-weight:700;">Assigned Unit:</span>
@@ -1012,15 +1019,15 @@ function showRescueConfirmedModal(ticketId, payload, rawMessage, mapsLink, whats
         </div>
 
         <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:12px;">
-          <a href="${finalWaUrl}" target="_blank" rel="noopener" style="padding:13px;text-align:center;font-size:0.98rem;display:flex;align-items:center;justify-content:center;gap:10px;background:#25D366;color:#fff;border-radius:var(--radius-sm);font-weight:900;text-decoration:none;box-shadow:0 4px 14px rgba(37,211,102,0.35);">
+          <a id="rescueModalWaBtn" href="${finalWaUrl}" target="_blank" rel="noopener" style="padding:13px;text-align:center;font-size:0.98rem;display:flex;align-items:center;justify-content:center;gap:10px;background:#25D366;color:#fff;border-radius:var(--radius-sm);font-weight:900;text-decoration:none;box-shadow:0 4px 14px rgba(37,211,102,0.35);cursor:pointer;">
             <span style="font-size:1.3rem;">💬</span>
             <span>WhatsApp Par Direct Send Karein</span>
           </a>
           <div style="display:flex;gap:10px;flex-wrap:wrap;">
-            <a href="${finalSmsUrl}" style="flex:1;padding:11px;text-align:center;font-size:0.9rem;display:flex;align-items:center;justify-content:center;gap:6px;background:#2563eb;color:#fff;border-radius:var(--radius-sm);font-weight:800;text-decoration:none;">
+            <a id="rescueModalSmsBtn" href="${finalSmsUrl}" style="flex:1;padding:11px;text-align:center;font-size:0.9rem;display:flex;align-items:center;justify-content:center;gap:6px;background:#2563eb;color:#fff;border-radius:var(--radius-sm);font-weight:800;text-decoration:none;cursor:pointer;">
               <span>📱</span> <span>112 SMS Bhejo</span>
             </a>
-            <a href="tel:112" class="btn-danger" style="flex:1;padding:11px;text-align:center;font-size:0.9rem;display:flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;">
+            <a id="rescueModalCallBtn" href="tel:112" class="btn-danger" style="flex:1;padding:11px;text-align:center;font-size:0.9rem;display:flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;cursor:pointer;">
               <span>📞</span> <span>Call 112 Dial</span>
             </a>
           </div>
@@ -1030,10 +1037,10 @@ function showRescueConfirmedModal(ticketId, payload, rawMessage, mapsLink, whats
         </div>
 
         <div style="display:flex;gap:10px;">
-          <a href="rescue.html?track=${encodeURIComponent(ticketId)}" class="btn-primary" style="flex:1;padding:10px;font-size:0.85rem;text-align:center;text-decoration:none;">
+          <a href="rescue.html?track=${encodeURIComponent(ticketId)}" class="btn-primary" style="flex:1;padding:10px;font-size:0.85rem;text-align:center;text-decoration:none;cursor:pointer;">
             🔍 View Live Radar Tracker
           </a>
-          <button onclick="document.getElementById('rescueTrackModal').classList.remove('active')" class="btn-outline" style="flex:1;padding:10px;font-size:0.85rem;">
+          <button onclick="document.getElementById('rescueTrackModal').classList.remove('active')" class="btn-outline" style="flex:1;padding:10px;font-size:0.85rem;cursor:pointer;">
             Close Window
           </button>
         </div>
@@ -1063,6 +1070,9 @@ function openEmergencySOSModal() {
     modal = document.createElement("div");
     modal.id = "globalSosModal";
     modal.className = "auth-modal-backdrop active";
+    modal.addEventListener("click", function(e) {
+      if (e.target === modal) modal.classList.remove("active");
+    });
     document.body.appendChild(modal);
   } else {
     modal.classList.add("active");
@@ -2396,7 +2406,7 @@ function initMobileEnhancements() {
         <span class="icon">🗺️</span>
         <span>Routes</span>
       </a>
-      <a href="javascript:void(0)" onclick="trigger1ClickRescue()" class="mobile-bar-item mobile-bar-sos" title="1-Click Emergency SOS">
+      <a href="javascript:void(0)" onclick="openEmergencySOSModal()" class="mobile-bar-item mobile-bar-sos" title="Emergency SOS 112">
         <span class="icon">🚨</span>
         <span>SOS 112</span>
       </a>
@@ -2412,3 +2422,20 @@ function initMobileEnhancements() {
     document.body.appendChild(bar);
   }
 }
+
+/* ================= UNIVERSAL SOS CLICK DELEGATION ================= */
+// Ensures EVERY SOS button across all pages (headers, cards, floating bars) is 100% clickable
+document.addEventListener("click", function (e) {
+  const sosHeader = e.target.closest(".sos-header-btn");
+  if (sosHeader) {
+    e.preventDefault();
+    openEmergencySOSModal();
+    return;
+  }
+  const mobileSos = e.target.closest(".mobile-bar-sos");
+  if (mobileSos) {
+    e.preventDefault();
+    openEmergencySOSModal();
+    return;
+  }
+});
