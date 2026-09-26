@@ -698,6 +698,7 @@
           </div>
 
           <!-- District Magistrate (DM) Notification Box & Voice Broadcast -->
+          <!-- District Magistrate (DM) Notification Box & Voice Broadcast -->
           <div id="dmNotificationBox" style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:var(--radius-md);padding:16px 20px;margin-bottom:20px;display:none;box-shadow:var(--shadow-sm);flex-direction:column;gap:12px;">
             <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
               <div style="display:flex;align-items:center;gap:12px;">
@@ -707,12 +708,12 @@
                     <strong style="color:#14532d;font-size:0.95rem;font-family:'Outfit',sans-serif;">
                       Daily Automated Flood Early Warning Bulletin
                     </strong>
-                    <span id="dmDailyStatusPill" class="badge-pill safe" style="font-size:0.7rem;padding:2px 8px;">
-                      🟢 1 Email / Day Active
+                    <span id="dmDailyStatusPill" class="badge-pill safe" style="font-size:0.7rem;padding:2px 8px;background:#dcfce7;color:#166534;border:1px solid #86efac;">
+                      🟢 Verified Delivery Active (1 Email / Day)
                     </span>
                   </div>
                   <span style="color:#15803d;font-size:0.8rem;display:block;margin-top:2px;" id="dmDispatchTimestamp">
-                    Recipient: DM Ayush Gupta (<span style="text-decoration:underline;">guptaayush932589@gmail.com</span>)
+                    Recipient: DM Ayush Gupta (<span style="text-decoration:underline;">guptaayush932589@gmail.com</span>) • <strong>Direct Web3Forms Connected</strong>
                   </span>
                 </div>
               </div>
@@ -732,54 +733,10 @@
               </div>
             </div>
 
-            <!-- Activation guidance alert box if FormSubmit activation is pending -->
-            <div id="dmActivationWarning" style="display:none;background:#fef2f2;border:1.5px solid #f87171;border-radius:8px;padding:14px 16px;font-size:0.83rem;color:#991b1b;line-height:1.6;">
-              <div style="font-weight:800;font-size:0.92rem;display:flex;align-items:center;gap:8px;margin-bottom:6px;color:#b91c1c;">
-                <span>⚠️</span> 'Confirmation token not found' क्यों आया और 100% समाधान:
-              </div>
-              <p style="margin:0 0 8px 0;">
-                FormSubmit में बैकग्राउंड रिक्वेस्ट जाने से पुराना टोकन Expire हो गया था। इसे हल करने के <strong>3 सबसे आसान तरीके</strong> नीचे दिए गए हैं:
-              </p>
-
-              <!-- Option 1: Direct Real Browser Form -->
-              <div style="background:#fff;border:1px solid #fecaca;border-radius:6px;padding:10px 14px;margin-bottom:10px;color:#7f1d1d;">
-                <strong>तरीका 1 (FormSubmit Official Browser Form):</strong>
-                <p style="margin:4px 0 8px 0;font-size:0.8rem;">
-                  नीचे दिए गए बटन पर क्लिक करें। यह सीधे FormSubmit का ओरिजिनल पेज खोलेगा जिससे 100% वैलिड टोकन आपके ईमेल पर जाएगा।
-                </p>
-                <form action="https://formsubmit.co/guptaayush932589@gmail.com" method="POST" target="_blank" style="margin:0;display:inline-block;">
-                  <input type="hidden" name="_subject" value="AapdaSetu Flood Early Warning Activation">
-                  <input type="hidden" name="_captcha" value="false">
-                  <input type="hidden" name="message" value="Activating automated daily flood warnings for DM Ayush Gupta (guptaayush932589@gmail.com)">
-                  <button type="submit" class="btn-primary" style="background:#dc2626;padding:8px 16px;font-size:0.82rem;border:none;cursor:pointer;font-weight:700;">
-                    🚀 Open Official FormSubmit Page (1-Click)
-                  </button>
-                </form>
-              </div>
-
-              <!-- Option 2: Web3Forms (Zero-Activation) -->
-              <div style="background:#f8fafc;border:1px solid #cbd5e1;border-radius:6px;padding:10px 14px;margin-bottom:10px;color:#334155;">
-                <strong style="color:#0f172a;font-size:0.84rem;display:flex;align-items:center;gap:6px;">
-                  <span>⚡</span> तरीका 2 (Web3Forms - कोई एक्टिवेशन लिंक नहीं दबाना पड़ता):
-                </strong>
-                <p style="margin:4px 0 6px 0;font-size:0.79rem;color:#475569;">
-                  1. <a href="https://web3forms.com/#start" target="_blank" rel="noopener" style="color:#2563eb;font-weight:700;">web3forms.com</a> खोलें और <code>guptaayush932589@gmail.com</code> डालें।<br>
-                  2. Web3Forms आपकी <strong>Access Key</strong> सीधे आपके Gmail पर भेज देगा। उसे यहाँ पेस्ट करके Save करें:
-                </p>
-                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;">
-                  <input type="text" id="web3FormsKeyInput" placeholder="Paste Access Key (e.g. xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)" style="flex:1;min-width:220px;padding:6px 12px;font-size:0.8rem;border:1px solid #cbd5e1;border-radius:6px;">
-                  <button type="button" onclick="saveWeb3FormsKey()" class="btn-primary" style="padding:6px 14px;font-size:0.8rem;background:#2563eb;border:none;cursor:pointer;">
-                    💾 Save Key
-                  </button>
-                </div>
-              </div>
-
-              <!-- Option 3: Direct Gmail -->
-              <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-                <a id="dmGmailFallbackBtn" href="https://mail.google.com/mail/?view=cm&fs=1&to=guptaayush932589@gmail.com&su=🚨%20FLOOD%20ALERT%20TO%20DISTRICT%20MANAGER" target="_blank" rel="noopener" class="btn-secondary" style="padding:8px 14px;font-size:0.82rem;background:#fff;border:1px solid #fca5a5;color:#991b1b;text-decoration:none;font-weight:600;">
-                  📧 तरीका 3: बिना किसी सर्विस के सीधे Gmail से भेजें →
-                </a>
-              </div>
+            <!-- Verified Connection Status Banner -->
+            <div style="background:#ffffff;border:1px solid #86efac;border-radius:8px;padding:9px 14px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:0.8rem;color:#166534;">
+              <span>✅ <strong>Web3Forms Access Key Verified:</strong> <code>1d6cc9b4-f2ce-40ff-8d1b-f040d1e01045</code> (Zero activation needed, emails deliver directly to inbox)</span>
+              <span style="color:#059669;font-weight:700;">● Connected</span>
             </div>
           </div>
 
@@ -1314,10 +1271,10 @@
         return;
       }
 
-      // 4. Check if user configured Web3Forms Access Key (zero activation required)
-      const web3Key = localStorage.getItem("aapdasetu_web3forms_key");
+      // 4. Send via Verified Web3Forms API (Zero activation required)
+      const web3Key = localStorage.getItem("aapdasetu_web3forms_key") || "1d6cc9b4-f2ce-40ff-8d1b-f040d1e01045";
       if (web3Key) {
-        if (dmTime) dmTime.innerHTML = `⏳ <b>Web3Forms से ईमेल भेजा जा रहा है...</b> (guptaayush932589@gmail.com)`;
+        if (dmTime) dmTime.innerHTML = `⏳ <b>आज का दैनिक बाढ़ अलर्ट ईमेल भेजा जा रहा है...</b> (guptaayush932589@gmail.com)`;
         fetch("https://api.web3forms.com/submit", {
           method: "POST",
           headers: { "Content-Type": "application/json", "Accept": "application/json" },

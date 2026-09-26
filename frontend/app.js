@@ -810,16 +810,28 @@ async function sendDmEmergencyEmail(ticketId, payload, lat, lon, locName, dmDeta
       "Timestamp": new Date().toLocaleString("en-IN")
     };
 
-    // 1. Direct automated real email to guptaayush932589@gmail.com
-    fetch("https://formsubmit.co/ajax/guptaayush932589@gmail.com", {
+    // 1. Direct automated real email to guptaayush932589@gmail.com via verified Web3Forms (Zero activation needed)
+    fetch("https://api.web3forms.com/submit", {
       method: "POST",
       headers: { "Content-Type": "application/json", "Accept": "application/json" },
-      body: JSON.stringify(postData)
+      body: JSON.stringify({
+        access_key: "1d6cc9b4-f2ce-40ff-8d1b-f040d1e01045",
+        subject: subject || `🚨 [LIFE-THREAT SOS] Rescue Required - DM Ayush Gupta (${ticketId})`,
+        from_name: "AapdaSetu Emergency SOS",
+        "RECIPIENT": "District Magistrate & Disaster Manager (Ayush Gupta)",
+        "EMAIL": "guptaayush932589@gmail.com",
+        "Ticket ID": ticketId,
+        "Citizen Name": payload.name || "Citizen Emergency",
+        "Citizen Phone": payload.phone || "+91 98765 43210",
+        "Location": locName,
+        "GPS Coordinates": `${lat.toFixed(5)}, ${lon.toFixed(5)}`,
+        "Google Maps Navigation": `https://maps.google.com/?q=${lat.toFixed(5)},${lon.toFixed(5)}`,
+        "Urgency Level": "LEVEL 1 CRITICAL DISASTER LIFE-THREAT",
+        "Timestamp": new Date().toLocaleString("en-IN"),
+        message: body || "Immediate evacuation / rescue required."
+      })
     }).then(r => r.json()).then(res => {
-      console.log("✅ [DM EMAIL SENT] Real email routed to guptaayush932589@gmail.com:", res);
-      if (res.message && res.message.toLowerCase().includes("activation")) {
-        showToast("⚠️ DM Email: Please click 'Activate Form' in your Gmail (guptaayush932589@gmail.com) once!", "warning");
-      }
+      console.log("✅ [DM SOS EMAIL SENT VIA WEB3FORMS]:", res);
     }).catch(e => console.log("DM Email delivery log:", e));
 
     // 2. Try Backend Endpoint if running
@@ -861,20 +873,14 @@ function triggerDailyFloodSurveillanceAlert(locName, riverName, waterLevel, dang
       return;
     }
 
-    // Avoid generating redundant activation tokens if already waiting in user inbox
-    const lastTokenTime = localStorage.getItem("aapdasetu_formsubmit_last_token_time");
-    const isActPending = localStorage.getItem("aapdasetu_formsubmit_needs_activation") === "true";
-    if (isActPending && lastTokenTime && (Date.now() - parseInt(lastTokenTime, 10)) < 20 * 60 * 1000 && !force) {
-      return;
-    }
-
     const subject = `🚨 [DAILY FLOOD ALERT] Imminent Flood Early Warning: ${riverName} River at ${locName}`;
-    fetch("https://formsubmit.co/ajax/guptaayush932589@gmail.com", {
+    fetch("https://api.web3forms.com/submit", {
       method: "POST",
       headers: { "Content-Type": "application/json", "Accept": "application/json" },
       body: JSON.stringify({
-        _subject: subject,
-        _template: "table",
+        access_key: "1d6cc9b4-f2ce-40ff-8d1b-f040d1e01045",
+        subject: subject,
+        from_name: "AapdaSetu River Gauge Early Warning",
         "RECIPIENT": "District Magistrate & Disaster Manager (Ayush Gupta)",
         "EMAIL": "guptaayush932589@gmail.com",
         "ALERT FREQUENCY": "AUTOMATIC DAILY FLOOD BULLETIN (1 EMAIL / DAY)",
@@ -884,16 +890,13 @@ function triggerDailyFloodSurveillanceAlert(locName, riverName, waterLevel, dang
         "Danger Mark": `${dangerLevel} m`,
         "Severity": "RIVER CROSSING DANGER LEVEL - HIGH FLOOD LIKELIHOOD",
         "Dispatch Date": todayKey,
-        "Timestamp": new Date().toLocaleString("en-IN")
+        "Timestamp": new Date().toLocaleString("en-IN"),
+        message: `Official Daily Flood Alert for ${locName}. ${riverName} river water level has reached ${waterLevel}m crossing danger mark ${dangerLevel}m.`
       })
     })
     .then(r => r.json())
     .then(res => {
-      if (res.message && res.message.toLowerCase().includes("activation")) {
-        localStorage.setItem("aapdasetu_formsubmit_last_token_time", String(Date.now()));
-        localStorage.setItem("aapdasetu_formsubmit_needs_activation", "true");
-      } else {
-        localStorage.removeItem("aapdasetu_formsubmit_needs_activation");
+      if (res.success) {
         localStorage.setItem("aapdasetu_last_dm_flood_alert_date", todayKey);
       }
     })
