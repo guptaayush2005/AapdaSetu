@@ -137,57 +137,69 @@
           </div>
         </div>
 
-        <div class="stat-card" style="padding:22px;border-left:4px solid #e02424;">
+        <div class="stat-card" onclick="if(!event.target.closest('a,button')) window.location.href='tel:112'" style="padding:22px;border-left:4px solid #e02424;cursor:pointer;transition:transform 0.2s ease,box-shadow 0.2s ease;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
           <div class="stat-icon red">🚨</div>
           <div style="flex:1;">
             <h3 style="font-size:1.2rem;color:var(--navy);margin-bottom:2px;">National Emergency (Police)</h3>
             <span style="font-size:0.82rem;color:var(--text-muted);display:block;margin-bottom:12px;">Unified response for all emergencies</span>
-            <a href="tel:112" class="btn-danger" style="width:100%;padding:10px;font-size:1rem;">Call 112</a>
+            <a href="tel:112" class="btn-danger" style="width:100%;padding:11px;font-size:0.95rem;text-align:center;display:flex;align-items:center;justify-content:center;gap:8px;" title="Direct Call 112">
+              <span>📞 Call 112 (Universal)</span>
+            </a>
           </div>
         </div>
 
-        <div class="stat-card" style="padding:22px;border-left:4px solid #1677ff;">
+        <div class="stat-card" onclick="if(!event.target.closest('a,button')) window.location.href='tel:1078'" style="padding:22px;border-left:4px solid #1677ff;cursor:pointer;transition:transform 0.2s ease,box-shadow 0.2s ease;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
           <div class="stat-icon blue">🛡️</div>
           <div style="flex:1;">
             <h3 style="font-size:1.2rem;color:var(--navy);margin-bottom:2px;">NDRF Disaster Response</h3>
             <span style="font-size:0.82rem;color:var(--text-muted);display:block;margin-bottom:12px;">Specialized flood & disaster rescue</span>
-            <a href="tel:1078" class="btn-primary" style="width:100%;padding:10px;font-size:1rem;">Call 1078</a>
+            <a href="tel:1078" class="btn-primary" style="width:100%;padding:11px;font-size:0.95rem;text-align:center;display:flex;align-items:center;justify-content:center;gap:8px;" title="Direct Call 1078">
+              <span>📞 Call 1078 (NDRF Flood Rescue)</span>
+            </a>
           </div>
         </div>
 
-        <div class="stat-card" style="padding:22px;border-left:4px solid #10b981;">
+        <div class="stat-card" onclick="if(!event.target.closest('a,button')) window.location.href='tel:108'" style="padding:22px;border-left:4px solid #10b981;cursor:pointer;transition:transform 0.2s ease,box-shadow 0.2s ease;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
           <div class="stat-icon teal">🚑</div>
           <div style="flex:1;">
             <h3 style="font-size:1.2rem;color:var(--navy);margin-bottom:2px;">Medical Ambulance</h3>
             <span style="font-size:0.82rem;color:var(--text-muted);display:block;margin-bottom:12px;">Immediate medical trauma transport</span>
-            <a href="tel:108" class="btn-primary" style="width:100%;background:#059669;padding:10px;font-size:1rem;">Call 108</a>
+            <a href="tel:108" class="btn-primary" style="width:100%;background:#059669;padding:11px;font-size:0.95rem;text-align:center;display:flex;align-items:center;justify-content:center;gap:8px;" title="Direct Call 108">
+              <span>📞 Call 108 (Medical Ambulance)</span>
+            </a>
           </div>
         </div>
 
-        <div class="stat-card" style="padding:22px;border-left:4px solid #f59e0b;">
+        <div class="stat-card" onclick="if(!event.target.closest('a,button')) window.location.href='tel:1070'" style="padding:22px;border-left:4px solid #f59e0b;cursor:pointer;transition:transform 0.2s ease,box-shadow 0.2s ease;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
           <div class="stat-icon amber">🏛️</div>
           <div style="flex:1;">
             <h3 style="font-size:1.2rem;color:var(--navy);margin-bottom:2px;">State Disaster Authority</h3>
             <span style="font-size:0.82rem;color:var(--text-muted);display:block;margin-bottom:12px;">State disaster relief control room</span>
-            <a href="tel:1070" class="btn-secondary" style="width:100%;text-align:center;display:block;padding:10px;font-size:1rem;font-weight:700;">Call 1070</a>
+            <a href="tel:1070" class="btn-primary" style="width:100%;background:#d97706;padding:11px;font-size:0.95rem;font-weight:700;text-align:center;display:flex;align-items:center;justify-content:center;gap:8px;" title="Direct Call 1070">
+              <span>📞 Call 1070 (SDMA Control)</span>
+            </a>
           </div>
         </div>
 
-        <div class="stat-card" style="padding:22px;border-left:4px solid #ec4899;">
+        <div class="stat-card" onclick="if(!event.target.closest('a,button')) window.location.href='tel:1091'" style="padding:22px;border-left:4px solid #ec4899;cursor:pointer;transition:transform 0.2s ease,box-shadow 0.2s ease;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
           <div class="stat-icon red" style="background:#fce7f3;color:#db2777;">👩</div>
           <div style="flex:1;">
             <h3 style="font-size:1.2rem;color:var(--navy);margin-bottom:2px;">Women & Child Helpline</h3>
             <span style="font-size:0.82rem;color:var(--text-muted);display:block;margin-bottom:12px;">Special assistance & protection</span>
-            <a href="tel:1091" class="btn-secondary" style="width:100%;text-align:center;display:block;padding:10px;font-size:1rem;font-weight:700;">Call 1091</a>
+            <a href="tel:1091" class="btn-primary" style="width:100%;background:#db2777;padding:11px;font-size:0.95rem;font-weight:700;text-align:center;display:flex;align-items:center;justify-content:center;gap:8px;" title="Direct Call 1091">
+              <span>📞 Call 1091 (Women & Child)</span>
+            </a>
           </div>
         </div>
 
-        <div class="stat-card" style="padding:22px;border-left:4px solid #ea580c;">
+        <div class="stat-card" onclick="if(!event.target.closest('a,button')) window.location.href='tel:101'" style="padding:22px;border-left:4px solid #ea580c;cursor:pointer;transition:transform 0.2s ease,box-shadow 0.2s ease;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform=''">
           <div class="stat-icon amber" style="background:#ffedd5;color:#c2410c;">🚒</div>
           <div style="flex:1;">
             <h3 style="font-size:1.2rem;color:var(--navy);margin-bottom:2px;">Fire & Rescue Services</h3>
             <span style="font-size:0.82rem;color:var(--text-muted);display:block;margin-bottom:12px;">Fire hazards & electrical collapses</span>
-            <a href="tel:101" class="btn-secondary" style="width:100%;text-align:center;display:block;padding:10px;font-size:1rem;font-weight:700;">Call 101</a>
+            <a href="tel:101" class="btn-primary" style="width:100%;background:#ea580c;padding:11px;font-size:0.95rem;font-weight:700;text-align:center;display:flex;align-items:center;justify-content:center;gap:8px;" title="Direct Call 101">
+              <span>📞 Call 101 (Fire Brigade)</span>
+            </a>
           </div>
         </div>
 
@@ -243,7 +255,10 @@
     <div class="footer-container">
       <div class="footer-bottom">
         <span>© 2026 AapdaSetu. Official Emergency Coordination Portal.</span>
-        <a href="rescue.html" style="color:#60a5fa;font-weight:700;">Submit Rescue Dispatch Ticket →</a>
+        <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;">
+          <a href="tel:112" style="color:#f87171;font-weight:700;" title="Call 112 directly">🚨 24x7 Quick Call: 112</a>
+          <a href="rescue.html" style="color:#60a5fa;font-weight:700;">Submit Rescue Dispatch Ticket →</a>
+        </div>
       </div>
     </div>
   </footer>

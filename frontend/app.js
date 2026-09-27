@@ -1127,15 +1127,30 @@ function openEmergencySOSModal() {
           </a>
         </div>
 
-        <!-- Call 112 footer -->
-        <div style="display:flex;gap:10px;">
-          <a href="tel:112" class="btn-danger" style="flex:1;padding:10px;text-align:center;text-decoration:none;font-size:0.9rem;">
-            📞 Dial 112 Helpline
-          </a>
-          <button onclick="document.getElementById('globalSosModal').classList.remove('active')" class="btn-outline" style="flex:1;padding:10px;font-size:0.9rem;">
-            Cancel
-          </button>
+        <!-- Direct Emergency Dial Helplines Grid -->
+        <div style="margin-bottom:14px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:12px;">
+          <div style="font-size:0.78rem;font-weight:800;color:var(--navy);margin-bottom:8px;text-align:left;display:flex;align-items:center;gap:6px;">
+            <span>📞</span> <span>Direct 24x7 Helpline Calling Lines:</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <a href="tel:112" class="btn-danger" style="padding:10px;font-size:0.86rem;font-weight:800;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:6px;" title="Universal Emergency 112">
+              <span>📞 112 National</span>
+            </a>
+            <a href="tel:1078" class="btn-primary" style="padding:10px;font-size:0.86rem;font-weight:800;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:6px;" title="NDRF Flood Rescue 1078">
+              <span>🛡️ 1078 NDRF</span>
+            </a>
+            <a href="tel:108" class="btn-primary" style="background:#059669;border-color:#047857;padding:10px;font-size:0.86rem;font-weight:800;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:6px;" title="Medical Ambulance 108">
+              <span>🚑 108 Ambulance</span>
+            </a>
+            <a href="tel:1077" class="btn-secondary" style="background:#fff;border-color:#cbd5e1;padding:10px;font-size:0.86rem;font-weight:800;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:6px;color:#1e3a8a;" title="DM / DEOC Control 1077">
+              <span>🏛️ 1077 DM / EOC</span>
+            </a>
+          </div>
         </div>
+
+        <button onclick="document.getElementById('globalSosModal').classList.remove('active')" class="btn-outline" style="width:100%;padding:10px;font-size:0.9rem;cursor:pointer;">
+          Close Window
+        </button>
       </div>
     </div>
   `;
@@ -1514,7 +1529,7 @@ async function openPrivateShelterBooking(shelterId, shelterName, availBeds = 100
             <!-- Security & Hotline Note -->
             <div style="font-size:0.75rem;color:#1e3a8a;background:#eff6ff;border:1px solid #bfdbfe;padding:8px 12px;border-radius:8px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;">
               <span>🔒 Encrypted Booking: Your location remains confidential.</span>
-              <span style="font-weight:700;">📞 24x7 EOC Helpline: 1077 / 112</span>
+              <span style="font-weight:700;">📞 24x7 EOC Helpline: <a href="tel:1077" style="color:#1d4ed8;font-weight:800;text-decoration:underline;">1077</a> / <a href="tel:112" style="color:#1d4ed8;font-weight:800;text-decoration:underline;">112</a></span>
             </div>
 
             <button type="submit" id="submitShelterBookBtn" class="btn-primary" style="height:48px;margin-top:4px;background:linear-gradient(135deg,#1e3a8a,#2563eb);border:none;font-size:0.95rem;box-shadow:0 4px 14px rgba(37,99,235,0.35);">
@@ -1691,7 +1706,7 @@ function showShelterConfirmedModal(data) {
 
         <!-- Emergency EOC Helpline notice -->
         <div style="font-size:0.75rem;color:#1e3a8a;background:#eff6ff;padding:8px 12px;border-radius:8px;margin-bottom:14px;border:1px solid #bfdbfe;display:flex;justify-content:space-between;align-items:center;">
-          <span>📞 Camp Helpline: 1077 (EOC) / 112</span>
+          <span>📞 Camp Helpline: <a href="tel:1077" style="color:#1d4ed8;font-weight:800;text-decoration:underline;">1077 (EOC)</a> / <a href="tel:112" style="color:#1d4ed8;font-weight:800;text-decoration:underline;">112</a></span>
           <span>District Control Room Connected</span>
         </div>
 
@@ -2423,8 +2438,8 @@ function initMobileEnhancements() {
   }
 }
 
-/* ================= UNIVERSAL SOS CLICK DELEGATION ================= */
-// Ensures EVERY SOS button across all pages (headers, cards, floating bars) is 100% clickable
+/* ================= UNIVERSAL SOS & HELPLINE CLICK DELEGATION ================= */
+// Ensures EVERY SOS and helpline button across all pages is 100% clickable & reliable
 document.addEventListener("click", function (e) {
   const sosHeader = e.target.closest(".sos-header-btn");
   if (sosHeader) {
@@ -2437,5 +2452,14 @@ document.addEventListener("click", function (e) {
     e.preventDefault();
     openEmergencySOSModal();
     return;
+  }
+  // Ensure emergency chip clicks reliably launch dialer on all mobile and web browsers
+  const chip = e.target.closest(".emergency-chip");
+  if (chip && chip.getAttribute("href") && chip.getAttribute("href").startsWith("tel:")) {
+    // Let browser default handle or trigger fallback
+    const telNumber = chip.getAttribute("href");
+    if (telNumber) {
+      window.location.href = telNumber;
+    }
   }
 });

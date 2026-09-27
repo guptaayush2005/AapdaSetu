@@ -765,24 +765,48 @@ h4 { font-size: 1.05rem; line-height: 1.4; }
 .emergency-chips-grid {
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 8px;
 }
 
 .emergency-chip {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 6px 12px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: var(--radius-sm);
   color: #f1f5f9;
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.emergency-chip:hover,
+.emergency-chip:focus-visible,
+.emergency-chip:active {
+  background: rgba(220, 38, 38, 0.22);
+  border-color: rgba(248, 113, 113, 0.6);
+  color: #ffffff;
+  transform: translateX(4px);
+  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.28);
 }
 
 .emergency-chip strong {
   color: #f87171;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: color 0.2s ease, text-shadow 0.2s ease;
+}
+
+.emergency-chip:hover strong {
+  color: #fecaca;
+  text-shadow: 0 0 8px rgba(248, 113, 113, 0.6);
 }
 
 .footer-bottom {
