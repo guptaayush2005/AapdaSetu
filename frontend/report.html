@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AapdaSetu - Comprehensive Project Architecture & Technical Report</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap');
+
+    :root {
+      --primary: #0b2341;
+      --accent: #dc2626;
+      --blue: #2563eb;
+      --teal: #059669;
+      --amber: #d97706;
+      --text: #1e293b;
+      --muted: #64748b;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --border: #e2e8f0;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.65;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: var(--card);
+      padding: 48px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+      border: 1px solid var(--border);
+    }
+
+    /* Print action bar */
+    .print-bar {
+      position: sticky;
+      top: 20px;
+      z-index: 1000;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #0b2341;
+      color: #fff;
+      padding: 14px 24px;
+      border-radius: 12px;
+      margin-bottom: 30px;
+      box-shadow: 0 8px 24px rgba(11, 35, 65, 0.25);
+    }
+
+    .print-btn {
+      background: #dc2626;
+      color: #fff;
+      border: none;
+      padding: 10px 22px;
+      border-radius: 8px;
+      font-weight: 800;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .print-btn:hover {
+      background: #b91c1c;
+      transform: translateY(-1px);
+    }
+
+    /* Header */
+    .header-banner {
+      border-bottom: 3px solid #dc2626;
+      padding-bottom: 24px;
+      margin-bottom: 32px;
+    }
+
+    .doc-badge {
+      display: inline-block;
+      background: #fee2e2;
+      color: #991b1b;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 2.3rem;
+      color: var(--primary);
+      font-weight: 900;
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      font-size: 1.05rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      background: #f1f5f9;
+      padding: 16px;
+      border-radius: 10px;
+      margin-top: 20px;
+      font-size: 0.85rem;
+    }
+
+    .meta-item strong {
+      display: block;
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    /* Sections */
+    h2 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.55rem;
+      color: var(--primary);
+      margin: 36px 0 16px;
+      padding-bottom: 8px;
+      border-bottom: 1.5px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    h3 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.2rem;
+      color: #1e3a8a;
+      margin: 22px 0 10px;
+    }
+
+    p, li {
+      font-size: 0.95rem;
+      color: #334155;
+      line-height: 1.7;
+    }
+
+    ul, ol {
+      padding-left: 24px;
+      margin-bottom: 16px;
+    }
+
+    li { margin-bottom: 6px; }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 0.88rem;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 12px 14px;
+      text-align: left;
+    }
+
+    th {
+      background: #f8fafc;
+      color: var(--primary);
+      font-weight: 800;
+    }
+
+    tr:nth-child(even) { background: #fafafa; }
+
+    /* Callout Boxes */
+    .callout {
+      border-left: 4px solid var(--blue);
+      background: #eff6ff;
+      padding: 16px 20px;
+      border-radius: 0 10px 10px 0;
+      margin: 20px 0;
+    }
+
+    .callout.danger {
+      border-left-color: var(--accent);
+      background: #fef2f2;
+    }
+
+    .callout.warning {
+      border-left-color: var(--amber);
+      background: #fffbeb;
+    }
+
+    .callout.success {
+      border-left-color: var(--teal);
+      background: #ecfdf5;
+    }
+
+    .callout strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 0.95rem;
+    }
+
+    /* Diagram flow box */
+    .flow-diagram {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 24px;
+      border-radius: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      line-height: 1.6;
+      overflow-x: auto;
+      margin: 24px 0;
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    /* Print Styling for 100% Perfect PDF Output */
+    @media print {
+      body {
+        background: #fff !important;
+        padding: 0 !important;
+        color: #000 !important;
+      }
+      .print-bar {
+        display: none !important;
+      }
+      .container {
+        box-shadow: none !important;
+        border: none !important;
+        padding: 0 !important;
+        max-width: 100% !important;
+      }
+      .page-break {
+        page-break-before: always !important;
+        break-before: page !important;
+      }
+      a {
+        text-decoration: none !important;
+        color: #000 !important;
+      }
+      .flow-diagram {
+        background: #f1f5f9 !important;
+        color: #0f172a !important;
+        border: 1px solid #cbd5e1 !important;
+        box-shadow: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky Print / Save as PDF Bar -->
+  <div class="print-bar">
+    <div>
+      <strong style="font-size:1.05rem;">📄 AapdaSetu Official Technical Documentation</strong>
+      <div style="font-size:0.8rem;opacity:0.85;">Disaster Management Architecture & Data Stream Specification</div>
+    </div>
+    <button class="print-btn" onclick="window.print()">
+      <span>📥 Save / Print as PDF</span>
+    </button>
+  </div>
+
+  <div class="container">
+
+    <!-- Document Header -->
+    <div class="header-banner">
+      <span class="doc-badge">OFFICIAL TECHNICAL REPORT & SYSTEM ARCHITECTURE</span>
+      <h1>🚨 AapdaSetu: AI Disaster Response Platform</h1>
+      <p class="subtitle">Complete Technical Guide on Data Sources, Hydrology Telemetry, Dam Release Broadcast, and Machine Learning Systems</p>
+
+      <div class="meta-grid">
+        <div class="meta-item">
+          <strong>PROJECT NAME</strong>
+          AapdaSetu (आपदासेतु)
+        </div>
+        <div class="meta-item">
+          <strong>VERSION & STACK</strong>
+          v2.4 Core (FastAPI / Vanilla JS)
+        </div>
+        <div class="meta-item">
+          <strong>LIVE URL</strong>
+          aapda-setu-one.vercel.app
+        </div>
+        <div class="meta-item">
+          <strong>AUTHORITY JURISDICTION</strong>
+          NDMA / SDMA / DDMA Control
+        </div>
+      </div>
+    </div>
+
+    <!-- 1. Executive Summary -->
+    <section>
+      <h2>🎯 1. Executive Summary & Problem Statement</h2>
+      <p>
+        <strong>AapdaSetu</strong> Bharat ka ek samarpit <strong>AI-Powered Multi-Hazard Disaster Response & Early Warning Platform</strong> hai. Yeh platform Himalayan cloudbursts, flash floods (Mandakini, Alaknanda, Beas), perennial river basin overflows (Kosi, Brahmaputra), mountain landslides (Wayanad, Chamoli), aur dam reservoir spillway discharges ke dauran aam nagrikon aur disaster management authorities (NDRF, SDRF, District Magistrates) ke beech ek vital digital bridge banata hai.
+      </p>
+
+      <div class="callout danger">
+        <strong>⚠️ The Dual Core Mission</strong>
+        <p>1. <strong>Citizens (Aam Nagrik)</strong>: Instant hyper-local early warnings, 1-Click offline rescue dispatch, safe bypass evacuation routes, and private evacuation vehicle bookings in 31 regional languages.<br>
+        2. <strong>Authorities (EOC / District Magistrate)</strong>: Centralized Incident Operations Center, river hydrology gauges, citizen hazard moderation, and automated multi-channel Dam Release sirens.</p>
+      </div>
+    </section>
+
+    <!-- 2. Data Sources & Architecture -->
+    <section>
+      <h2>🛰️ 2. Data Flow Architecture & Data Sources</h2>
+      <p>AapdaSetu ka data engine 5 mukhya streams (sources) ko merge karke real-time risk assessment tayyar karta hai:</p>
+
+      <div class="flow-diagram">
++-----------------------------------------------------------------------------------+
+|                            AAPDASETU DATA ENGINE MATRIX                           |
++-----------------------------------------------------------------------------------+
+                                          |
+    +-------------------------------------+-----------------------------------+
+    |                                     |                                   |
+    v                                     v                                   v
+[1. Weather & Precipitation]   [2. River & Dam Telemetry]      [3. Machine Learning AI]
+* Open-Meteo GFS Precipitation * 18 Major Indian Rivers         * 3 Trained XGBoost Models
+* ERA5 Satellite Soil Moisture * 6 Mega Reservoirs (Tehri, etc) * Slope Angle & Elevation DEM
+* Current Rain Rate (mm/h)     * Central Water Commission Marks * Multi-hazard Lead Time (h)
+    |                                     |                                   |
+    +-------------------------------------+-----------------------------------+
+                                          |
+    +-------------------------------------+-----------------------------------+
+    |                                                                         |
+    v                                                                         v
+[4. Crowdsourced Citizen Ground Reports]                  [5. Emergency Sirens & Dispatch]
+* Citizen Geo-tagged Hazard Uploads                       * Web3Forms & SMTP to DM Ayush Gupta
+* EOC Verification Pipeline (Pending -> Approved)         * Web Speech API Multi-lingual Siren
+* Real-time Public Disaster Feed Sync                     * Universal Smart 112 Helpline
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Data Stream</th>
+            <th>Primary Source & API</th>
+            <th>Key Telemetry Attributes</th>
+            <th>Impact on Platform</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Precipitation & Weather</strong></td>
+            <td>Open-Meteo Live API / IMD Models</td>
+            <td>Rainfall 24h/72h (mm), Rate (mm/h), Wind, Humidity</td>
+            <td>Triggers early flash flood accumulation index</td>
+          </tr>
+          <tr>
+            <td><strong>Soil Moisture Saturation</strong></td>
+            <td>ERA5-Land Satellite (0-10cm depth)</td>
+            <td>Soil Saturation Percentage (0% to 100%)</td>
+            <td>Crucial: 90%+ saturation causes immediate runoff</td>
+          </tr>
+          <tr>
+            <td><strong>River Hydrological Gauges</strong></td>
+            <td>Central Water Commission (CWC) Grid</td>
+            <td>Current Level (m), Warning Level (m), Danger Mark (m)</td>
+            <td>Breach of Danger mark triggers emergency DM bulletin</td>
+          </tr>
+          <tr>
+            <td><strong>Reservoirs & Dams</strong></td>
+            <td>State Hydro Control Rooms</td>
+            <td>Current Inflow, Reservoir Capacity %, Gate Count</td>
+            <td>Automated downstream warning broadcast</td>
+          </tr>
+          <tr>
+            <td><strong>Citizen Hazard Reports</strong></td>
+            <td>Ground-Zero Citizen Submissions</td>
+            <td>Location, Severity, Hazard Category, Photos</td>
+            <td>Moderated by EOC Admin before public map display</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Page Break for Clean Printing -->
+    <div class="page-break"></div>
+
+    <!-- 3. Dam Broadcast System -->
+    <section>
+      <h2>🏗️ 3. Dam Gate Release & Downstream Siren System</h2>
+      <p>
+        Jab pahaadon me musladhar barish hoti hai aur reservoir capacity 85%-90% cross karti hai, tab dam control authorities ko spillway gates kholne padte hain. Yeh paani downstream bastiyon me achanak baadh laa sakta hai.
+      </p>
+
+      <div class="callout warning">
+        <strong>⚡ 6 Monitored Mega Reservoirs in AapdaSetu</strong>
+        <p>
+          • <strong>Tehri Dam</strong> (Uttarakhand) — Max: 830m | Danger: 828m | Rivers: Bhagirathi & Bhilangna<br>
+          • <strong>Bhakra Nangal Dam</strong> (Himachal Pradesh) — Max: 1680m | Danger: 1675m | River: Satluj<br>
+          • <strong>Idukki Arch Dam</strong> (Kerala) — Max: 2403m | Danger: 2400m | River: Periyar<br>
+          • <strong>Radhanagari Dam</strong> (Maharashtra) — Max: 350m | Danger: 348m | River: Bhogawati<br>
+          • <strong>Hirakud Reservoir</strong> (Odisha) — Max: 630m | Danger: 628m | River: Mahanadi<br>
+          • <strong>Sardar Sarovar Dam</strong> (Gujarat) — Max: 138.6m | Danger: 137m | River: Narmada
+        </p>
+      </div>
+
+      <h3>Broadcast Workflow Process:</h3>
+      <ol>
+        <li><strong>Authority Triggers Broadcast</strong>: Admin panel (<code>admin.html</code>) par jakar Dam select hota hai, discharge volume (e.g. <code>45,000 Cusecs</code>), gates opened (e.g. <code>4 Gates</code>), aur downstream travel ETA (e.g. <code>2.5 Hours to Haridwar</code>) enter kiya jata hai.</li>
+        <li><strong>Cross-Tab Instant Synchronisation</strong>: LocalStorage aur backend websockets ke zariye 500 millisecond ke andar platform ke sabhi active tabs par ek flashing red emergency banner active ho jata hai.</li>
+        <li><strong>Multi-Lingual Audio Siren</strong>: Web Speech API downstream nagrikon ko unki chuni hui bhasha me loud audio warning sunata hai taaki nadi kinare se turant door hat sakein.</li>
+        <li><strong>Authority Notification</strong>: District Magistrate aur SDRF command units ko instant email alert chala jata hai.</li>
+      </ol>
+    </section>
+
+    <!-- 4. Machine Learning Multi-Hazard Engine -->
+    <section>
+      <h2>🤖 4. AI / Machine Learning Multi-Hazard Classifier</h2>
+      <p>AapdaSetu me 3 alag-alag trained XGBoost models hain jo <code>backend/multi_source_risk_engine.py</code> me load hote hain:</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Model File</th>
+            <th>Hazard Specialty</th>
+            <th>Primary Trigger Conditions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>xgboost_flood_model.json</code></td>
+            <td>Riverine Lowland Flooding</td>
+            <td>Prolonged 72h rainfall, river gauge breach</td>
+          </tr>
+          <tr>
+            <td><code>xgboost_flash_flood_model.json</code></td>
+            <td>Himalayan Flash Floods</td>
+            <td>Short intense cloudburst (>30mm/h), 90%+ soil saturation</td>
+          </tr>
+          <tr>
+            <td><code>xgboost_landslide_model.json</code></td>
+            <td>Debris Slips & Mountain Collapse</td>
+            <td>Steep slope angle (>28°), soil waterlogging in mountain strata</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout success">
+        <strong>🧠 Multi-Factor Risk Calculation Matrix</strong>
+        <p>
+          Risk Score = (Rainfall Dynamics × 0.38) + (Soil Moisture Saturation × 0.26) + (Slope Angle & Topography × 0.22) + (Historical & River Gauge × 0.14)
+        </p>
+      </div>
+    </section>
+
+    <!-- Page Break for Clean Printing -->
+    <div class="page-break"></div>
+
+    <!-- 5. Citizen Modules & Universal Helpline -->
+    <section>
+      <h2>🛡️ 5. Citizen Rescue, Private Vehicles & Helpline Dialer</h2>
+
+      <h3>A. Smart Emergency Helpline System (Mobile vs Desktop)</h3>
+      <p>Emergency portals me sabse bada issue hota hai desktop par <code>tel:112</code> links ka dead rehna kyunki PC me SIM card nahi hota. AapdaSetu me device-adaptive architecture hai:</p>
+      <ul>
+        <li><strong>On Mobile Devices</strong>: 112, 1078, 1070 par tap karte hi native dialer khulta hai.</li>
+        <li><strong>On Laptops / Computers</strong>: Dead click ke bajaye ek interactive <strong>Helpline Assistant Modal</strong> khulta hai jisme <strong>⚡ 1-Click Online SOS</strong> button hota hai jo bina phone call ke live GPS coordinates NDRF ko dispatch kar deta hai!</li>
+      </ul>
+
+      <h3>B. Private Evacuation Vehicle Booking (Cab Fleet)</h3>
+      <p>
+        Sarkari rescue buses ke alawa, agar nagrik ko private vehicle chahiye, to wo <code>rescue.html</code> se 4x4 Offroad SUV, Private Cab ya Mini-Bus book kar sakta hai. Yeh request seedhe Admin EOC ke <strong>Private Vehicle Hub</strong> me aati hai jaha se authority driver assign karti hai.
+      </p>
+
+      <h3>C. Community Hazard Moderation Pipeline</h3>
+      <p>
+        Fake news aur rumors rokne ke liye, nagrik dwara dali gayi koi bhi report pehle <code>PENDING</code> status me EOC Admin ke pas aati hai. Admin ke <strong>"Approve & Publish to Map"</strong> click karne ke baad hi wo public feed aur map par live dikhti hai.
+      </p>
+    </section>
+
+    <!-- 6. Offline Disaster Resilience -->
+    <section>
+      <h2>📶 6. Offline / Remote Disaster Resilience (Fail-Safe Architecture)</h2>
+      <p>
+        Disasters me mobile tower ya broadband fail hona aam baat hai. Isliye AapdaSetu me <strong>Zero-Failure Fallback System</strong> diya gaya hai:
+      </p>
+      <ul>
+        <li><strong>LocalStorage Persistence</strong>: Sabhi rescue tickets, reports aur dam alerts offline browser storage me secure rehte hain.</li>
+        <li><strong>Client-Side Terrain Simulation</strong>: Agar backend offline ho, to browser high-fidelity client simulation se terrain slope aur historical rainfall data ke aadhar par calculation continue rakhta hai.</li>
+        <li><strong>31 Indian Regional Languages</strong>: English, Hindi, Hinglish ke alawa 22 Scheduled languages aur regional disaster dialects (Garhwali, Kumaoni, Bhojpuri, Haryanvi, etc.) support karta hai.</li>
+      </ul>
+    </section>
+
+    <div style="margin-top: 40px; padding-top: 20px; border-top: 2px solid #e2e8f0; text-align: center; font-size: 0.82rem; color: #94a3b8;">
+      © 2026 AapdaSetu Foundation. Dedicated to AI-powered disaster preparedness, mitigation, and life-saving technology across India.<br>
+      Live Deployment: <a href="https://aapda-setu-one.vercel.app" style="color:#2563eb;font-weight:600;">https://aapda-setu-one.vercel.app</a>
+    </div>
+
+  </div>
+
+</body>
+</html>
