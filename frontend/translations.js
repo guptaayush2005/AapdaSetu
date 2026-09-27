@@ -35,18 +35,7 @@ const ALL_STATE_LANGUAGES = [
   { code: "kfy", name: "कुमाऊँनी (Kumaoni)", shortName: "कुमाऊँनी", region: "उत्तराखंड (कुमाऊँ मंडल)" },
   { code: "kha", name: "Khasi", shortName: "Khasi", region: "Meghalaya (Khasi & Jaintia Hills)" },
   { code: "lus", name: "Mizo", shortName: "Mizo", region: "Mizoram" },
-  { code: "sa", name: "संस्कृतम् (Sanskrit)", shortName: "संस्कृतम्", region: "उत्तराखण्डम्, भारतम् (Classical)" },
-];�ॉशुर (Kashmiri)", region: "جموں و کشمیر / जम्मू व कश्मीर" },
-  { code: "kok", name: "कोंकणी (Konkani)", region: "गोंय (Goa), कारवार, कोकण" },
-  { code: "mni", name: "মৈতৈলোন্ (Manipuri)", region: "মণিপুর (Manipur)" },
-  { code: "ne", name: "नेपाली (Nepali)", region: "सिक्किम, दार्जिलिंग, उत्तर बंगाल, असम" },
-  { code: "sat", name: "संताली (Santali)", region: "झारखंड, ओडिशा, पश्चिम बंगाल (ᱚᱞ ᱪᱤᱠᱤ)" },
-  { code: "brx", name: "बोडो (Bodo)", region: "असम, बोडोलैंड (Bodoland / BTR)" },
-  { code: "gbm", name: "गढ़वाली (Garhwali)", region: "उत्तराखंड (गढ़वाल मंडल)" },
-  { code: "kfy", name: "कुमाऊँनी (Kumaoni)", region: "उत्तराखंड (कुमाऊँ मंडल)" },
-  { code: "kha", name: "Khasi", region: "Meghalaya (Khasi & Jaintia Hills)" },
-  { code: "lus", name: "Mizo", region: "Mizoram" },
-  { code: "sa", name: "संस्कृतम् (Sanskrit)", region: "उत्तराखण्डम्, भारतम् (Classical)" },
+  { code: "sa", name: "संस्कृतम् (Sanskrit)", shortName: "संस्कृतम्", region: "उत्तराखण्डम्, भारतम् (Classical)" }
 ];
 
 const translations = {

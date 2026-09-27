@@ -2619,18 +2619,14 @@ document.addEventListener("click", function (e) {
   // Smart helpline delegation
   const telLink = e.target.closest("a[href^='tel:']");
   if (telLink) {
+    // If clicked inside the helpline assistant modal itself, let native protocol handler run
+    if (telLink.closest("#helplineAssistModal") || telLink.dataset.allowNativeTel) {
+      return;
+    }
+    e.preventDefault();
     const rawHref = telLink.getAttribute("href");
     const telNumber = rawHref.replace("tel:", "").trim();
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || (window.innerWidth <= 768 && 'ontouchstart' in window);
-    
-    if (!isMobile) {
-      e.preventDefault();
-      triggerHelplineCall(telNumber);
-      return;
-    } else {
-      if (typeof showToast === "function") {
-        showToast(`📞 Dialing Helpline: ${telNumber}...`, "warning");
-      }
-    }
+    triggerHelplineCall(telNumber);
+    return;
   }
 });
