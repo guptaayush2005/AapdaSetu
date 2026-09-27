@@ -279,6 +279,39 @@
       background: #f8fafc;
     }
 
+    /* Doctor Volunteer Card Styling */
+    .doctor-volunteer-card {
+      background: #ffffff;
+      border: 1.5px solid var(--border-light);
+      border-radius: var(--radius-md);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: var(--shadow-sm);
+      transition: all var(--transition-fast);
+    }
+
+    .doctor-volunteer-card:hover {
+      border-color: #cbd5e1;
+      box-shadow: var(--shadow-md);
+    }
+
+    .doctor-volunteer-card.status-pending {
+      border-color: #f59e0b;
+      background: #fffdfa;
+    }
+
+    .doctor-volunteer-card.status-approved {
+      border-color: #86efac;
+      background: #fcfdfa;
+    }
+
+    .doctor-volunteer-card.status-rejected {
+      border-color: #fca5a5;
+      background: #fef2f2;
+    }
+
     .quick-action-btn {
       padding: 8px 14px;
       font-size: 0.82rem;
@@ -458,6 +491,14 @@
         </div>
       </div>
 
+      <div class="stat-card" style="cursor:pointer;" onclick="switchAdminSection('secDoctorVolunteers')">
+        <div class="stat-icon teal" style="background:#e0f2fe;color:#0284c7;">🩺</div>
+        <div class="stat-content">
+          <span class="stat-val" id="kpiDoctorCount">3</span>
+          <span class="stat-label">Medical Seva Doctors</span>
+        </div>
+      </div>
+
       <div class="stat-card" style="cursor:pointer;" onclick="switchAdminSection('secShelterRegistry')">
         <div class="stat-icon teal">🏕️</div>
         <div class="stat-content">
@@ -480,6 +521,10 @@
       <button class="cmd-tab-btn" id="cmdTabVehicle" onclick="switchAdminSection('secVehicleBookings')">
         <span>🚗 Private Vehicle Bookings</span>
         <span class="cmd-badge green" id="cmdPendingVehiclesBadge">0</span>
+      </button>
+      <button class="cmd-tab-btn" id="cmdTabDoctor" onclick="switchAdminSection('secDoctorVolunteers')">
+        <span>🩺 Medical Seva Approvals</span>
+        <span class="cmd-badge amber" id="cmdPendingDoctorsBadge">0</span>
       </button>
       <button class="cmd-tab-btn" id="cmdTabDam" onclick="switchAdminSection('secDamBroadcasts')">
         <span>🌊 Dam Gate & Public Alerts</span>
@@ -623,6 +668,53 @@
         <div id="vehicleBookingsFeed"
           style="display:grid;grid-template-columns:repeat(auto-fit, minmax(340px, 1fr));gap:16px;">
           <!-- Dynamic Vehicle Bookings -->
+        </div>
+      </section>
+    </div>
+
+    <!-- ================= SECTION: DOCTOR & INTERN MEDICAL SEVA APPROVALS ================= -->
+    <div id="secDoctorVolunteers" class="admin-section-panel">
+      <section class="admin-card">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;flex-wrap:wrap;gap:12px;">
+          <div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <h2 style="font-size:1.3rem;color:var(--navy);margin:0;font-family:'Outfit',sans-serif;">
+                🩺 Relief Camp Medical Seva & Intern Doctor Approvals
+              </h2>
+              <span id="pendingDoctorsHeaderBadge" class="badge-status pending" style="font-size:0.75rem;">
+                ⏳ Applications Pending
+              </span>
+            </div>
+            <p style="font-size:0.85rem;color:var(--text-muted);margin:4px 0 0;">
+              Doctors, MBBS interns, and medical staff registered to serve in disaster relief camps. Approving an applicant immediately confirms their duty posting and dispatches an official EOC appointment letter directly to their registered email address.
+            </p>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <button onclick="loadDoctorVolunteers()" class="btn-outline" style="padding:8px 16px;font-size:0.82rem;font-weight:700;">
+              🔄 Refresh Applications
+            </button>
+          </div>
+        </div>
+
+        <!-- Doctor Moderation Filter Tabs -->
+        <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;border-bottom:1px solid var(--border-light);padding-bottom:12px;">
+          <button id="tabDocAll" class="filter-tab-btn active" onclick="filterDoctorVolunteers('ALL')">
+            <span>All Applications</span> (<span id="cntAllDoc">0</span>)
+          </button>
+          <button id="tabDocPending" class="filter-tab-btn pending-tab" onclick="filterDoctorVolunteers('PENDING')">
+            <span>⏳ Pending Review</span> (<span id="cntPendingDoc">0</span>)
+          </button>
+          <button id="tabDocApproved" class="filter-tab-btn" onclick="filterDoctorVolunteers('APPROVED')">
+            <span>✅ Approved & Deployed</span> (<span id="cntApprovedDoc">0</span>)
+          </button>
+          <button id="tabDocRejected" class="filter-tab-btn" onclick="filterDoctorVolunteers('REJECTED')">
+            <span>❌ Rejected</span> (<span id="cntRejectedDoc">0</span>)
+          </button>
+        </div>
+
+        <div id="doctorVolunteersAdminFeed"
+          style="display:grid;grid-template-columns:repeat(auto-fit, minmax(360px, 1fr));gap:16px;">
+          <!-- Dynamic Doctor Volunteer Cards -->
         </div>
       </section>
     </div>
@@ -946,6 +1038,7 @@
         "secCitizenReports": "cmdTabCitizen",
         "secRescueRequests": "cmdTabRescue",
         "secVehicleBookings": "cmdTabVehicle",
+        "secDoctorVolunteers": "cmdTabDoctor",
         "secDamBroadcasts": "cmdTabDam",
         "secShelterRegistry": "cmdTabShelter"
       };
@@ -962,6 +1055,7 @@
       loadRescueTickets();
       loadCitizenReports();
       loadVehicleBookings();
+      loadDoctorVolunteers();
 
       // Check if hash points to a specific tab
       const hash = window.location.hash.toLowerCase();
@@ -969,6 +1063,8 @@
         switchAdminSection("secRescueRequests");
       } else if (hash.includes("vehicle") || hash.includes("cab")) {
         switchAdminSection("secVehicleBookings");
+      } else if (hash.includes("doctor") || hash.includes("medical") || hash.includes("intern")) {
+        switchAdminSection("secDoctorVolunteers");
       } else if (hash.includes("dam") || hash.includes("alert")) {
         switchAdminSection("secDamBroadcasts");
       } else if (hash.includes("shelter")) {
@@ -2233,7 +2329,518 @@
       showToast(`Booking ${bookingId} cancelled.`, "info");
     }
 
-    // Auto-listen to cross-tab updates when citizens submit reports, rescue tickets, or vehicle bookings
+    /* ================= DOCTOR & INTERN SEVA APPROVAL LOGIC ================= */
+    let allDoctorVolunteers = [];
+    let currentDoctorFilter = "ALL";
+
+    const DEFAULT_ADMIN_DOCTOR_VOLUNTEERS = [
+      {
+        id: "DOC-VOL-8101",
+        name: "Dr. Priya Nambiar",
+        email: "priya.nambiar@health.org",
+        phone: "+91 94471 22890",
+        role: "General Physician (MBBS/MD)",
+        reg_no: "KMC-2021-0982",
+        camp: "Wayanad Relief Camp Alpha - Meppadi, Wayanad (Kerala)",
+        duration: "14 Days (2 Weeks Full Posting)",
+        experience: "Emergency Casualty, Red Cross Disaster Squad",
+        notes: "Trained in tropical waterborne fever diagnosis, pediatric rehydration, suture care.",
+        status: "APPROVED",
+        created_at: new Date(Date.now() - 3600000 * 24).toISOString(),
+        approved_at: new Date(Date.now() - 3600000 * 18).toISOString(),
+        approved_by: "Dr. K. Raman (District CMO)"
+      },
+      {
+        id: "DOC-VOL-8102",
+        name: "Dr. Siddharth Verma",
+        email: "siddharth.intern@gmail.com",
+        phone: "+91 98112 34567",
+        role: "MBBS Intern",
+        reg_no: "AIIMS-2023-INTERN-44",
+        camp: "Rudraprayag Emergency Transit Shelter - Mandakini Basin (Uttarakhand)",
+        duration: "7 Days (1 Week Comprehensive Seva)",
+        experience: "BLS & ACLS Certified, AIIMS Trauma Triage",
+        notes: "Skilled in acute wound debridement, IV cannulation, and emergency shock management.",
+        status: "APPROVED",
+        created_at: new Date(Date.now() - 3600000 * 12).toISOString(),
+        approved_at: new Date(Date.now() - 3600000 * 6).toISOString(),
+        approved_by: "Officer S. Rawat (EOC Director)"
+      },
+      {
+        id: "DOC-VOL-8103",
+        name: "Dr. Aman Saxena",
+        email: "aman.saxena98@outlook.com",
+        phone: "+91 97920 11445",
+        role: "Junior Resident (JR)",
+        reg_no: "KGMU-PG-2024-118",
+        camp: "Silchar Flood Evacuation Camp - Cachar District (Assam)",
+        duration: "7 Days (1 Week Comprehensive Seva)",
+        experience: "Community Medicine & Infection Control",
+        notes: "Specialized in water-borne gastroenteritis management and camp hygiene protocols.",
+        status: "PENDING",
+        created_at: new Date(Date.now() - 3600000 * 2).toISOString()
+      }
+    ];
+
+    async function loadDoctorVolunteers() {
+      const container = document.getElementById("doctorVolunteersAdminFeed");
+      if (!container) return;
+      container.innerHTML = "<p style='color:var(--text-muted);font-size:0.85rem;'>Fetching doctor volunteer applications...</p>";
+
+      let docMap = new Map();
+      DEFAULT_ADMIN_DOCTOR_VOLUNTEERS.forEach(d => docMap.set(d.id, d));
+
+      // 1. Fetch from LocalStorage for instant cross-tab sync with donation page
+      try {
+        const localSaved = JSON.parse(localStorage.getItem("aapda_doctor_volunteers") || "[]");
+        if (Array.isArray(localSaved) && localSaved.length > 0) {
+          localSaved.forEach(d => {
+            if (d && d.id) {
+              docMap.set(d.id, Object.assign({}, docMap.get(d.id) || {}, d));
+            }
+          });
+        }
+      } catch (e) {
+        console.log("Local doctor volunteers read error:", e);
+      }
+
+      // 2. Fetch from Backend Admin endpoint if reachable
+      try {
+        const res = await fetch(`${API_BASE}/admin/volunteers/doctor`, {
+          headers: { "X-Admin-Key": adminKey },
+          signal: AbortSignal.timeout(3000)
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const items = Array.isArray(data) ? data : (data.volunteers || []);
+          items.forEach(d => {
+            if (d && d.id) {
+              docMap.set(d.id, Object.assign({}, docMap.get(d.id) || {}, d));
+            }
+          });
+        }
+      } catch (e) {
+        console.log("Backend doctor volunteers offline fallback:", e.message);
+      }
+
+      allDoctorVolunteers = Array.from(docMap.values());
+      allDoctorVolunteers.sort((a, b) => {
+        const tA = a.created_at ? new Date(a.created_at).getTime() : 0;
+        const tB = b.created_at ? new Date(b.created_at).getTime() : 0;
+        return tB - tA;
+      });
+
+      updateDoctorKPIs();
+      renderDoctorVolunteersAdminList();
+    }
+
+    function updateDoctorKPIs() {
+      const allCount = allDoctorVolunteers.length;
+      const pendingCount = allDoctorVolunteers.filter(d => (d.status || "PENDING").toUpperCase() === "PENDING").length;
+      const approvedCount = allDoctorVolunteers.filter(d => (d.status || "").toUpperCase() === "APPROVED").length;
+      const rejectedCount = allDoctorVolunteers.filter(d => (d.status || "").toUpperCase() === "REJECTED").length;
+
+      document.getElementById("cntAllDoc") && (document.getElementById("cntAllDoc").textContent = allCount);
+      document.getElementById("cntPendingDoc") && (document.getElementById("cntPendingDoc").textContent = pendingCount);
+      document.getElementById("cntApprovedDoc") && (document.getElementById("cntApprovedDoc").textContent = approvedCount);
+      document.getElementById("cntRejectedDoc") && (document.getElementById("cntRejectedDoc").textContent = rejectedCount);
+
+      const kpi = document.getElementById("kpiDoctorCount");
+      if (kpi) kpi.textContent = allCount;
+
+      const cmdBadge = document.getElementById("cmdPendingDoctorsBadge");
+      if (cmdBadge) {
+        cmdBadge.textContent = pendingCount;
+        cmdBadge.style.display = pendingCount > 0 ? "inline-block" : "none";
+      }
+
+      const headerBadge = document.getElementById("pendingDoctorsHeaderBadge");
+      if (headerBadge) {
+        headerBadge.style.display = pendingCount > 0 ? "inline-flex" : "none";
+        headerBadge.innerHTML = `⏳ ${pendingCount} Pending Approval`;
+      }
+    }
+
+    function filterDoctorVolunteers(filterType) {
+      currentDoctorFilter = filterType;
+      document.querySelectorAll("#secDoctorVolunteers .filter-tab-btn").forEach(btn => btn.classList.remove("active"));
+      if (filterType === "ALL") document.getElementById("tabDocAll")?.classList.add("active");
+      if (filterType === "PENDING") document.getElementById("tabDocPending")?.classList.add("active");
+      if (filterType === "APPROVED") document.getElementById("tabDocApproved")?.classList.add("active");
+      if (filterType === "REJECTED") document.getElementById("tabDocRejected")?.classList.add("active");
+      renderDoctorVolunteersAdminList();
+    }
+
+    function renderDoctorVolunteersAdminList() {
+      const container = document.getElementById("doctorVolunteersAdminFeed");
+      if (!container) return;
+      container.innerHTML = "";
+
+      let filtered = allDoctorVolunteers;
+      if (currentDoctorFilter !== "ALL") {
+        filtered = allDoctorVolunteers.filter(d => (d.status || "PENDING").toUpperCase() === currentDoctorFilter);
+      }
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div style="grid-column:1/-1;text-align:center;padding:32px 16px;background:#f8fafc;border-radius:var(--radius-md);border:1px dashed var(--border-light);color:var(--text-muted);">
+            <div style="font-size:2rem;margin-bottom:8px;">🩺</div>
+            <strong style="color:var(--navy);font-size:0.95rem;display:block;margin-bottom:4px;">No doctor applications in "${currentDoctorFilter}" category</strong>
+            <span style="font-size:0.82rem;">Applications submitted by medical professionals from the Relief Fund page appear here.</span>
+          </div>
+        `;
+        return;
+      }
+
+      filtered.forEach(vol => {
+        const rawStatus = (vol.status || "PENDING").toUpperCase();
+        const isPending = rawStatus === "PENDING";
+        const isApproved = rawStatus === "APPROVED";
+        const isRejected = rawStatus === "REJECTED";
+
+        let statusBadgeHtml = "";
+        if (isPending) {
+          statusBadgeHtml = `<span class="badge-status pending" style="animation:pulseDangerMarker 2s infinite;">⏳ PENDING EOC REVIEW</span>`;
+        } else if (isApproved) {
+          statusBadgeHtml = `<span class="badge-status approved">✅ APPROVED & DEPLOYED</span>`;
+        } else if (isRejected) {
+          statusBadgeHtml = `<span class="badge-status rejected">❌ NOT SELECTED</span>`;
+        }
+
+        const div = document.createElement("div");
+        div.className = `doctor-volunteer-card ${isPending ? 'status-pending' : (isApproved ? 'status-approved' : 'status-rejected')}`;
+
+        div.innerHTML = `
+          <div>
+            <!-- Header -->
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;gap:8px;">
+              <div>
+                <strong style="color:var(--navy);font-size:1.1rem;display:flex;align-items:center;gap:6px;">
+                  <span>🩺</span> ${vol.name}
+                </strong>
+                <span style="font-size:0.82rem;color:#0284c7;font-weight:700;display:block;margin-top:2px;">
+                  ${vol.role} • <span style="color:#64748b;">ID: ${vol.id}</span>
+                </span>
+                <span style="font-size:0.75rem;color:#64748b;">Reg / Roll No: <strong>${vol.reg_no || 'Verified'}</strong></span>
+              </div>
+              <div style="text-align:right;">
+                ${statusBadgeHtml}
+                <span style="font-size:0.7rem;color:#94a3b8;display:block;margin-top:4px;">
+                  ${vol.created_at ? new Date(vol.created_at).toLocaleDateString() : 'Recent'}
+                </span>
+              </div>
+            </div>
+
+            <!-- Target Camp & Duration Info Box -->
+            <div style="background:#f8fafc;border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:12px;font-size:0.84rem;line-height:1.45;border-left:3px solid ${isApproved ? '#10b981' : (isPending ? '#f59e0b' : '#ef4444')};">
+              <div style="margin-bottom:4px;color:#1e293b;">
+                🏕️ <strong>Selected Relief Camp:</strong><br>
+                <span style="color:#0369a1;font-weight:700;">${vol.camp}</span>
+              </div>
+              <div style="color:#475569;font-size:0.8rem;margin-top:6px;">
+                ⏱️ <strong>Service Duration:</strong> ${vol.duration || 'Full Relief Period'}
+              </div>
+              ${vol.experience ? `
+                <div style="font-size:0.76rem;color:#64748b;margin-top:4px;">
+                  🏥 <strong>Experience:</strong> ${vol.experience}
+                </div>
+              ` : ''}
+              ${vol.notes ? `
+                <div style="font-size:0.76rem;color:#475569;margin-top:4px;background:#ffffff;border:1px solid #e2e8f0;padding:6px 8px;border-radius:4px;">
+                  📝 <strong>Clinical Notes:</strong> "${vol.notes}"
+                </div>
+              ` : ''}
+            </div>
+
+            <!-- Contact Coordinates -->
+            <div style="font-size:0.82rem;color:#475569;margin-bottom:12px;display:flex;flex-direction:column;gap:5px;background:#f1f5f9;border-radius:6px;padding:8px 10px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span>📧 <strong>Email:</strong> <a href="mailto:${vol.email}" style="color:#2563eb;text-decoration:none;">${vol.email}</a></span>
+                <button onclick="navigator.clipboard.writeText('${vol.email}');showToast('Email copied: ${vol.email}','info')" class="btn-outline" style="padding:2px 6px;font-size:0.7rem;">Copy</button>
+              </div>
+              <div>
+                📞 <strong>Phone:</strong> <a href="tel:${vol.phone}" style="color:#15803d;font-weight:700;text-decoration:none;">${vol.phone} ↗</a>
+              </div>
+            </div>
+
+            ${isApproved ? `
+              <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;padding:8px 10px;margin-bottom:12px;font-size:0.78rem;color:#166534;">
+                🛡️ <strong>Official Appointment Dispatched:</strong><br>
+                Approved by <strong>${vol.approved_by || 'District CMO'}</strong> on ${vol.approved_at ? new Date(vol.approved_at).toLocaleString() : 'Just now'}.<br>
+                <span style="color:#15803d;font-weight:700;">✅ Official Posting Letter Emailed to ${vol.email}</span>
+              </div>
+            ` : ''}
+          </div>
+
+          <!-- Actions -->
+          <div style="border-top:1px solid #e2e8f0;padding-top:12px;margin-top:8px;">
+            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+              ${isPending ? `
+                <button onclick="approveDoctorVolunteer('${vol.id}')" class="quick-action-btn approve" style="flex:1;background:#059669;color:#fff;padding:10px 14px;">
+                  <span>✅ Approve & Dispatch Official Appointment Email</span>
+                </button>
+                <button onclick="rejectDoctorVolunteer('${vol.id}')" class="quick-action-btn cancel" title="Reject Application">
+                  <span>❌ Reject</span>
+                </button>
+              ` : (isApproved ? `
+                <button onclick="viewDoctorAppointmentLetterModal('${vol.id}')" class="quick-action-btn" style="flex:1;background:#0284c7;color:#fff;">
+                  <span>📄 View Official Appointment Letter</span>
+                </button>
+                <button onclick="dispatchDoctorAppointmentEmail(allDoctorVolunteers.find(x => x.id === '${vol.id}'))" class="quick-action-btn approve" title="Resend Email">
+                  <span>📧 Resend Email</span>
+                </button>
+                <button onclick="rejectDoctorVolunteer('${vol.id}')" class="quick-action-btn cancel" title="Revoke Approval">
+                  <span>Revoke</span>
+                </button>
+              ` : `
+                <button onclick="approveDoctorVolunteer('${vol.id}')" class="quick-action-btn approve" style="flex:1;">
+                  <span>🔄 Re-Approve & Dispatch Email</span>
+                </button>
+              `)}
+              <button onclick="deleteDoctorVolunteer('${vol.id}')" class="quick-action-btn" style="background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;" title="Delete Record">
+                <span>🗑️</span>
+              </button>
+            </div>
+          </div>
+        `;
+
+        container.appendChild(div);
+      });
+    }
+
+    async function approveDoctorVolunteer(volId) {
+      const vol = allDoctorVolunteers.find(x => x.id === volId);
+      if (!vol) return;
+
+      const cmoName = prompt("Enter Approving Official Name / District CMO designation:", "Dr. R. K. Sharma (District CMO & EOC Director)");
+      if (cmoName === null) return;
+
+      vol.status = "APPROVED";
+      vol.approved_at = new Date().toISOString();
+      vol.approved_by = cmoName || "Dr. R. K. Sharma (District CMO)";
+
+      // Update in LocalStorage
+      try {
+        let saved = JSON.parse(localStorage.getItem("aapda_doctor_volunteers") || "[]");
+        const idx = saved.findIndex(x => x.id === volId);
+        if (idx >= 0) {
+          saved[idx] = vol;
+        } else {
+          saved.unshift(vol);
+        }
+        localStorage.setItem("aapda_doctor_volunteers", JSON.stringify(saved));
+      } catch (e) {
+        console.error("Local doctor volunteer update error:", e);
+      }
+
+      // Update Backend if reachable
+      try {
+        await fetch(`${API_BASE}/admin/volunteers/doctor/${encodeURIComponent(volId)}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json", "X-Admin-Key": adminKey },
+          body: JSON.stringify({ status: "APPROVED", approved_by: vol.approved_by, approved_at: vol.approved_at }),
+          signal: AbortSignal.timeout(3000)
+        });
+      } catch (e) {}
+
+      updateDoctorKPIs();
+      renderDoctorVolunteersAdminList();
+
+      // Trigger Direct Email Dispatch to Doctor's Email!
+      dispatchDoctorAppointmentEmail(vol);
+
+      // Open Appointment Letter Modal
+      viewDoctorAppointmentLetterModal(vol.id);
+    }
+
+    async function rejectDoctorVolunteer(volId) {
+      const vol = allDoctorVolunteers.find(x => x.id === volId);
+      if (!vol) return;
+      if (!confirm(`Are you sure you want to mark ${vol.name}'s application as NOT SELECTED?`)) return;
+
+      vol.status = "REJECTED";
+      try {
+        let saved = JSON.parse(localStorage.getItem("aapda_doctor_volunteers") || "[]");
+        const idx = saved.findIndex(x => x.id === volId);
+        if (idx >= 0) saved[idx].status = "REJECTED";
+        localStorage.setItem("aapda_doctor_volunteers", JSON.stringify(saved));
+      } catch (e) {}
+
+      updateDoctorKPIs();
+      renderDoctorVolunteersAdminList();
+      showToast(`Application for ${vol.name} marked as Rejected.`, "info");
+    }
+
+    function deleteDoctorVolunteer(volId) {
+      if (!confirm(`Permanently remove volunteer record ${volId}?`)) return;
+      allDoctorVolunteers = allDoctorVolunteers.filter(x => x.id !== volId);
+
+      try {
+        let saved = JSON.parse(localStorage.getItem("aapda_doctor_volunteers") || "[]");
+        saved = saved.filter(x => x.id !== volId);
+        localStorage.setItem("aapda_doctor_volunteers", JSON.stringify(saved));
+      } catch (e) {}
+
+      updateDoctorKPIs();
+      renderDoctorVolunteersAdminList();
+      showToast(`Record ${volId} removed.`, "success");
+    }
+
+    function dispatchDoctorAppointmentEmail(vol) {
+      if (!vol || !vol.email) return;
+
+      const subject = `🏥 [Official Appointment] AapdaSetu Relief Camp Medical Seva - Dr. ${vol.name}`;
+      const letterBody = `Dear Dr. ${vol.name},
+
+Congratulations! Your medical volunteer application has been officially APPROVED by the AapdaSetu National Emergency Operations Center (EOC) and District Disaster Management Authority.
+
+--------------------------------------------------
+OFFICIAL APPOINTMENT & FIELD POSTING DETAILS:
+--------------------------------------------------
+• Volunteer ID: ${vol.id}
+• Doctor / Intern Name: Dr. ${vol.name}
+• Qualification / Role: ${vol.role}
+• Registration / Roll No: ${vol.reg_no || 'Verified'}
+• Assigned Relief Camp: ${vol.camp}
+• Service Duration: ${vol.duration || 'Full Relief Duration'}
+• Reporting Desk: EOC Medical Relief Tent #1 (Chief Medical Officer - CMO)
+• Approved By: ${vol.approved_by || 'District CMO & EOC Director'}
+• Emergency Helpline: 108 / 112 (Disaster EOC 24x7)
+
+REPORTING INSTRUCTIONS:
+1. Please report to the Camp Medical Officer (CMO) at ${vol.camp} with a copy of this appointment letter, a valid government photo ID, and your Medical Council / College ID.
+2. Complete sterile PPE kits, emergency trauma supplies, wound dressings, IV sets, and a volunteer badge will be issued upon arrival.
+3. Clean lodging and doctor quarters have been reserved for you at the camp volunteer wing.
+
+Thank you for your noble commitment to save lives in disaster-stricken zones.
+
+Sincerely,
+${vol.approved_by || 'District Chief Medical Officer (CMO)'}
+National Emergency Operations Center (EOC)
+AapdaSetu Disaster Relief Network`;
+
+      // 1. Dispatch via Web3Forms API to ensure direct automated delivery
+      try {
+        fetch("https://api.web3forms.com/submit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Accept": "application/json" },
+          body: JSON.stringify({
+            access_key: "099a4c0a-0e6d-47df-8f5b-1ec45618f6fa",
+            to_email: vol.email,
+            subject: subject,
+            from_name: "AapdaSetu Disaster Relief Operations EOC",
+            message: letterBody
+          })
+        }).catch(err => console.log("Web3Forms API send attempted:", err));
+      } catch (err) {}
+
+      // 2. Open mailto link so admin can verify or send from local email client
+      const mailtoUrl = `mailto:${encodeURIComponent(vol.email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(letterBody)}`;
+      
+      const a = document.createElement("a");
+      a.href = mailtoUrl;
+      a.target = "_blank";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      showToast(`📧 Official Appointment Letter dispatched directly to Dr. ${vol.name} (${vol.email})!`, "success");
+    }
+
+    function viewDoctorAppointmentLetterModal(volId) {
+      const vol = allDoctorVolunteers.find(x => x.id === volId);
+      if (!vol) return;
+
+      let modal = document.getElementById("doctorAppointmentModal");
+      if (!modal) {
+        modal = document.createElement("div");
+        modal.id = "doctorAppointmentModal";
+        modal.style.cssText = "display:none;position:fixed;inset:0;background:rgba(15,23,42,0.75);z-index:99999;place-items:center;padding:16px;backdrop-filter:blur(4px);";
+        document.body.appendChild(modal);
+      }
+
+      const letterText = `GOVERNMENT OF INDIA / STATE DISASTER MANAGEMENT AUTHORITY
+DISTRICT EMERGENCY OPERATIONS CENTER (EOC)
+OFFICIAL MEDICAL VOLUNTEER APPOINTMENT LETTER
+
+Reference ID: ${vol.id}
+Date of Issue: ${vol.approved_at ? new Date(vol.approved_at).toLocaleDateString() : new Date().toLocaleDateString()}
+
+TO:
+Dr. ${vol.name}
+Role / Qualification: ${vol.role}
+Council / College Reg: ${vol.reg_no || 'Verified'}
+Email: ${vol.email}
+Phone: ${vol.phone}
+
+SUBJECT: APPOINTMENT FOR DISASTER RELIEF CAMP MEDICAL SEVA
+
+Sir / Madam,
+
+We are pleased to inform you that your application for Medical Seva has been APPROVED by the District Disaster Management Authority and EOC Command.
+
+You are hereby posted to:
+📍 RELIEF CAMP: ${vol.camp}
+⏱️ DURATION: ${vol.duration || 'Emergency Disaster Phase'}
+🏢 REPORTING DESK: EOC Medical Relief Tent #1 (Camp Chief Medical Officer)
+📞 EMERGENCY CMO LINE: 108 / 112
+
+FACILITIES PROVIDED:
+- Dedicated doctor accommodation and pure hygienic meals at the camp.
+- Emergency surgical/medical kits, triage gear, and volunteer pass.
+- Certificate of Exemplary National Service upon completion of duty.
+
+Authorized Signatory:
+${vol.approved_by || 'District Chief Medical Officer (CMO)'}
+AapdaSetu EOC Disaster Operations`;
+
+      modal.style.display = "grid";
+      modal.innerHTML = `
+        <div style="background:#ffffff;border-radius:var(--radius-lg);max-width:680px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 40px rgba(0,0,0,0.3);border:2px solid #38bdf8;padding:24px;position:relative;">
+          
+          <!-- Modal Header -->
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #e0f2fe;padding-bottom:14px;margin-bottom:16px;">
+            <div style="display:flex;align-items:center;gap:12px;">
+              <div style="width:44px;height:44px;border-radius:10px;background:#e0f2fe;display:grid;place-items:center;font-size:1.6rem;">
+                📜
+              </div>
+              <div>
+                <h3 style="font-size:1.2rem;color:var(--navy);margin:0;font-family:'Outfit',sans-serif;">
+                  Official Medical Seva Appointment Letter
+                </h3>
+                <span style="font-size:0.78rem;color:#0284c7;font-weight:700;">
+                  National Disaster Emergency Operations Center (EOC)
+                </span>
+              </div>
+            </div>
+            <button onclick="document.getElementById('doctorAppointmentModal').style.display='none'" style="background:#f1f5f9;border:none;border-radius:8px;width:32px;height:32px;font-size:1.2rem;cursor:pointer;color:#64748b;line-height:1;">
+              ✕
+            </button>
+          </div>
+
+          <!-- Official Pass Preview Box -->
+          <div style="background:#f8fafc;border:1.5px solid #cbd5e1;border-radius:var(--radius-md);padding:18px;margin-bottom:18px;font-family:'Courier New',Courier,monospace;font-size:0.84rem;line-height:1.55;color:#0f172a;white-space:pre-wrap;box-shadow:inset 0 2px 4px rgba(0,0,0,0.03);">
+${letterText}
+          </div>
+
+          <!-- Modal Action Bar -->
+          <div style="display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;border-top:1px solid #e2e8f0;padding-top:14px;">
+            <button onclick="navigator.clipboard.writeText(\`${letterText.replace(/`/g, "\\`")}\`);showToast('Appointment letter copied to clipboard!','success')" class="btn-secondary" style="padding:10px 16px;font-size:0.85rem;">
+              📋 Copy Letter Text
+            </button>
+            <button onclick="window.print()" class="btn-outline" style="padding:10px 16px;font-size:0.85rem;">
+              🖨️ Print Pass
+            </button>
+            <a href="mailto:${encodeURIComponent(vol.email)}?subject=${encodeURIComponent(`🏥 [Official Appointment] AapdaSetu Relief Camp Medical Seva - Dr. ${vol.name}`)}&body=${encodeURIComponent(letterText)}" class="btn-primary" style="background:#0284c7;border-color:#0284c7;padding:10px 18px;font-size:0.85rem;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
+              <span>📧 Send / Resend Email (${vol.email})</span>
+            </a>
+          </div>
+
+        </div>
+      `;
+    }
+
+    // Auto-listen to cross-tab updates when citizens submit reports, rescue tickets, vehicle bookings, or doctor applications
     window.addEventListener("storage", (e) => {
       if (e.key === "aapda_community_reports") {
         console.log("Cross-tab report sync detected, updating admin feed...");
@@ -2244,6 +2851,9 @@
       } else if (e.key === "aapda_vehicle_bookings") {
         console.log("Cross-tab vehicle booking sync detected, updating vehicle list...");
         loadVehicleBookings();
+      } else if (e.key === "aapda_doctor_volunteers") {
+        console.log("Cross-tab doctor volunteer sync detected, updating doctor list...");
+        loadDoctorVolunteers();
       }
     });
 

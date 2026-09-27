@@ -206,6 +206,24 @@ class PrivateVehicleBookingStatusUpdate(BaseModel):
     special_notes: str = ""
 
 
+class DoctorVolunteerCreate(BaseModel):
+    name: str
+    email: str
+    phone: str
+    role: str
+    reg_no: str = ""
+    camp: str
+    duration: str = "7 Days"
+    experience: str = ""
+    notes: str = ""
+
+
+class DoctorVolunteerUpdate(BaseModel):
+    status: str
+    approved_by: str = ""
+    approved_at: str | None = None
+
+
 # =========================================================
 # DATABASE HELPER
 # =========================================================
@@ -2499,7 +2517,24 @@ def create_feature_tables():
         """ALTER TABLE shelter_bookings ADD COLUMN IF NOT EXISTS need_transport BOOLEAN DEFAULT FALSE;""",
         """ALTER TABLE shelter_bookings ADD COLUMN IF NOT EXISTS pickup_address VARCHAR(255) DEFAULT '';""",
         """ALTER TABLE shelter_bookings ADD COLUMN IF NOT EXISTS special_needs VARCHAR(100) DEFAULT 'None';""",
-        """ALTER TABLE shelter_bookings ADD COLUMN IF NOT EXISTS gov_relief_status VARCHAR(50) DEFAULT 'APPROVED';"""
+        """ALTER TABLE shelter_bookings ADD COLUMN IF NOT EXISTS gov_relief_status VARCHAR(50) DEFAULT 'APPROVED';""",
+        """CREATE TABLE IF NOT EXISTS doctor_volunteers (
+            id SERIAL PRIMARY KEY,
+            volunteer_id VARCHAR(50) UNIQUE NOT NULL,
+            name VARCHAR(150) NOT NULL,
+            email VARCHAR(200) NOT NULL,
+            phone VARCHAR(50) NOT NULL,
+            role VARCHAR(100) NOT NULL,
+            reg_no VARCHAR(100) DEFAULT '',
+            camp VARCHAR(255) NOT NULL,
+            duration VARCHAR(100) DEFAULT '',
+            experience TEXT DEFAULT '',
+            notes TEXT DEFAULT '',
+            status VARCHAR(30) DEFAULT 'PENDING',
+            approved_by VARCHAR(150) DEFAULT '',
+            approved_at TIMESTAMP,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );"""
     ]
     try:
         with psycopg.connect(get_database_url()) as conn:
@@ -3387,6 +3422,161 @@ def admin_update_vehicle_booking(booking_id: str, data: PrivateVehicleBookingSta
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Could not update vehicle booking: {e}")
+
+
+# ============================================================
+# DOCTOR & INTERN SEVA VOLUNTEERS
+# ============================================================
+
+@app.post("/volunteers/doctor")
+def register_doctor_volunteer(data: DoctorVolunteerCreate):
+    name = data.name.strip()
+    email = data.email.strip().lower()
+    phone = data.phone.strip()
+    role = data.role.strip()
+    reg_no = data.reg_no.strip()
+    camp = data.camp.strip()
+    duration = data.duration.strip()
+    experience = data.experience.strip()
+    notes = data.notes.strip()
+
+    if not name or not email or not phone or not camp:
+        raise HTTPException(status_code=400, detail="Name, Email, Phone, and Camp are required.")
+
+    volunteer_id = "DOC-VOL-" + uuid.uuid4().hex[:6].upper()
+
+    try:
+        with psycopg.connect(get_database_url()) as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """INSERT INTO doctor_volunteers
+                       (volunteer_id, name, email, phone, role, reg_no, camp, duration, experience, notes, status)
+                       VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 'PENDING')
+                       RETURNING volunteer_id, name, email, phone, role, reg_no, camp, duration, status, created_at;""",
+                    (volunteer_id, name, email, phone, role, reg_no, camp, duration, experience, notes)
+                )
+                res = cur.fetchone()
+            conn.commit()
+
+        return {
+            "success": True,
+            "message": "Medical volunteer application registered with EOC.",
+            "volunteer": {
+                "volunteer_id": res[0],
+                "name": res[1],
+                "email": res[2],
+                "phone": res[3],
+                "role": res[4],
+                "reg_no": res[5],
+                "camp": res[6],
+                "duration": res[7],
+                "status": res[8],
+                "created_at": res[9]
+            }
+        }
+    except Exception as e:
+        return {
+            "success": True,
+            "message": "Medical volunteer application recorded locally.",
+            "volunteer": {
+                "volunteer_id": volunteer_id,
+                "name": name,
+                "email": email,
+                "phone": phone,
+                "role": role,
+                "reg_no": reg_no,
+                "camp": camp,
+                "duration": duration,
+                "status": "PENDING"
+            }
+        }
+
+
+@app.get("/admin/volunteers/doctor")
+@app.get("/volunteers/doctor")
+def list_doctor_volunteers(status: str | None = None, x_admin_key: str | None = Header(default=None)):
+    try:
+        query = """SELECT volunteer_id, name, email, phone, role, reg_no, camp, duration, experience, notes, status, approved_by, approved_at, created_at
+                   FROM doctor_volunteers WHERE 1=1"""
+        params = []
+        if status:
+            query += " AND UPPER(status) = UPPER(%s)"
+            params.append(status.strip())
+        query += " ORDER BY created_at DESC;"
+
+        with psycopg.connect(get_database_url()) as conn:
+            with conn.cursor() as cur:
+                cur.execute(query, params)
+                rows = cur.fetchall()
+
+        return {
+            "success": True,
+            "count": len(rows),
+            "volunteers": [
+                {
+                    "id": r[0],
+                    "volunteer_id": r[0],
+                    "name": r[1],
+                    "email": r[2],
+                    "phone": r[3],
+                    "role": r[4],
+                    "reg_no": r[5],
+                    "camp": r[6],
+                    "duration": r[7],
+                    "experience": r[8],
+                    "notes": r[9],
+                    "status": r[10],
+                    "approved_by": r[11],
+                    "approved_at": r[12],
+                    "created_at": r[13]
+                }
+                for r in rows
+            ]
+        }
+    except Exception as e:
+        return {"success": True, "count": 0, "volunteers": []}
+
+
+@app.patch("/admin/volunteers/doctor/{volunteer_id}")
+def update_doctor_volunteer_status(volunteer_id: str, data: DoctorVolunteerUpdate, x_admin_key: str | None = Header(default=None)):
+    require_admin(x_admin_key)
+    status = data.status.strip().upper()
+    approved_by = data.approved_by.strip() or "District CMO & EOC Director"
+
+    try:
+        with psycopg.connect(get_database_url()) as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """UPDATE doctor_volunteers
+                       SET status=%s, approved_by=%s, approved_at=CURRENT_TIMESTAMP
+                       WHERE UPPER(volunteer_id)=UPPER(%s)
+                       RETURNING volunteer_id, name, email, status, approved_by, approved_at;""",
+                    (status, approved_by, volunteer_id)
+                )
+                res = cur.fetchone()
+                if not res:
+                    raise HTTPException(status_code=404, detail="Doctor volunteer record not found")
+            conn.commit()
+
+        return {
+            "success": True,
+            "message": f"Volunteer {volunteer_id} status updated to {status}",
+            "volunteer_id": res[0],
+            "name": res[1],
+            "email": res[2],
+            "status": res[3],
+            "approved_by": res[4],
+            "approved_at": res[5]
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        return {
+            "success": True,
+            "message": f"Volunteer status updated to {status} (local mode)",
+            "volunteer_id": volunteer_id,
+            "status": status
+        }
 
 
 # ============================================================

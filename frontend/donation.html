@@ -210,7 +210,210 @@
 
     </div>
 
-  </main>
+    <!-- ================= MEDICAL SEVA & INTERN DOCTOR VOLUNTEER REGISTRATION ================= -->
+    <section class="content-card" id="doctorSevaSection" style="margin-top:32px;border:2px solid #38bdf8;background:linear-gradient(180deg,#ffffff 0%,#f0f9ff 100%);">
+      <div class="card-header-bar" style="margin-bottom:20px;border-bottom:1px solid #bae6fd;padding-bottom:16px;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="width:48px;height:48px;border-radius:12px;background:#e0f2fe;display:grid;place-items:center;font-size:1.8rem;border:1px solid #7dd3fc;">
+            🩺
+          </div>
+          <div>
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+              <h2 class="card-title" style="color:#0369a1;margin:0;font-size:1.35rem;">
+                Relief Camp Medical Seva & Intern Doctor Volunteering
+              </h2>
+              <span class="badge-pill safe" style="background:#0284c7;color:#fff;font-size:0.75rem;">
+                🏥 EOC Certified Field Medical Unit
+              </span>
+            </div>
+            <p class="card-subtitle" style="margin-top:4px;color:#0c4a6e;">
+              Calling all Doctors, MBBS Interns, Nursing Staff & Paramedics. Offer your selfless medical service at disaster relief camps. Applications are reviewed and approved directly by the District Emergency Operations Center (EOC).
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Perks Strip -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:14px;margin-bottom:24px;">
+        <div style="background:#fff;border:1px solid #e0f2fe;border-radius:var(--radius-sm);padding:12px 14px;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow-sm);">
+          <span style="font-size:1.5rem;">📜</span>
+          <div>
+            <strong style="font-size:0.85rem;color:var(--navy);display:block;">Official EOC Seva Certificate</strong>
+            <span style="font-size:0.75rem;color:var(--text-muted);">Govt. Disaster Authority accredited</span>
+          </div>
+        </div>
+        <div style="background:#fff;border:1px solid #e0f2fe;border-radius:var(--radius-sm);padding:12px 14px;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow-sm);">
+          <span style="font-size:1.5rem;">🏕️</span>
+          <div>
+            <strong style="font-size:0.85rem;color:var(--navy);display:block;">Camp Lodging & Pure Meals</strong>
+            <span style="font-size:0.75rem;color:var(--text-muted);">Reserved doctor quarters arranged</span>
+          </div>
+        </div>
+        <div style="background:#fff;border:1px solid #e0f2fe;border-radius:var(--radius-sm);padding:12px 14px;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow-sm);">
+          <span style="font-size:1.5rem;">💊</span>
+          <div>
+            <strong style="font-size:0.85rem;color:var(--navy);display:block;">Full Medical Kits & PPE</strong>
+            <span style="font-size:0.75rem;color:var(--text-muted);">Sutures, sterile IV, and essentials</span>
+          </div>
+        </div>
+        <div style="background:#fff;border:1px solid #e0f2fe;border-radius:var(--radius-sm);padding:12px 14px;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow-sm);">
+          <span style="font-size:1.5rem;">📧</span>
+          <div>
+            <strong style="font-size:0.85rem;color:var(--navy);display:block;">Instant Email Appointment</strong>
+            <span style="font-size:0.75rem;color:var(--text-muted);">Direct approval letter to your inbox</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Form & Status Column Grid -->
+      <div style="display:grid;grid-template-columns:1.35fr 1fr;gap:24px;align-items:start;">
+
+        <!-- Form Card -->
+        <div style="background:#fff;border:1px solid #bae6fd;border-radius:var(--radius-md);padding:22px;box-shadow:var(--shadow-sm);">
+          <h3 style="font-size:1.1rem;color:var(--navy);margin-bottom:4px;display:flex;align-items:center;gap:8px;">
+            <span>📝</span> Doctor & Intern Seva Application Form
+          </h3>
+          <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:18px;">
+            Fill in your authentic medical details. Upon admin panel approval, an official posting letter will be emailed directly to your specified address.
+          </p>
+
+          <form id="doctorVolunteerForm" onsubmit="submitDoctorVolunteer(event)" style="display:flex;flex-direction:column;gap:14px;">
+            
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+              <div>
+                <label style="font-size:0.82rem;font-weight:700;color:var(--navy);display:block;margin-bottom:4px;">
+                  Full Name (with Dr. prefix) *
+                </label>
+                <input type="text" id="docName" class="form-input" placeholder="e.g. Dr. Rohan Agrawal" required>
+              </div>
+              <div>
+                <label style="font-size:0.82rem;font-weight:700;color:var(--navy);display:block;margin-bottom:4px;">
+                  Professional Role / Qualification *
+                </label>
+                <select id="docRole" class="form-select" required>
+                  <option value="MBBS Intern">MBBS Intern</option>
+                  <option value="Junior Resident (JR)">Junior Resident (JR)</option>
+                  <option value="General Physician (MBBS/MD)">General Physician (MBBS/MD)</option>
+                  <option value="Pediatrician">Pediatrician (Child Specialist)</option>
+                  <option value="Orthopedic / Trauma Surgeon">Orthopedic / Trauma Surgeon</option>
+                  <option value="Emergency Medical Officer (EMO)">Emergency Medical Officer (EMO)</option>
+                  <option value="Registered Nursing Officer">Registered Nursing Officer</option>
+                  <option value="Paramedic / EMT Specialist">Paramedic / EMT Specialist</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+              <div>
+                <label style="font-size:0.82rem;font-weight:700;color:var(--navy);display:block;margin-bottom:4px;">
+                  Official Email Address (For Direct Appointment Letter) *
+                </label>
+                <input type="email" id="docEmail" class="form-input" placeholder="e.g. doctor.rohan@hospital.org" required>
+                <small style="font-size:0.72rem;color:#0284c7;">Admin approval letter will be dispatched to this email.</small>
+              </div>
+              <div>
+                <label style="font-size:0.82rem;font-weight:700;color:var(--navy);display:block;margin-bottom:4px;">
+                  Phone / WhatsApp Mobile *
+                </label>
+                <input type="tel" id="docPhone" class="form-input" placeholder="e.g. +91 98765 43210" required>
+              </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:12px;">
+              <div>
+                <label style="font-size:0.82rem;font-weight:700;color:var(--navy);display:block;margin-bottom:4px;">
+                  Select Target Relief Camp for Medical Seva *
+                </label>
+                <select id="docCamp" class="form-select" required>
+                  <option value="Wayanad Relief Camp Alpha - Meppadi, Wayanad (Kerala)">Wayanad Relief Camp Alpha - Meppadi, Wayanad (Kerala)</option>
+                  <option value="Rudraprayag Emergency Transit Shelter - Mandakini Basin (Uttarakhand)">Rudraprayag Emergency Transit Shelter - Mandakini (Uttarakhand)</option>
+                  <option value="Silchar Flood Evacuation Camp - Cachar District (Assam)">Silchar Flood Evacuation Camp - Cachar (Assam)</option>
+                  <option value="Patna Diara Community Relief Base - Ganga Basin (Bihar)">Patna Diara Community Relief Base - Ganga Basin (Bihar)</option>
+                  <option value="Bharuch Narmada Basin Relief Camp - Bharuch (Gujarat)">Bharuch Narmada Basin Relief Camp - Bharuch (Gujarat)</option>
+                  <option value="Vijayawada Krishna Flood Base - Krishna District (AP)">Vijayawada Krishna Flood Base - Krishna (AP)</option>
+                  <option value="Mobile Medical Unit - Any Emergency Flood Zone">Mobile Medical Unit - Any Emergency Flood Zone</option>
+                </select>
+              </div>
+              <div>
+                <label style="font-size:0.82rem;font-weight:700;color:var(--navy);display:block;margin-bottom:4px;">
+                  Medical Council / College Roll No. *
+                </label>
+                <input type="text" id="docRegNo" class="form-input" placeholder="e.g. NMC/MCI Reg No. or College ID" required>
+              </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+              <div>
+                <label style="font-size:0.82rem;font-weight:700;color:var(--navy);display:block;margin-bottom:4px;">
+                  Service Duration / Availability *
+                </label>
+                <select id="docDuration" class="form-select">
+                  <option value="3 Days (Emergency Acute Phase)">3 Days (Emergency Acute Phase)</option>
+                  <option value="7 Days (1 Week Comprehensive Seva)" selected>7 Days (1 Week Comprehensive Seva)</option>
+                  <option value="14 Days (2 Weeks Full Posting)">14 Days (2 Weeks Full Posting)</option>
+                  <option value="Weekend Emergency Shifts (Fri-Sun)">Weekend Emergency Shifts (Fri-Sun)</option>
+                  <option value="Full Disaster Relief Duration">Full Disaster Relief Duration</option>
+                </select>
+              </div>
+              <div>
+                <label style="font-size:0.82rem;font-weight:700;color:var(--navy);display:block;margin-bottom:4px;">
+                  Previous Disaster / Clinical Experience
+                </label>
+                <input type="text" id="docExperience" class="form-input" placeholder="e.g. ICU Duty, Trauma Centre, Red Cross">
+              </div>
+            </div>
+
+            <div>
+              <label style="font-size:0.82rem;font-weight:700;color:var(--navy);display:block;margin-bottom:4px;">
+                Special Clinical Skills & Medicines You Can Help Manage
+              </label>
+              <textarea id="docNotes" class="form-textarea" rows="2" placeholder="e.g., Suturing & wound dressing, IV cannulation, pediatric rehydration (ORS/IV), water-borne infection treatment."></textarea>
+            </div>
+
+            <button type="submit" id="btnSubmitDocVolunteer" class="btn-primary" style="background:#0284c7;border-color:#0284c7;padding:14px;font-size:0.95rem;justify-content:center;margin-top:4px;">
+              <span>🩺 Submit Medical Seva Application to EOC</span>
+            </button>
+          </form>
+        </div>
+
+        <!-- Right: Status Checker & Live Approved Volunteers Stream -->
+        <div style="display:flex;flex-direction:column;gap:18px;">
+          
+          <!-- Application Status Quick Lookup -->
+          <div style="background:#fff;border:1px solid #bae6fd;border-radius:var(--radius-md);padding:18px;box-shadow:var(--shadow-sm);">
+            <h4 style="font-size:0.95rem;color:var(--navy);margin-bottom:6px;display:flex;align-items:center;gap:6px;">
+              <span>🔍</span> Check Your Volunteer Approval Status
+            </h4>
+            <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:10px;">
+              Already registered? Enter your email to view your current EOC review status and duty posting letter.
+            </p>
+            <div style="display:flex;gap:8px;">
+              <input type="email" id="chkDocEmail" class="form-input" style="padding:8px 12px;font-size:0.82rem;" placeholder="Enter registered email">
+              <button onclick="checkDoctorStatus()" class="btn-secondary" style="padding:8px 14px;font-size:0.82rem;white-space:nowrap;">
+                Check Status
+              </button>
+            </div>
+            <div id="docStatusResultBox" style="margin-top:12px;display:none;"></div>
+          </div>
+
+          <!-- Live Deployed Doctors Feed -->
+          <div style="background:#fff;border:1px solid #e2e8f0;border-radius:var(--radius-md);padding:18px;box-shadow:var(--shadow-sm);">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+              <h4 style="font-size:0.95rem;color:var(--navy);margin:0;display:flex;align-items:center;gap:6px;">
+                <span>🏥</span> Deployed Medical Volunteers
+              </h4>
+              <span id="badgeActiveDocCount" class="badge-pill safe" style="font-size:0.7rem;">3 Active</span>
+            </div>
+            
+            <div id="doctorVolunteersFeed" style="display:flex;flex-direction:column;gap:10px;max-height:360px;overflow-y:auto;padding-right:4px;">
+              <!-- Dynamic Doctor Volunteer items -->
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
 
   <!-- ================= UNIFIED FOOTER ================= -->
   <footer class="site-footer">
@@ -298,6 +501,261 @@
       navigator.clipboard.writeText("aapdasetu@sbi");
       showToast("UPI ID copied: aapdasetu@sbi", "info");
     }
-  </script>
+
+    /* ================= DOCTOR & INTERN SEVA PORTAL LOGIC ================= */
+    const SEED_DOCTOR_VOLUNTEERS = [
+      {
+        id: "DOC-VOL-8101",
+        name: "Dr. Priya Nambiar",
+        email: "priya.nambiar@health.org",
+        phone: "+91 94471 22890",
+        role: "General Physician (MBBS/MD)",
+        reg_no: "KMC-2021-0982",
+        camp: "Wayanad Relief Camp Alpha - Meppadi, Wayanad (Kerala)",
+        duration: "14 Days (2 Weeks Full Posting)",
+        experience: "Emergency Casualty, Red Cross Disaster Squad",
+        notes: "Trained in tropical waterborne fever diagnosis, pediatric rehydration, suture care.",
+        status: "APPROVED",
+        created_at: new Date(Date.now() - 3600000 * 24).toISOString(),
+        approved_at: new Date(Date.now() - 3600000 * 18).toISOString(),
+        approved_by: "Dr. K. Raman (District CMO)"
+      },
+      {
+        id: "DOC-VOL-8102",
+        name: "Dr. Siddharth Verma",
+        email: "siddharth.intern@gmail.com",
+        phone: "+91 98112 34567",
+        role: "MBBS Intern",
+        reg_no: "AIIMS-2023-INTERN-44",
+        camp: "Rudraprayag Emergency Transit Shelter - Mandakini Basin (Uttarakhand)",
+        duration: "7 Days (1 Week Comprehensive Seva)",
+        experience: "BLS & ACLS Certified, AIIMS Trauma Triage",
+        notes: "Skilled in acute wound debridement, IV cannulation, and emergency shock management.",
+        status: "APPROVED",
+        created_at: new Date(Date.now() - 3600000 * 12).toISOString(),
+        approved_at: new Date(Date.now() - 3600000 * 6).toISOString(),
+        approved_by: "Officer S. Rawat (EOC Director)"
+      },
+      {
+        id: "DOC-VOL-8103",
+        name: "Dr. Aman Saxena",
+        email: "aman.saxena98@outlook.com",
+        phone: "+91 97920 11445",
+        role: "Junior Resident (JR)",
+        reg_no: "KGMU-PG-2024-118",
+        camp: "Silchar Flood Evacuation Camp - Cachar District (Assam)",
+        duration: "7 Days (1 Week Comprehensive Seva)",
+        experience: "Community Medicine & Infection Control",
+        notes: "Specialized in water-borne gastroenteritis management and camp hygiene protocols.",
+        status: "PENDING",
+        created_at: new Date(Date.now() - 3600000 * 2).toISOString()
+      }
+    ];
+
+    function getDoctorVolunteers() {
+      try {
+        const stored = localStorage.getItem("aapda_doctor_volunteers");
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      } catch (e) {
+        console.error("Error loading doctor volunteers:", e);
+      }
+      localStorage.setItem("aapda_doctor_volunteers", JSON.stringify(SEED_DOCTOR_VOLUNTEERS));
+      return SEED_DOCTOR_VOLUNTEERS;
+    }
+
+    function saveDoctorVolunteers(list) {
+      localStorage.setItem("aapda_doctor_volunteers", JSON.stringify(list));
+    }
+
+    function renderDoctorVolunteersStream() {
+      const feed = document.getElementById("doctorVolunteersFeed");
+      const badgeCount = document.getElementById("badgeActiveDocCount");
+      if (!feed) return;
+
+      const list = getDoctorVolunteers();
+      const approvedCount = list.filter(v => (v.status || "").toUpperCase() === "APPROVED").length;
+      if (badgeCount) badgeCount.textContent = `${approvedCount} Deployed`;
+
+      feed.innerHTML = "";
+      if (list.length === 0) {
+        feed.innerHTML = "<p style='font-size:0.8rem;color:var(--text-muted);'>No doctor volunteers registered yet.</p>";
+        return;
+      }
+
+      list.forEach(vol => {
+        const isApproved = (vol.status || "").toUpperCase() === "APPROVED";
+        const isPending = (vol.status || "").toUpperCase() === "PENDING";
+        const item = document.createElement("div");
+        item.style.cssText = "background:#f8fafc;border:1px solid #e2e8f0;border-radius:var(--radius-sm);padding:12px;display:flex;flex-direction:column;gap:6px;";
+        
+        item.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+            <div>
+              <strong style="color:var(--navy);font-size:0.92rem;display:flex;align-items:center;gap:6px;">
+                <span>🩺</span> ${vol.name}
+              </strong>
+              <span style="font-size:0.78rem;color:#0284c7;font-weight:600;display:block;">${vol.role} • ${vol.reg_no || 'Reg Verified'}</span>
+            </div>
+            <div>
+              ${isApproved 
+                ? '<span class="badge-status approved" style="font-size:0.72rem;padding:3px 8px;">✅ DEPLOYED</span>' 
+                : (isPending 
+                    ? '<span class="badge-status pending" style="font-size:0.72rem;padding:3px 8px;">⏳ EOC REVIEW</span>' 
+                    : '<span class="badge-status rejected" style="font-size:0.72rem;padding:3px 8px;">❌ NOT SELECTED</span>')}
+            </div>
+          </div>
+          <div style="font-size:0.78rem;color:#475569;background:#ffffff;border:1px solid #f1f5f9;border-radius:6px;padding:6px 8px;margin-top:2px;">
+            📍 <strong>Camp:</strong> ${vol.camp}
+            <div style="color:#64748b;font-size:0.73rem;margin-top:2px;">⏱️ Duration: ${vol.duration || 'Relief Phase'}</div>
+          </div>
+          ${isApproved ? `
+            <div style="font-size:0.72rem;color:#059669;font-weight:600;">
+              🛡️ Approved by ${vol.approved_by || 'District CMO'} • Official Appointment Sent via Email
+            </div>
+          ` : ''}
+        `;
+        feed.appendChild(item);
+      });
+    }
+
+    async function submitDoctorVolunteer(e) {
+      e.preventDefault();
+      const btn = document.getElementById("btnSubmitDocVolunteer");
+      const name = document.getElementById("docName").value.trim();
+      const role = document.getElementById("docRole").value;
+      const email = document.getElementById("docEmail").value.trim();
+      const phone = document.getElementById("docPhone").value.trim();
+      const camp = document.getElementById("docCamp").value;
+      const reg_no = document.getElementById("docRegNo").value.trim();
+      const duration = document.getElementById("docDuration").value;
+      const experience = document.getElementById("docExperience")?.value.trim() || "";
+      const notes = document.getElementById("docNotes")?.value.trim() || "";
+
+      if (!name || !email || !phone || !camp) {
+        showToast("Please fill in all mandatory fields (Name, Email, Phone, Camp)", "error");
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = "⏳ Transmitting Credentials to EOC...";
+
+      const newId = `DOC-VOL-${Math.floor(1000 + Math.random() * 9000)}`;
+      const newVolunteer = {
+        id: newId,
+        name: name.startsWith("Dr.") ? name : `Dr. ${name}`,
+        email,
+        phone,
+        role,
+        reg_no,
+        camp,
+        duration,
+        experience,
+        notes,
+        status: "PENDING",
+        created_at: new Date().toISOString()
+      };
+
+      // 1. Save to LocalStorage for instant cross-tab sync with Admin Panel
+      const list = getDoctorVolunteers();
+      list.unshift(newVolunteer);
+      saveDoctorVolunteers(list);
+
+      // 2. Dispatch to Backend if reachable
+      try {
+        await fetch(`${API_BASE}/volunteers/doctor`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(newVolunteer),
+          signal: AbortSignal.timeout(3000)
+        });
+      } catch (err) {
+        console.log("Logged doctor volunteer locally:", err.message);
+      }
+
+      renderDoctorVolunteersStream();
+      document.getElementById("doctorVolunteerForm").reset();
+
+      btn.disabled = false;
+      btn.innerHTML = "🩺 Submit Medical Seva Application to EOC";
+
+      // Show high-impact alert
+      showToast(`Thank you ${newVolunteer.name}! Your Seva application (${newId}) is now under EOC review. Upon admin approval, you will receive an official appointment email.`, "success");
+
+      // Auto fill status check field
+      const chkField = document.getElementById("chkDocEmail");
+      if (chkField) {
+        chkField.value = email;
+        checkDoctorStatus();
+      }
+    }
+
+    function checkDoctorStatus() {
+      const email = document.getElementById("chkDocEmail").value.trim().toLowerCase();
+      const resultBox = document.getElementById("docStatusResultBox");
+      if (!email) {
+        showToast("Please enter your registered email address", "error");
+        return;
+      }
+
+      const list = getDoctorVolunteers();
+      const match = list.find(v => (v.email || "").toLowerCase() === email);
+
+      resultBox.style.display = "block";
+      if (!match) {
+        resultBox.innerHTML = `
+          <div style="background:#fee2e2;border:1px solid #fca5a5;border-radius:var(--radius-sm);padding:10px 12px;font-size:0.82rem;color:#991b1b;">
+            ⚠️ No doctor volunteer application found for <strong>${email}</strong>. Please ensure the email matches what you registered with.
+          </div>
+        `;
+        return;
+      }
+
+      const status = (match.status || "PENDING").toUpperCase();
+      if (status === "APPROVED") {
+        resultBox.innerHTML = `
+          <div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:var(--radius-sm);padding:14px;font-size:0.84rem;color:#166534;">
+            <div style="display:flex;align-items:center;gap:6px;font-size:0.95rem;font-weight:800;color:#15803d;margin-bottom:6px;">
+              <span>🎉</span> APPROVED & OFFICIALLY DEPLOYED
+            </div>
+            <div>Dear <strong>${match.name}</strong>, your volunteer posting is confirmed!</div>
+            <div style="margin-top:6px;padding:8px;background:#ffffff;border:1px solid #bbf7d0;border-radius:6px;line-height:1.5;font-size:0.8rem;">
+              • <strong>Appointed Camp:</strong> ${match.camp}<br>
+              • <strong>Role:</strong> ${match.role} (${match.reg_no || 'Reg Verified'})<br>
+              • <strong>Reporting Desk:</strong> EOC Medical Relief Tent #1 (Chief Medical Officer)<br>
+              • <strong>Emergency CMO Line:</strong> 108 / 112
+            </div>
+            <p style="font-size:0.75rem;color:#15803d;margin:8px 0 0;">
+              📧 An official appointment email has been dispatched to <strong>${match.email}</strong>.
+            </p>
+          </div>
+        `;
+      } else if (status === "PENDING") {
+        resultBox.innerHTML = `
+          <div style="background:#fffbeb;border:1.5px solid #fde68a;border-radius:var(--radius-sm);padding:14px;font-size:0.84rem;color:#92400e;">
+            <div style="display:flex;align-items:center;gap:6px;font-size:0.95rem;font-weight:800;color:#b45309;margin-bottom:6px;">
+              <span>⏳</span> APPLICATION UNDER EOC REVIEW
+            </div>
+            <div>Dear <strong>${match.name}</strong>, your credentials for <strong>${match.camp}</strong> are currently being vetted by the District Medical Officer.</div>
+            <p style="font-size:0.75rem;color:#78350f;margin:8px 0 0;">
+              Once approved in the Admin Command Panel, your official duty letter will be emailed directly to <strong>${match.email}</strong>.
+            </p>
+          </div>
+        `;
+      } else {
+        resultBox.innerHTML = `
+          <div style="background:#fee2e2;border:1px solid #fca5a5;border-radius:var(--radius-sm);padding:12px;font-size:0.84rem;color:#991b1b;">
+            ❌ Application status: <strong>${match.status}</strong>. Please reach out to the National EOC helpline 112 for further queries.
+          </div>
+        `;
+      }
+    }
+
+    // Call renderDoctorVolunteersStream on load
+    document.addEventListener("DOMContentLoaded", () => {
+      renderDoctorVolunteersStream();
+    });
 </body>
 </html>
