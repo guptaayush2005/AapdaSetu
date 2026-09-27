@@ -1624,49 +1624,30 @@ h4 { font-size: 1.05rem; line-height: 1.4; }
   transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.custom-map-pin:hover {
-  transform: scale(1.15);
+/* Stable, crisp map pins without jitter, shaking or erratic scaling */
+.custom-map-pin {
+  cursor: pointer;
+  transition: opacity 0.2s ease, filter 0.2s ease;
 }
 
-.pulse-ring-pin {
-  position: relative;
+div.custom-map-pin:hover {
+  transform: scale(1.08);
 }
 
-.pulse-ring-pin::after {
-  content: '';
-  position: absolute;
-  top: -4px;
-  left: -4px;
-  right: -4px;
-  bottom: -4px;
-  border-radius: 50%;
-  border: 2px solid #2563eb;
-  animation: pinPulse 2s infinite ease-out;
+path.custom-map-pin:hover {
+  filter: brightness(1.25);
 }
 
-@keyframes pinPulse {
-  0% { transform: scale(0.9); opacity: 1; }
-  100% { transform: scale(1.6); opacity: 0; }
-}
-
-/* Pulsing red halo for danger markers */
+/* Stable Danger & Reservoir Markers - Clean high-visibility glow, zero Tinder radar shaking */
 .pulse-danger-pin {
-  position: relative;
+  filter: drop-shadow(0 0 7px rgba(220, 38, 38, 0.85));
+  cursor: pointer;
 }
-.pulse-danger-pin::after {
-  content: '';
-  position: absolute;
-  top: -6px;
-  left: -6px;
-  right: -6px;
-  bottom: -6px;
-  border-radius: 50%;
-  border: 2.5px solid #ef4444;
-  animation: dangerPulse 1.8s infinite ease-out;
-}
-@keyframes dangerPulse {
-  0% { transform: scale(0.9); opacity: 1; }
-  100% { transform: scale(1.8); opacity: 0; }
+
+path.pulse-danger-pin {
+  stroke: #ffffff !important;
+  stroke-width: 3px !important;
+  filter: drop-shadow(0 0 7px rgba(220, 38, 38, 0.85));
 }
 
 /* Fullscreen Map Mode */
