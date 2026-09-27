@@ -2489,6 +2489,120 @@ function initMobileEnhancements() {
 
 /* ================= UNIVERSAL SOS & HELPLINE CLICK DELEGATION ================= */
 // Ensures EVERY SOS and helpline button across all pages is 100% clickable & reliable
+function triggerHelplineCall(telNumber) {
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || (window.innerWidth <= 768 && 'ontouchstart' in window);
+
+  if (isMobile) {
+    if (typeof showToast === "function") {
+      showToast(`📞 Opening phone dialer for ${telNumber}... Please press Call button!`, "warning");
+    }
+    // Direct synchronous dialer opening for mobile browsers
+    window.location.href = `tel:${telNumber}`;
+  } else {
+    // Desktop / Laptop Fallback Assistant
+    showHelplineDesktopModal(telNumber);
+  }
+}
+
+function showHelplineDesktopModal(telNumber) {
+  let modal = document.getElementById("helplineAssistModal");
+  if (!modal) {
+    modal = document.createElement("div");
+    modal.id = "helplineAssistModal";
+    modal.className = "auth-modal-backdrop active";
+    modal.addEventListener("click", function(e) {
+      if (e.target === modal) modal.classList.remove("active");
+    });
+    document.body.appendChild(modal);
+  } else {
+    modal.classList.add("active");
+  }
+
+  const helplineNames = {
+    "112": "National Emergency 112 (Police, Fire, Medical, SDRF Flood Rescue)",
+    "1078": "NDRF National Disaster Helpline (Flood & Emergency Teams)",
+    "1070": "State Disaster Operations Center (SDMA Control Room)",
+    "1077": "District Emergency Operations Center (DEOC / Collector)",
+    "108": "Emergency Medical Ambulance Support",
+    "100": "Police Emergency Control Room",
+    "101": "Fire & Rescue Operations"
+  };
+  const lineName = helplineNames[telNumber] || `Emergency Helpline ${telNumber}`;
+
+  modal.innerHTML = `
+    <div class="auth-modal-card" style="max-width:520px;border-top:6px solid #dc2626;">
+      <div style="padding:28px 24px;text-align:center;">
+        <div style="font-size:3rem;animation:heartbeat 1.2s infinite;margin-bottom:6px;">🚨</div>
+        <span style="background:#fee2e2;color:#991b1b;border:1px solid #f87171;padding:4px 12px;border-radius:999px;font-size:0.75rem;font-weight:900;letter-spacing:0.04em;">
+          📞 EMERGENCY HELPLINE CALL
+        </span>
+        <h2 style="color:var(--navy);font-size:1.6rem;margin:10px 0 4px;font-family:'Outfit',sans-serif;font-weight:900;">
+          Dial <span style="color:#dc2626;font-size:2.2rem;text-decoration:underline;">${telNumber}</span>
+        </h2>
+        <p style="color:#64748b;font-size:0.86rem;margin:0 0 16px;font-weight:600;">
+          ${lineName}
+        </p>
+
+        <!-- Desktop Alert Guidance Box -->
+        <div style="background:#fffbeb;border:1.5px solid #f59e0b;border-radius:12px;padding:14px;margin-bottom:18px;text-align:left;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+            <span style="font-size:1.2rem;">💻</span>
+            <strong style="color:#92400e;font-size:0.9rem;">Aap Computer / Laptop Browser par hain:</strong>
+          </div>
+          <p style="font-size:0.84rem;color:#78350f;margin:0;line-height:1.5;">
+            Computer me direct phone calling SIM nahi hoti, isliye apne <strong>Mobile Phone se turant ${telNumber}</strong> dial karein.<br>
+            Ya fir <strong>bina phone call ke</strong>, niche diye gaye <strong>1-Click SOS</strong> button se apni live location sidhe NDRF/Control Room ko bhejein!
+          </p>
+        </div>
+
+        <!-- Primary Action Options -->
+        <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;">
+          <!-- Action 1: 1-Click Online SOS (Runs directly from PC) -->
+          <button onclick="document.getElementById('helplineAssistModal').classList.remove('active'); trigger1ClickRescue();" class="btn-1click-sos" style="width:100%;padding:14px;font-size:1.05rem;">
+            <span>⚡ 1-CLICK ONLINE RESCUE SOS (PC Se Bhejein)</span>
+          </button>
+
+          <!-- Action 2: Copy Number -->
+          <button id="copyHelplineBtn" onclick="copyHelplineNumber('${telNumber}')" class="btn-secondary" style="width:100%;padding:12px;font-size:0.92rem;font-weight:800;background:#ffffff;border:1.5px solid #cbd5e1;color:var(--navy);display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;">
+            <span>📋 Copy Helpline Number: ${telNumber}</span>
+          </button>
+
+          <!-- Action 3: WhatsApp Emergency SOS -->
+          <a href="https://api.whatsapp.com/send?text=${encodeURIComponent(`🚨 EMERGENCY RESCUE SOS! Mujhe turant emergency madad chahiye! Helpline: ${telNumber}. AapdaSetu Emergency Portal: https://aapda-setu-one.vercel.app/emergency.html`)}" target="_blank" class="btn-primary" style="background:#059669;border-color:#047857;padding:12px;font-size:0.92rem;font-weight:800;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:8px;">
+            <span>💬 Send Emergency SOS on WhatsApp</span>
+          </a>
+
+          <!-- Action 4: Native PC Dialer attempt (for Skype/Phone Link) -->
+          <a href="tel:${telNumber}" onclick="showToast('Attempting to open desktop phone app...', 'info')" style="font-size:0.78rem;color:#64748b;text-decoration:underline;margin-top:4px;">
+            📞 Try opening desktop calling app (Phone Link / Skype)
+          </a>
+        </div>
+
+        <button onclick="document.getElementById('helplineAssistModal').classList.remove('active')" class="btn-outline" style="width:100%;padding:10px;font-size:0.88rem;cursor:pointer;">
+          Close Window
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function copyHelplineNumber(num) {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(num).then(() => {
+      const btn = document.getElementById("copyHelplineBtn");
+      if (btn) btn.innerHTML = `<span>✅ Copied ${num} to Clipboard!</span>`;
+      if (typeof showToast === "function") showToast(`Number ${num} copied! Dial on your phone.`, "success");
+      setTimeout(() => {
+        if (btn) btn.innerHTML = `<span>📋 Copy Helpline Number: ${num}</span>`;
+      }, 3000);
+    }).catch(() => {
+      if (typeof showToast === "function") showToast(`Helpline number is: ${num}`, "info");
+    });
+  } else {
+    if (typeof showToast === "function") showToast(`Helpline number is: ${num}`, "info");
+  }
+}
+
 document.addEventListener("click", function (e) {
   const sosHeader = e.target.closest(".sos-header-btn");
   if (sosHeader) {
@@ -2502,19 +2616,21 @@ document.addEventListener("click", function (e) {
     openEmergencySOSModal();
     return;
   }
-  // Ensure ANY emergency helpline or phone link clicked gives immediate user feedback
+  // Smart helpline delegation
   const telLink = e.target.closest("a[href^='tel:']");
   if (telLink) {
     const rawHref = telLink.getAttribute("href");
     const telNumber = rawHref.replace("tel:", "").trim();
-    if (typeof showToast === "function") {
-      showToast(`📞 Connecting to Emergency Helpline: ${telNumber}... Stay calm!`, "error");
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || (window.innerWidth <= 768 && 'ontouchstart' in window);
+    
+    if (!isMobile) {
+      e.preventDefault();
+      triggerHelplineCall(telNumber);
+      return;
+    } else {
+      if (typeof showToast === "function") {
+        showToast(`📞 Dialing Helpline: ${telNumber}...`, "warning");
+      }
     }
-    // Allow natural browser behavior for tel: link, but guarantee window.location fallback
-    setTimeout(() => {
-      try {
-        window.location.href = rawHref;
-      } catch (err) {}
-    }, 50);
   }
 });
