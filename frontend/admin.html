@@ -121,6 +121,206 @@
       color: #065f46;
     }
 
+    .badge-status.pending {
+      background: #fef3c7;
+      color: #92400e;
+      border: 1px solid #f59e0b;
+    }
+
+    .badge-status.approved,
+    .badge-status.verified {
+      background: #d1fae5;
+      color: #065f46;
+      border: 1px solid #10b981;
+    }
+
+    .badge-status.rejected {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #ef4444;
+    }
+
+    .filter-tab-btn {
+      padding: 6px 14px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-light);
+      background: #fff;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .filter-tab-btn:hover {
+      border-color: #cbd5e1;
+      color: var(--navy);
+    }
+
+    .filter-tab-btn.active {
+      background: var(--navy);
+      color: #fff;
+      border-color: var(--navy);
+    }
+
+    .filter-tab-btn.pending-tab.active {
+      background: #b45309;
+      color: #fff;
+      border-color: #b45309;
+    }
+
+    /* Master Command Center Nav Tabs */
+    .cmd-nav-bar {
+      display: flex;
+      gap: 8px;
+      margin-top: 24px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      background: var(--bg-card);
+      padding: 8px 12px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-light);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .cmd-tab-btn {
+      padding: 10px 18px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      border-radius: var(--radius-md);
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all var(--transition-fast);
+      position: relative;
+    }
+
+    .cmd-tab-btn:hover {
+      background: #f1f5f9;
+      color: var(--navy);
+    }
+
+    .cmd-tab-btn.active {
+      background: var(--navy);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
+    }
+
+    .cmd-badge {
+      background: #ef4444;
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 999px;
+      margin-left: 2px;
+    }
+
+    .cmd-badge.green {
+      background: #10b981;
+    }
+
+    .cmd-badge.amber {
+      background: #f59e0b;
+      color: #78350f;
+    }
+
+    .admin-section-panel {
+      display: none;
+      animation: fadeInPanel 0.25s ease-out forwards;
+    }
+
+    .admin-section-panel.active {
+      display: block;
+    }
+
+    @keyframes fadeInPanel {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Vehicle Bookings Card Styling */
+    .vehicle-booking-card {
+      background: #ffffff;
+      border: 1.5px solid var(--border-light);
+      border-radius: var(--radius-md);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: var(--shadow-sm);
+      transition: all var(--transition-fast);
+    }
+
+    .vehicle-booking-card:hover {
+      border-color: #cbd5e1;
+      box-shadow: var(--shadow-md);
+    }
+
+    .vehicle-booking-card.status-pending {
+      border-color: #f59e0b;
+      background: #fffdfa;
+    }
+
+    .vehicle-booking-card.status-confirmed {
+      border-color: #86efac;
+      background: #fcfdfa;
+    }
+
+    .vehicle-booking-card.status-dispatched {
+      border-color: #93c5fd;
+      background: #f8fafc;
+    }
+
+    .quick-action-btn {
+      padding: 8px 14px;
+      font-size: 0.82rem;
+      font-weight: 800;
+      border-radius: var(--radius-sm);
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all var(--transition-fast);
+      white-space: nowrap;
+    }
+
+    .quick-action-btn.approve {
+      background: #059669;
+      color: #fff;
+    }
+
+    .quick-action-btn.approve:hover {
+      background: #047857;
+    }
+
+    .quick-action-btn.rescued {
+      background: #0284c7;
+      color: #fff;
+    }
+
+    .quick-action-btn.rescued:hover {
+      background: #0369a1;
+    }
+
+    .quick-action-btn.cancel {
+      background: #dc2626;
+      color: #fff;
+    }
+
+    .quick-action-btn.cancel:hover {
+      background: #b91c1c;
+    }
+
     @media (max-width: 1024px) {
       .admin-grid-2col {
         grid-template-columns: 1fr;
@@ -226,7 +426,7 @@
 
     <!-- Operational KPI Cards -->
     <div class="stats-strip" style="margin-top:24px;">
-      <div class="stat-card">
+      <div class="stat-card" style="cursor:pointer;" onclick="switchAdminSection('secRescueRequests')">
         <div class="stat-icon red">🚨</div>
         <div class="stat-content">
           <span class="stat-val" id="kpiRescueCount">5</span>
@@ -234,15 +434,7 @@
         </div>
       </div>
 
-      <div class="stat-card">
-        <div class="stat-icon orange">🔔</div>
-        <div class="stat-content">
-          <span class="stat-val" id="kpiAlertCount">5</span>
-          <span class="stat-label">Official Alerts Issued</span>
-        </div>
-      </div>
-
-      <div class="stat-card">
+      <div class="stat-card" style="cursor:pointer;" onclick="switchAdminSection('secCitizenReports')">
         <div class="stat-icon blue">📢</div>
         <div class="stat-content">
           <span class="stat-val" id="kpiCommunityCount">4</span>
@@ -250,7 +442,23 @@
         </div>
       </div>
 
-      <div class="stat-card">
+      <div class="stat-card" style="cursor:pointer;" onclick="switchAdminSection('secVehicleBookings')">
+        <div class="stat-icon green" style="background:#dcfce7;color:#15803d;">🚗</div>
+        <div class="stat-content">
+          <span class="stat-val" id="kpiVehicleCount">2</span>
+          <span class="stat-label">Private Evacuation Cabs</span>
+        </div>
+      </div>
+
+      <div class="stat-card" style="cursor:pointer;" onclick="switchAdminSection('secDamBroadcasts')">
+        <div class="stat-icon orange">🔔</div>
+        <div class="stat-content">
+          <span class="stat-val" id="kpiAlertCount">5</span>
+          <span class="stat-label">Official Alerts Issued</span>
+        </div>
+      </div>
+
+      <div class="stat-card" style="cursor:pointer;" onclick="switchAdminSection('secShelterRegistry')">
         <div class="stat-icon teal">🏕️</div>
         <div class="stat-content">
           <span class="stat-val" id="kpiShelterCount">22</span>
@@ -259,43 +467,169 @@
       </div>
     </div>
 
-    <!-- 2 Column Master Operational Grid -->
-    <div class="admin-grid-2col">
+    <!-- Master Command Center Navigation Bar -->
+    <nav class="cmd-nav-bar" aria-label="EOC Command Modules">
+      <button class="cmd-tab-btn active" id="cmdTabCitizen" onclick="switchAdminSection('secCitizenReports')">
+        <span>📢 Citizen Hazard Reports</span>
+        <span class="cmd-badge amber" id="cmdPendingReportsBadge">0</span>
+      </button>
+      <button class="cmd-tab-btn" id="cmdTabRescue" onclick="switchAdminSection('secRescueRequests')">
+        <span>🚑 Rescue Requests & Approvals</span>
+        <span class="cmd-badge" id="cmdPendingRescuesBadge">0</span>
+      </button>
+      <button class="cmd-tab-btn" id="cmdTabVehicle" onclick="switchAdminSection('secVehicleBookings')">
+        <span>🚗 Private Vehicle Bookings</span>
+        <span class="cmd-badge green" id="cmdPendingVehiclesBadge">0</span>
+      </button>
+      <button class="cmd-tab-btn" id="cmdTabDam" onclick="switchAdminSection('secDamBroadcasts')">
+        <span>🌊 Dam Gate & Public Alerts</span>
+      </button>
+      <button class="cmd-tab-btn" id="cmdTabShelter" onclick="switchAdminSection('secShelterRegistry')">
+        <span>🏕️ Safe Shelters Registry</span>
+      </button>
+    </nav>
 
-      <!-- Left Column: Rescue Dispatch Operations -->
+    <!-- ================= SECTION 1: CITIZEN HAZARD REPORTS & APPROVAL (ACTIVE BY DEFAULT) ================= -->
+    <div id="secCitizenReports" class="admin-section-panel active">
       <section class="admin-card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;flex-wrap:wrap;gap:12px;">
           <div>
-            <h2 style="font-size:1.25rem;color:var(--navy);margin:0 0 4px;font-family:'Outfit',sans-serif;">
-              🚑 Rescue Requests Dispatch Manager
-            </h2>
-            <p style="font-size:0.8rem;color:var(--text-muted);margin:0;">
-              Assign rescue boats/helicopters and update live evacuation state.
+            <div style="display:flex;align-items:center;gap:10px;">
+              <h2 style="font-size:1.3rem;color:var(--navy);margin:0;font-family:'Outfit',sans-serif;">
+                📢 Citizen Hazard Reports Stream & Incident Moderation
+              </h2>
+              <span id="pendingReportsHeaderBadge" class="badge-status pending" style="display:none;font-size:0.75rem;">
+                ⏳ <span id="pendingBadgeCount">0</span> Pending Review
+              </span>
+            </div>
+            <p style="font-size:0.85rem;color:var(--text-muted);margin:4px 0 0;">
+              Ground observations submitted by citizens. Review and click <strong>"✅ Approve & Publish"</strong> to immediately verify and display on the public live citizen feed.
             </p>
           </div>
-          <div style="display:flex;gap:8px;">
-            <select id="rescueFilterSelect" onchange="filterRescues()" class="form-input"
-              style="padding:6px 12px;font-size:0.8rem;width:auto;">
-              <option value="">All Statuses</option>
-              <option value="REQUESTED">REQUESTED</option>
-              <option value="ACCEPTED">ACCEPTED</option>
-              <option value="EN_ROUTE">EN_ROUTE</option>
-              <option value="RESCUED">RESCUED</option>
-            </select>
-            <button onclick="loadRescueTickets()" class="btn-outline" style="padding:6px 12px;font-size:0.8rem;">
-              🔄 Refresh
+          <div style="display:flex;gap:8px;align-items:center;">
+            <button onclick="loadCitizenReports()" class="btn-outline" style="padding:8px 16px;font-size:0.82rem;font-weight:700;">
+              🔄 Refresh Reports
             </button>
           </div>
         </div>
 
-        <div id="rescueTicketsFeed" style="max-height:560px;overflow-y:auto;display:flex;flex-direction:column;">
+        <!-- Moderation Filter Tabs -->
+        <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;border-bottom:1px solid var(--border-light);padding-bottom:12px;">
+          <button id="tabCitizenAll" class="filter-tab-btn active" onclick="filterCitizenReports('ALL')">
+            <span>All Reports</span> (<span id="cntAllReports">0</span>)
+          </button>
+          <button id="tabCitizenPending" class="filter-tab-btn pending-tab" onclick="filterCitizenReports('PENDING')">
+            <span>⏳ Pending Review</span> (<span id="cntPendingReports">0</span>)
+          </button>
+          <button id="tabCitizenApproved" class="filter-tab-btn" onclick="filterCitizenReports('APPROVED')">
+            <span>✅ Approved & Live</span> (<span id="cntApprovedReports">0</span>)
+          </button>
+          <button id="tabCitizenRejected" class="filter-tab-btn" onclick="filterCitizenReports('REJECTED')">
+            <span>❌ Rejected</span> (<span id="cntRejectedReports">0</span>)
+          </button>
+        </div>
+
+        <div id="citizenReportsFeed"
+          style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:16px;">
+          <!-- Dynamic Citizen Reports -->
+        </div>
+      </section>
+    </div>
+
+    <!-- ================= SECTION 2: RESCUE REQUESTS & DISPATCH APPROVAL ================= -->
+    <div id="secRescueRequests" class="admin-section-panel">
+      <section class="admin-card">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;flex-wrap:wrap;gap:12px;">
+          <div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <h2 style="font-size:1.3rem;color:var(--navy);margin:0;font-family:'Outfit',sans-serif;">
+                🚑 Rescue Requests & EOC Approval Dispatch Manager
+              </h2>
+              <span id="pendingRescuesHeaderBadge" class="badge-status requested" style="font-size:0.75rem;">
+                🚨 Urgent Callouts
+              </span>
+            </div>
+            <p style="font-size:0.85rem;color:var(--text-muted);margin:4px 0 0;">
+              Real-time emergency rescue submissions from <code>rescue.html</code> and 1-Click SOS. Review citizen coordinates and click <strong>"✅ 1-Click Approve & Dispatch"</strong> to immediately deploy NDRF/SDRF units.
+            </p>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <select id="rescueFilterSelect" onchange="filterRescues()" class="form-input"
+              style="padding:8px 12px;font-size:0.82rem;width:auto;font-weight:700;">
+              <option value="">All Statuses</option>
+              <option value="REQUESTED">⏳ REQUESTED (Pending)</option>
+              <option value="ACCEPTED">✅ ACCEPTED (Approved)</option>
+              <option value="EN_ROUTE">🚀 EN_ROUTE</option>
+              <option value="RESCUED">🏁 RESCUED</option>
+            </select>
+            <button onclick="loadRescueTickets()" class="btn-outline" style="padding:8px 16px;font-size:0.82rem;font-weight:700;">
+              🔄 Refresh Rescues
+            </button>
+          </div>
+        </div>
+
+        <div id="rescueTicketsFeed" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(340px, 1fr));gap:16px;">
           <!-- Dynamic rescue tickets -->
         </div>
       </section>
+    </div>
 
-      <!-- Right Column: Official Alert Dispatch & Shelter Registration -->
-      <div style="display:flex;flex-direction:column;gap:24px;">
+    <!-- ================= SECTION 3: PRIVATE VEHICLE BOOKINGS ================= -->
+    <div id="secVehicleBookings" class="admin-section-panel">
+      <section class="admin-card">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;flex-wrap:wrap;gap:12px;">
+          <div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <h2 style="font-size:1.3rem;color:var(--navy);margin:0;font-family:'Outfit',sans-serif;">
+                🚗 Private Vehicle & Direct Evacuation Bookings
+              </h2>
+              <span id="pendingVehiclesHeaderBadge" class="badge-status pending" style="font-size:0.75rem;">
+                ⏳ Ride Requests
+              </span>
+            </div>
+            <p style="font-size:0.85rem;color:var(--text-muted);margin:4px 0 0;">
+              Citizens booking private 4x4 SUVs, rescue boats, private ambulances, or minibuses appear here. Assign drivers, vehicle plate numbers, and approve or dispatch rides.
+            </p>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <button onclick="loadVehicleBookings()" class="btn-outline" style="padding:8px 16px;font-size:0.82rem;font-weight:700;">
+              🔄 Refresh Bookings
+            </button>
+          </div>
+        </div>
 
+        <!-- Vehicle Moderation Filter Tabs -->
+        <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;border-bottom:1px solid var(--border-light);padding-bottom:12px;">
+          <button id="tabVehAll" class="filter-tab-btn active" onclick="filterVehicleBookings('ALL')">
+            <span>All Bookings</span> (<span id="cntAllVeh">0</span>)
+          </button>
+          <button id="tabVehPending" class="filter-tab-btn pending-tab" onclick="filterVehicleBookings('PENDING_APPROVAL')">
+            <span>⏳ Pending Approval</span> (<span id="cntPendingVeh">0</span>)
+          </button>
+          <button id="tabVehConfirmed" class="filter-tab-btn" onclick="filterVehicleBookings('CONFIRMED')">
+            <span>✅ Confirmed & Assigned</span> (<span id="cntConfirmedVeh">0</span>)
+          </button>
+          <button id="tabVehDispatched" class="filter-tab-btn" onclick="filterVehicleBookings('DISPATCHED')">
+            <span>🚀 Dispatched</span> (<span id="cntDispatchedVeh">0</span>)
+          </button>
+          <button id="tabVehCompleted" class="filter-tab-btn" onclick="filterVehicleBookings('COMPLETED')">
+            <span>🏁 Completed</span> (<span id="cntCompletedVeh">0</span>)
+          </button>
+          <button id="tabVehCancelled" class="filter-tab-btn" onclick="filterVehicleBookings('CANCELLED')">
+            <span>❌ Cancelled</span> (<span id="cntCancelledVeh">0</span>)
+          </button>
+        </div>
+
+        <div id="vehicleBookingsFeed"
+          style="display:grid;grid-template-columns:repeat(auto-fit, minmax(340px, 1fr));gap:16px;">
+          <!-- Dynamic Vehicle Bookings -->
+        </div>
+      </section>
+    </div>
+
+    <!-- ================= SECTION 4: DAM GATE & PUBLIC ALERT BROADCASTS ================= -->
+    <div id="secDamBroadcasts" class="admin-section-panel">
+      <div class="admin-grid-2col" style="margin-top:0;">
         <!-- 🚨 EMERGENCY DAM GATE OPENING BROADCASTER -->
         <section class="admin-card"
           style="border:2px solid #f87171;background:linear-gradient(180deg,#fff 0%,#fef2f2 100%);">
@@ -444,73 +778,51 @@
             </button>
           </form>
         </section>
-
-        <!-- Register Safe Shelter Form -->
-        <section class="admin-card">
-          <h2 style="font-size:1.15rem;color:var(--navy);margin:0 0 4px;font-family:'Outfit',sans-serif;">
-            🏕️ Register Safe Shelter Camp
-          </h2>
-          <p style="font-size:0.8rem;color:var(--text-muted);margin:0 0 16px;">
-            Add an authorized disaster relief shelter to the public safe shelters directory.
-          </p>
-
-          <form id="registerShelterForm" onsubmit="handleShelterRegister(event)"
-            style="display:flex;flex-direction:column;gap:10px;">
-            <input type="text" id="sName" class="form-input"
-              placeholder="Shelter Name e.g. Government Degree College Relief Camp" required>
-
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-              <input type="text" id="sState" class="form-input" placeholder="State" required>
-              <input type="text" id="sDistrict" class="form-input" placeholder="District" required>
-            </div>
-
-            <input type="text" id="sAddress" class="form-input" placeholder="Full Address / Landmark" required>
-
-            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
-              <input type="number" id="sCapacity" class="form-input" placeholder="Total Beds" min="10" required>
-              <input type="number" id="sAvailable" class="form-input" placeholder="Available Beds" min="0" required>
-              <input type="text" id="sContact" class="form-input" placeholder="Helpline Phone" required>
-            </div>
-
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-              <input type="number" step="any" id="sLat" class="form-input" placeholder="Latitude (e.g. 30.285)">
-              <input type="number" step="any" id="sLon" class="form-input" placeholder="Longitude (e.g. 78.981)">
-            </div>
-
-            <input type="text" id="sFacilities" class="form-input"
-              placeholder="Facilities (e.g. Clean Water, Food, Medical, DG Power)" required>
-
-            <button type="submit" id="shelterSubmitBtn" class="btn-primary" style="margin-top:4px;">
-              <span>✅ Register & Publish Shelter</span>
-            </button>
-          </form>
-        </section>
-
       </div>
-
     </div>
 
-    <!-- Citizen Hazard Reports Overview -->
-    <section class="admin-card" style="margin-top:24px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-        <div>
-          <h2 style="font-size:1.15rem;color:var(--navy);margin:0 0 4px;font-family:'Outfit',sans-serif;">
-            📢 Citizen Hazard Reports Stream
-          </h2>
-          <p style="font-size:0.8rem;color:var(--text-muted);margin:0;">
-            Ground observations submitted by citizens from flood zones.
-          </p>
-        </div>
-        <button onclick="loadCitizenReports()" class="btn-outline" style="padding:6px 12px;font-size:0.8rem;">
-          🔄 Refresh Reports
-        </button>
-      </div>
+    <!-- ================= SECTION 5: SAFE SHELTER REGISTRATION ================= -->
+    <div id="secShelterRegistry" class="admin-section-panel">
+      <section class="admin-card" style="max-width:800px;margin:0 auto;">
+        <h2 style="font-size:1.25rem;color:var(--navy);margin:0 0 4px;font-family:'Outfit',sans-serif;">
+          🏕️ Register Safe Shelter Camp
+        </h2>
+        <p style="font-size:0.82rem;color:var(--text-muted);margin:0 0 16px;">
+          Add an authorized disaster relief shelter to the public safe shelters directory.
+        </p>
 
-      <div id="citizenReportsFeed"
-        style="display:grid;grid-template-columns:repeat(auto-fit, minmax(300px, 1fr));gap:14px;">
-        <!-- Dynamic Citizen Reports -->
-      </div>
-    </section>
+        <form id="registerShelterForm" onsubmit="handleShelterRegister(event)"
+          style="display:flex;flex-direction:column;gap:12px;">
+          <input type="text" id="sName" class="form-input"
+            placeholder="Shelter Name e.g. Government Degree College Relief Camp" required>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <input type="text" id="sState" class="form-input" placeholder="State" required>
+            <input type="text" id="sDistrict" class="form-input" placeholder="District" required>
+          </div>
+
+          <input type="text" id="sAddress" class="form-input" placeholder="Full Address / Landmark" required>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+            <input type="number" id="sCapacity" class="form-input" placeholder="Total Beds" min="10" required>
+            <input type="number" id="sAvailable" class="form-input" placeholder="Available Beds" min="0" required>
+            <input type="text" id="sContact" class="form-input" placeholder="Helpline Phone" required>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <input type="number" step="any" id="sLat" class="form-input" placeholder="Latitude (e.g. 30.285)">
+            <input type="number" step="any" id="sLon" class="form-input" placeholder="Longitude (e.g. 78.981)">
+          </div>
+
+          <input type="text" id="sFacilities" class="form-input"
+            placeholder="Facilities (e.g. Clean Water, Food, Medical, DG Power)" required>
+
+          <button type="submit" id="shelterSubmitBtn" class="btn-primary" style="margin-top:6px;padding:12px;">
+            <span>✅ Register & Publish Shelter</span>
+          </button>
+        </form>
+      </section>
+    </div>
 
   </main>
 
@@ -620,11 +932,49 @@
 
     let currentRescues = [...DEMO_RESCUE_TICKETS];
 
+    function switchAdminSection(sectionId) {
+      document.querySelectorAll(".admin-section-panel").forEach(panel => panel.classList.remove("active"));
+      document.querySelectorAll(".cmd-tab-btn").forEach(btn => btn.classList.remove("active"));
+
+      const targetPanel = document.getElementById(sectionId);
+      if (targetPanel) {
+        targetPanel.classList.add("active");
+      }
+
+      const tabMap = {
+        "secCitizenReports": "cmdTabCitizen",
+        "secRescueRequests": "cmdTabRescue",
+        "secVehicleBookings": "cmdTabVehicle",
+        "secDamBroadcasts": "cmdTabDam",
+        "secShelterRegistry": "cmdTabShelter"
+      };
+
+      const activeBtnId = tabMap[sectionId];
+      if (activeBtnId) {
+        document.getElementById(activeBtnId)?.classList.add("active");
+      }
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("adminApiKeyInput").value = adminKey;
       saveAdminKey(false);
       loadRescueTickets();
       loadCitizenReports();
+      loadVehicleBookings();
+
+      // Check if hash points to a specific tab
+      const hash = window.location.hash.toLowerCase();
+      if (hash.includes("rescue")) {
+        switchAdminSection("secRescueRequests");
+      } else if (hash.includes("vehicle") || hash.includes("cab")) {
+        switchAdminSection("secVehicleBookings");
+      } else if (hash.includes("dam") || hash.includes("alert")) {
+        switchAdminSection("secDamBroadcasts");
+      } else if (hash.includes("shelter")) {
+        switchAdminSection("secShelterRegistry");
+      } else {
+        switchAdminSection("secCitizenReports");
+      }
     });
 
     function saveAdminKey(showMessage = true) {
@@ -643,8 +993,27 @@
 
     async function loadRescueTickets() {
       const container = document.getElementById("rescueTicketsFeed");
+      if (!container) return;
       container.innerHTML = "<p style='color:var(--text-muted);font-size:0.85rem;'>Loading live rescue dispatch logs...</p>";
 
+      let ticketsMap = new Map();
+      DEMO_RESCUE_TICKETS.forEach(r => ticketsMap.set(r.request_id, r));
+
+      // 1. Fetch from LocalStorage for instant cross-tab sync with citizen SOS/requests
+      try {
+        const localSaved = JSON.parse(localStorage.getItem("aapda_rescue_tickets") || "[]");
+        if (Array.isArray(localSaved)) {
+          localSaved.forEach(r => {
+            if (r && r.request_id) {
+              ticketsMap.set(r.request_id, Object.assign({}, ticketsMap.get(r.request_id) || {}, r));
+            }
+          });
+        }
+      } catch (e) {
+        console.log("Local rescue tickets read error:", e);
+      }
+
+      // 2. Fetch from Backend Admin endpoint
       try {
         const res = await fetch(`${API_BASE}/admin/rescue-requests`, {
           headers: { "X-Admin-Key": adminKey },
@@ -654,15 +1023,31 @@
         if (res.ok) {
           const data = await res.json();
           const items = Array.isArray(data) ? data : (data.requests || []);
-          if (items.length > 0) {
-            currentRescues = items;
-          }
+          items.forEach(r => {
+            if (r && r.request_id) {
+              ticketsMap.set(r.request_id, Object.assign({}, ticketsMap.get(r.request_id) || {}, r));
+            }
+          });
         }
       } catch (err) {
         console.log("Using cached/demo rescue tickets:", err.message);
       }
 
+      currentRescues = Array.from(ticketsMap.values());
+      currentRescues.sort((a, b) => {
+        const tA = a.created_at ? new Date(a.created_at).getTime() : 0;
+        const tB = b.created_at ? new Date(b.created_at).getTime() : 0;
+        return tB - tA;
+      });
+
+      const pendingRescues = currentRescues.filter(r => (r.status || "REQUESTED").toUpperCase() === "REQUESTED").length;
       document.getElementById("kpiRescueCount").textContent = currentRescues.length;
+      const cmdRescueBadge = document.getElementById("cmdPendingRescuesBadge");
+      if (cmdRescueBadge) {
+        cmdRescueBadge.textContent = pendingRescues;
+        cmdRescueBadge.style.display = pendingRescues > 0 ? "inline-block" : "none";
+      }
+
       renderRescueList(currentRescues);
     }
 
@@ -677,6 +1062,7 @@
 
     function renderRescueList(list) {
       const container = document.getElementById("rescueTicketsFeed");
+      if (!container) return;
       container.innerHTML = "";
 
       if (list.length === 0) {
@@ -686,39 +1072,177 @@
 
       list.forEach(r => {
         const st = (r.status || "REQUESTED").toUpperCase();
+        const isRequested = st === "REQUESTED";
+        const isAccepted = st === "ACCEPTED";
+        const isEnRoute = st === "EN_ROUTE";
+        const isRescued = st === "RESCUED";
+
         const item = document.createElement("div");
         item.className = "rescue-manage-item";
+        item.style.cssText = `border:1.5px solid ${isRequested ? '#f87171' : (isAccepted ? '#fde047' : (isEnRoute ? '#93c5fd' : '#86efac'))};background:#ffffff;padding:18px;border-radius:var(--radius-md);box-shadow:var(--shadow-sm);display:flex;flex-direction:column;justify-content:space-between;transition:all var(--transition-fast);`;
+
         item.innerHTML = `
-          <div class="rescue-head-row">
-            <div>
-              <strong style="color:var(--navy);font-size:0.95rem;">${r.request_id}</strong>
-              <span style="font-size:0.8rem;color:var(--text-muted);margin-left:8px;">${r.name} (${r.people || 1} people)</span>
+          <div>
+            <!-- Header Row -->
+            <div class="rescue-head-row" style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;gap:8px;">
+              <div>
+                <strong style="color:var(--navy);font-size:1.02rem;">🎫 ${r.request_id}</strong>
+                <span style="font-size:0.84rem;color:var(--text-muted);display:block;margin-top:2px;">
+                  👤 ${r.name} (${r.people || 1} people trapped)
+                </span>
+              </div>
+              <span class="badge-status ${st.toLowerCase()}">${st}</span>
             </div>
-            <span class="badge-status ${st.toLowerCase()}">${st}</span>
-          </div>
-          <div style="font-size:0.82rem;color:#475569;margin-bottom:4px;">
-            📍 <strong>Pickup:</strong> ${r.pickup_location}
-          </div>
-          <div style="font-size:0.8rem;color:#64748b;">
-            📞 ${r.phone} | Priority: <strong>${r.priority || 'Medium'}</strong> | Vehicle: ${r.rescue_vehicle || 'Motor Boat'}
+
+            <!-- Location Row -->
+            <div style="font-size:0.86rem;color:#334155;background:#f8fafc;padding:10px 12px;border-radius:var(--radius-sm);border-left:3px solid ${isRequested ? '#dc2626' : '#10b981'};margin-bottom:10px;line-height:1.45;">
+              📍 <strong>Pickup:</strong> ${r.pickup_location}
+            </div>
+
+            <!-- Details Row -->
+            <div style="font-size:0.8rem;color:#64748b;margin-bottom:12px;display:flex;flex-direction:column;gap:4px;">
+              <div>📞 Phone: <a href="tel:${r.phone}" style="color:#2563eb;font-weight:700;text-decoration:none;">${r.phone} ↗</a></div>
+              <div>⚠️ Priority: <strong style="color:${r.priority === 'Critical' ? '#dc2626' : '#d97706'};">${r.priority || 'High'}</strong> | 🚤 Vehicle: <strong>${r.rescue_vehicle || 'Motor Boat'}</strong></div>
+              ${r.additional_info ? `<div>📝 Info: <em>${r.additional_info}</em></div>` : ''}
+              ${r.assigned_vehicle ? `<div style="background:#f0fdf4;padding:4px 8px;border-radius:4px;color:#15803d;font-weight:700;">🛡️ Unit: ${r.assigned_vehicle} • Resp: ${r.responder_name || 'Control Officer'}</div>` : ''}
+            </div>
           </div>
 
-          <div class="manage-inputs-row">
-            <select id="selStatus-${r.request_id}" class="form-input" style="padding:6px 10px;font-size:0.8rem;">
-              <option value="REQUESTED" ${st === 'REQUESTED' ? 'selected' : ''}>REQUESTED</option>
-              <option value="ACCEPTED" ${st === 'ACCEPTED' ? 'selected' : ''}>ACCEPTED</option>
-              <option value="EN_ROUTE" ${st === 'EN_ROUTE' ? 'selected' : ''}>EN_ROUTE</option>
-              <option value="RESCUED" ${st === 'RESCUED' ? 'selected' : ''}>RESCUED</option>
-            </select>
-            <input type="text" id="inpVeh-${r.request_id}" class="form-input" style="padding:6px 10px;font-size:0.8rem;" placeholder="Vehicle ID" value="${r.assigned_vehicle || ''}">
-            <input type="text" id="inpResp-${r.request_id}" class="form-input" style="padding:6px 10px;font-size:0.8rem;" placeholder="Officer In-charge" value="${r.responder_name || ''}">
-            <button onclick="updateRescueState('${r.request_id}')" class="btn-primary" style="padding:6px 14px;font-size:0.8rem;white-space:nowrap;">
-              <span>Update Dispatch</span>
-            </button>
+          <div>
+            <!-- 1-Click Action Buttons for Immediate Approval -->
+            <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:center;">
+              ${(isRequested) ? `
+                <button onclick="quickApproveRescue('${r.request_id}')" class="quick-action-btn approve" style="flex:1;">
+                  <span>✅ 1-Click Approve & Dispatch</span>
+                </button>
+                <button onclick="quickRejectRescue('${r.request_id}')" class="quick-action-btn cancel" title="Reject Request">
+                  <span>❌ Reject</span>
+                </button>
+              ` : (isAccepted || isEnRoute ? `
+                <button onclick="quickMarkRescued('${r.request_id}')" class="quick-action-btn rescued" style="flex:1;">
+                  <span>🏁 Mark Evacuated / Safe</span>
+                </button>
+                <button onclick="quickRejectRescue('${r.request_id}')" class="quick-action-btn cancel" title="Cancel Dispatch">
+                  <span>❌</span>
+                </button>
+              ` : `
+                <div style="flex:1;font-size:0.82rem;color:#059669;font-weight:800;display:flex;align-items:center;gap:6px;">
+                  <span>✅ Citizen Safely Rescued</span>
+                </div>
+              `)}
+            </div>
+
+            <!-- Advanced Manual Dispatch Inputs -->
+            <details style="font-size:0.78rem;color:#64748b;border-top:1px solid #f1f5f9;padding-top:8px;">
+              <summary style="cursor:pointer;font-weight:700;color:var(--navy);margin-bottom:8px;">⚙️ Edit Vehicle & Officer In-Charge</summary>
+              <div class="manage-inputs-row">
+                <select id="selStatus-${r.request_id}" class="form-input" style="padding:6px 8px;font-size:0.78rem;">
+                  <option value="REQUESTED" ${st === 'REQUESTED' ? 'selected' : ''}>REQUESTED</option>
+                  <option value="ACCEPTED" ${st === 'ACCEPTED' ? 'selected' : ''}>ACCEPTED</option>
+                  <option value="EN_ROUTE" ${st === 'EN_ROUTE' ? 'selected' : ''}>EN_ROUTE</option>
+                  <option value="RESCUED" ${st === 'RESCUED' ? 'selected' : ''}>RESCUED</option>
+                </select>
+                <input type="text" id="inpVeh-${r.request_id}" class="form-input" style="padding:6px 8px;font-size:0.78rem;" placeholder="Vehicle ID" value="${r.assigned_vehicle || ''}">
+                <input type="text" id="inpResp-${r.request_id}" class="form-input" style="padding:6px 8px;font-size:0.78rem;" placeholder="Officer In-charge" value="${r.responder_name || ''}">
+                <button onclick="updateRescueState('${r.request_id}')" class="btn-primary" style="padding:6px 12px;font-size:0.78rem;white-space:nowrap;">
+                  <span>Update</span>
+                </button>
+              </div>
+            </details>
           </div>
         `;
         container.appendChild(item);
       });
+    }
+
+    async function quickApproveRescue(reqId) {
+      const target = currentRescues.find(x => x.request_id === reqId);
+      const defaultVeh = (target && target.assigned_vehicle) ? target.assigned_vehicle : "NDRF-QRT-01 (Motor Boat)";
+      const defaultResp = (target && target.responder_name) ? target.responder_name : "Duty Officer In-Charge (EOC)";
+
+      try {
+        await fetch(`${API_BASE}/admin/rescue-requests/${encodeURIComponent(reqId)}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Admin-Key": adminKey
+          },
+          body: JSON.stringify({
+            status: "ACCEPTED",
+            assigned_vehicle: defaultVeh,
+            responder_name: defaultResp
+          }),
+          signal: AbortSignal.timeout(3500)
+        });
+      } catch (e) {
+        console.log("Local quick approve:", e.message);
+      }
+
+      // Update in LocalStorage
+      try {
+        let saved = JSON.parse(localStorage.getItem("aapda_rescue_tickets") || "[]");
+        const idx = saved.findIndex(x => (x.request_id || "").toUpperCase() === reqId.toUpperCase());
+        if (idx >= 0) {
+          saved[idx].status = "ACCEPTED";
+          saved[idx].assigned_vehicle = defaultVeh;
+          saved[idx].responder_name = defaultResp;
+        } else {
+          saved.unshift({
+            request_id: reqId,
+            status: "ACCEPTED",
+            assigned_vehicle: defaultVeh,
+            responder_name: defaultResp
+          });
+        }
+        localStorage.setItem("aapda_rescue_tickets", JSON.stringify(saved));
+      } catch (e) {}
+
+      if (target) {
+        target.status = "ACCEPTED";
+        target.assigned_vehicle = defaultVeh;
+        target.responder_name = defaultResp;
+      }
+      loadRescueTickets();
+      showToast(`✅ Rescue Ticket ${reqId} Approved! Team Dispatched.`, "success");
+    }
+
+    async function quickMarkRescued(reqId) {
+      try {
+        await fetch(`${API_BASE}/admin/rescue-requests/${encodeURIComponent(reqId)}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json", "X-Admin-Key": adminKey },
+          body: JSON.stringify({ status: "RESCUED" }),
+          signal: AbortSignal.timeout(3500)
+        });
+      } catch (e) {}
+
+      try {
+        let saved = JSON.parse(localStorage.getItem("aapda_rescue_tickets") || "[]");
+        const idx = saved.findIndex(x => (x.request_id || "").toUpperCase() === reqId.toUpperCase());
+        if (idx >= 0) saved[idx].status = "RESCUED";
+        localStorage.setItem("aapda_rescue_tickets", JSON.stringify(saved));
+      } catch (e) {}
+
+      const target = currentRescues.find(x => x.request_id === reqId);
+      if (target) target.status = "RESCUED";
+      loadRescueTickets();
+      showToast(`🏁 Rescue Ticket ${reqId} marked RESCUED and safe!`, "success");
+    }
+
+    async function quickRejectRescue(reqId) {
+      if (!confirm(`Are you sure you want to cancel / reject rescue call ${reqId}?`)) return;
+
+      try {
+        let saved = JSON.parse(localStorage.getItem("aapda_rescue_tickets") || "[]");
+        const idx = saved.findIndex(x => (x.request_id || "").toUpperCase() === reqId.toUpperCase());
+        if (idx >= 0) saved[idx].status = "CANCELLED";
+        localStorage.setItem("aapda_rescue_tickets", JSON.stringify(saved));
+      } catch (e) {}
+
+      const target = currentRescues.find(x => x.request_id === reqId);
+      if (target) target.status = "CANCELLED";
+      loadRescueTickets();
+      showToast(`Rescue Ticket ${reqId} cancelled.`, "info");
     }
 
     async function updateRescueState(reqId) {
@@ -749,7 +1273,26 @@
         console.log("Updated locally:", e.message);
       }
 
-      // Update local array
+      // Update local storage so rescue.html live tracker immediately receives status change
+      try {
+        let saved = JSON.parse(localStorage.getItem("aapda_rescue_tickets") || "[]");
+        const idx = saved.findIndex(x => (x.request_id || "").toUpperCase() === reqId.toUpperCase());
+        if (idx >= 0) {
+          saved[idx].status = newStatus;
+          saved[idx].assigned_vehicle = vehicle;
+          saved[idx].responder_name = responder;
+        } else {
+          saved.unshift({
+            request_id: reqId,
+            status: newStatus,
+            assigned_vehicle: vehicle,
+            responder_name: responder
+          });
+        }
+        localStorage.setItem("aapda_rescue_tickets", JSON.stringify(saved));
+      } catch (e) {}
+
+      // Update in-memory array
       const target = currentRescues.find(x => x.request_id === reqId);
       if (target) {
         target.status = newStatus;
@@ -862,72 +1405,846 @@
       kpi.textContent = parseInt(kpi.textContent || "22") + 1;
     }
 
+    let allCitizenReports = [];
+    let currentCitizenFilter = "ALL";
+
     async function loadCitizenReports() {
       const container = document.getElementById("citizenReportsFeed");
-      container.innerHTML = "<p style='color:var(--text-muted);font-size:0.85rem;'>Fetching citizen reports...</p>";
+      container.innerHTML = "<p style='color:var(--text-muted);font-size:0.85rem;'>Fetching citizen hazard reports...</p>";
 
-      let reports = [
+      // Default baseline seeded reports
+      const SEED_REPORTS = [
+        {
+          report_id: "REP-7801",
+          state: "Uttarakhand",
+          district: "Rudraprayag",
+          category: "WATERLOGGING",
+          urgency: "HIGH",
+          message: "Water level rising rapidly near Mandakini bridge. NH-58 lower road partially submerged by 2 feet of water.",
+          status: "APPROVED",
+          contact_name: "Rajesh Negi",
+          contact_phone: "+91 98765 43210",
+          time: "10 mins ago"
+        },
+        {
+          report_id: "REP-7802",
+          state: "Assam",
+          district: "Dhemaji",
+          category: "EMERGENCY_RESCUE",
+          urgency: "CRITICAL",
+          message: "Family of 6 trapped on rooftop in Silapathar ward 3. Current is strong, need rescue boat immediately.",
+          status: "APPROVED",
+          contact_name: "Barun Bora",
+          contact_phone: "+91 94350 12345",
+          time: "25 mins ago"
+        },
+        {
+          report_id: "REP-7803",
+          state: "Kerala",
+          district: "Wayanad",
+          category: "LANDSLIDE_BLOCK",
+          urgency: "MEDIUM",
+          message: "Minor mudslide near Meppadi school road. Small vehicles unable to pass. Route clearance team notified.",
+          status: "APPROVED",
+          contact_name: "Anonymous Citizen",
+          contact_phone: "",
+          time: "45 mins ago"
+        },
         {
           report_id: "CR-9201A",
           state: "Uttarakhand",
           district: "Rudraprayag",
-          category: "BRIDGE_OVERFLOW",
+          category: "BRIDGE_DAMAGED",
           urgency: "HIGH",
           message: "Old pedestrian bridge near Mandakini river submerged by 1.5 feet fast water. Blocked for public safety.",
-          time: "15 mins ago"
-        },
-        {
-          report_id: "CR-8812B",
-          state: "Assam",
-          district: "Kamrup",
-          category: "ROAD_CUTOFF",
-          urgency: "CRITICAL",
-          message: "Main highway connecting Ward 4 cut off due to embankment breach. About 40 families awaiting boats.",
-          time: "40 mins ago"
-        },
-        {
-          report_id: "CR-7104C",
-          state: "Kerala",
-          district: "Wayanad",
-          category: "LANDSLIDE_DEBRIS",
-          urgency: "HIGH",
-          message: "Small mudslide debris blocking upper ghat road near Meppadi. Heavy machinery needed.",
-          time: "1 hour ago"
+          status: "PENDING",
+          contact_name: "Surendra Rawat",
+          contact_phone: "+91 98971 22334",
+          time: "Just now"
         }
       ];
 
+      let reportsMap = new Map();
+      SEED_REPORTS.forEach(r => reportsMap.set(r.report_id, r));
+
+      // 1. Fetch from LocalStorage for instant cross-tab sync
       try {
-        const res = await fetch(`${API_BASE}/community/reports`, { signal: AbortSignal.timeout(3500) });
-        if (res.ok) {
-          const data = await res.json();
-          if (data.reports && data.reports.length > 0) {
-            reports = data.reports;
-          }
+        const localSaved = JSON.parse(localStorage.getItem("aapda_community_reports") || "[]");
+        if (Array.isArray(localSaved)) {
+          localSaved.forEach(r => {
+            if (r && r.report_id) {
+              reportsMap.set(r.report_id, Object.assign({}, reportsMap.get(r.report_id) || {}, r));
+            }
+          });
         }
       } catch (e) {
-        console.log("Using cached citizen reports:", e.message);
+        console.log("Local community reports read error:", e);
       }
 
-      document.getElementById("kpiCommunityCount").textContent = reports.length;
+      // 2. Fetch from Backend Admin endpoint
+      try {
+        const res = await fetch(`${API_BASE}/admin/community-reports`, {
+          headers: { "X-Admin-Key": adminKey },
+          signal: AbortSignal.timeout(3500)
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const items = Array.isArray(data) ? data : (data.reports || []);
+          items.forEach(r => {
+            if (r && r.report_id) {
+              reportsMap.set(r.report_id, Object.assign({}, reportsMap.get(r.report_id) || {}, r));
+            }
+          });
+        }
+      } catch (e) {
+        console.log("Backend admin community reports offline/fallback:", e.message);
+      }
+
+      allCitizenReports = Array.from(reportsMap.values());
+      // Sort newest first
+      allCitizenReports.sort((a, b) => {
+        const tA = a.created_at ? new Date(a.created_at).getTime() : 0;
+        const tB = b.created_at ? new Date(b.created_at).getTime() : 0;
+        return tB - tA;
+      });
+
+      updateCitizenReportsKPIs();
+      renderCitizenReports();
+    }
+
+    function updateCitizenReportsKPIs() {
+      const allCount = allCitizenReports.length;
+      const pendingCount = allCitizenReports.filter(r => (r.status || "PENDING").toUpperCase() === "PENDING").length;
+      const approvedCount = allCitizenReports.filter(r => {
+        const s = (r.status || "").toUpperCase();
+        return s === "APPROVED" || s === "VERIFIED" || s === "ACTIVE";
+      }).length;
+      const rejectedCount = allCitizenReports.filter(r => (r.status || "").toUpperCase() === "REJECTED").length;
+
+      const cntAll = document.getElementById("cntAllReports");
+      const cntPending = document.getElementById("cntPendingReports");
+      const cntApproved = document.getElementById("cntApprovedReports");
+      const cntRejected = document.getElementById("cntRejectedReports");
+
+      if (cntAll) cntAll.textContent = allCount;
+      if (cntPending) cntPending.textContent = pendingCount;
+      if (cntApproved) cntApproved.textContent = approvedCount;
+      if (cntRejected) cntRejected.textContent = rejectedCount;
+
+      const kpi = document.getElementById("kpiCommunityCount");
+      if (kpi) kpi.textContent = allCount;
+
+      const badge = document.getElementById("pendingReportsHeaderBadge");
+      const badgeCnt = document.getElementById("pendingBadgeCount");
+      if (badge && badgeCnt) {
+        if (pendingCount > 0) {
+          badge.style.display = "inline-flex";
+          badgeCnt.textContent = pendingCount;
+        } else {
+          badge.style.display = "none";
+        }
+      }
+
+      const cmdBadge = document.getElementById("cmdPendingReportsBadge");
+      if (cmdBadge) {
+        cmdBadge.textContent = pendingCount;
+        cmdBadge.style.display = pendingCount > 0 ? "inline-block" : "none";
+      }
+    }
+
+    function filterCitizenReports(filterType) {
+      currentCitizenFilter = filterType;
+      document.querySelectorAll(".filter-tab-btn").forEach(btn => btn.classList.remove("active"));
+      if (filterType === "ALL") document.getElementById("tabCitizenAll")?.classList.add("active");
+      if (filterType === "PENDING") document.getElementById("tabCitizenPending")?.classList.add("active");
+      if (filterType === "APPROVED") document.getElementById("tabCitizenApproved")?.classList.add("active");
+      if (filterType === "REJECTED") document.getElementById("tabCitizenRejected")?.classList.add("active");
+      renderCitizenReports();
+    }
+
+    function renderCitizenReports() {
+      const container = document.getElementById("citizenReportsFeed");
       container.innerHTML = "";
 
-      reports.forEach(r => {
-        const div = document.createElement("div");
-        div.style.cssText = "background:#f8fafc;border:1px solid var(--border-light);border-radius:var(--radius-md);padding:14px;";
-        div.innerHTML = `
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-            <strong style="color:var(--navy);font-size:0.9rem;">${r.district}, ${r.state}</strong>
-            <span class="badge-status ${r.urgency === 'CRITICAL' ? 'requested' : 'accepted'}">${r.urgency || 'HIGH'}</span>
+      let filtered = allCitizenReports;
+      if (currentCitizenFilter === "PENDING") {
+        filtered = allCitizenReports.filter(r => (r.status || "PENDING").toUpperCase() === "PENDING");
+      } else if (currentCitizenFilter === "APPROVED") {
+        filtered = allCitizenReports.filter(r => {
+          const s = (r.status || "").toUpperCase();
+          return s === "APPROVED" || s === "VERIFIED" || s === "ACTIVE";
+        });
+      } else if (currentCitizenFilter === "REJECTED") {
+        filtered = allCitizenReports.filter(r => (r.status || "").toUpperCase() === "REJECTED");
+      }
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div style="grid-column:1/-1;text-align:center;padding:32px 16px;background:#f8fafc;border-radius:var(--radius-md);border:1px dashed var(--border-light);color:var(--text-muted);">
+            <div style="font-size:2rem;margin-bottom:8px;">✅</div>
+            <strong style="color:var(--navy);font-size:0.95rem;display:block;margin-bottom:4px;">No reports in "${currentCitizenFilter}" category</strong>
+            <span style="font-size:0.82rem;">All clear or no matching citizen hazard reports right now.</span>
           </div>
-          <p style="font-size:0.82rem;color:#334155;margin:0 0 8px;line-height:1.5;">${r.message}</p>
-          <div style="font-size:0.75rem;color:var(--text-muted);display:flex;justify-content:space-between;">
-            <span>Category: <strong>${r.category}</strong></span>
-            <span>${r.time || 'Today'}</span>
+        `;
+        return;
+      }
+
+      filtered.forEach(r => {
+        const rawStatus = (r.status || "PENDING").toUpperCase();
+        const isPending = rawStatus === "PENDING";
+        const isApproved = rawStatus === "APPROVED" || rawStatus === "VERIFIED" || rawStatus === "ACTIVE";
+        const isRejected = rawStatus === "REJECTED";
+
+        const categoryIconMap = {
+          "WATERLOGGING": "🌊",
+          "EMERGENCY_RESCUE": "🚨",
+          "BRIDGE_DAMAGED": "🌉",
+          "BRIDGE_OVERFLOW": "🌉",
+          "LANDSLIDE_BLOCK": "⛰️",
+          "LANDSLIDE_DEBRIS": "⛰️",
+          "POWER_OUTAGE": "⚡",
+          "SHELTER_NEEDED": "🏕️",
+          "ROAD_CUTOFF": "🚧"
+        };
+        const catIcon = categoryIconMap[r.category] || "📢";
+
+        let statusBadgeHtml = "";
+        if (isPending) {
+          statusBadgeHtml = `<span class="badge-status pending" style="animation:pulseDangerMarker 2s infinite;">⏳ PENDING REVIEW</span>`;
+        } else if (isApproved) {
+          statusBadgeHtml = `<span class="badge-status approved">✅ APPROVED & LIVE</span>`;
+        } else if (isRejected) {
+          statusBadgeHtml = `<span class="badge-status rejected">❌ REJECTED</span>`;
+        }
+
+        const div = document.createElement("div");
+        div.style.cssText = `background:#ffffff;border:1.5px solid ${isPending ? '#f59e0b' : (isApproved ? '#86efac' : '#e2e8f0')};border-radius:var(--radius-md);padding:18px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:var(--shadow-sm);transition:all var(--transition-fast);`;
+
+        div.innerHTML = `
+          <div>
+            <!-- Header Row -->
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;gap:8px;">
+              <div>
+                <span class="badge-pill ${r.urgency === 'CRITICAL' ? 'critical' : (r.urgency === 'HIGH' ? 'warning' : 'safe')}" style="font-size:0.75rem;">
+                  ${catIcon} ${(r.category || 'INCIDENT').replace(/_/g, ' ')}
+                </span>
+                <strong style="color:var(--navy);font-size:0.95rem;display:block;margin-top:6px;">
+                  📍 ${r.district || 'District'}, ${r.state || 'State'}
+                </strong>
+              </div>
+              <div style="text-align:right;">
+                ${statusBadgeHtml}
+                <div style="font-size:0.72rem;color:var(--text-muted);margin-top:4px;">${r.time || 'Today'}</div>
+              </div>
+            </div>
+
+            <!-- Incident Description -->
+            <p style="font-size:0.86rem;color:#334155;margin:0 0 12px;line-height:1.5;background:#f8fafc;padding:10px 12px;border-radius:var(--radius-sm);border-left:3px solid ${isPending ? '#f59e0b' : '#3b82f6'};">
+              ${r.message}
+            </p>
+
+            <!-- Reporter Meta Details -->
+            <div style="font-size:0.78rem;color:#64748b;margin-bottom:14px;display:flex;flex-direction:column;gap:4px;">
+              <div>
+                👤 Reporter: <strong>${r.contact_name || r.reporter || 'Anonymous Citizen'}</strong>
+              </div>
+              <div>
+                📞 Contact: ${r.contact_phone ? `<a href="tel:${r.contact_phone}" style="color:#2563eb;font-weight:700;text-decoration:none;">${r.contact_phone} ↗</a>` : '<span style="color:#94a3b8;">Not provided</span>'}
+              </div>
+              <div style="font-size:0.72rem;color:#94a3b8;">
+                🎫 Report ID: <code>${r.report_id}</code>
+              </div>
+            </div>
+          </div>
+
+          <!-- Moderation Action Bar -->
+          <div style="display:flex;gap:8px;border-top:1px solid #e2e8f0;padding-top:12px;align-items:center;flex-wrap:wrap;">
+            ${isPending ? `
+              <button onclick="approveCitizenReport('${r.report_id}')" class="btn-primary" style="flex:1;background:#059669;padding:8px 12px;font-size:0.82rem;font-weight:800;display:inline-flex;align-items:center;justify-content:center;gap:6px;">
+                <span>✅ Approve & Publish</span>
+              </button>
+              <button onclick="rejectCitizenReport('${r.report_id}')" class="btn-danger" style="padding:8px 12px;font-size:0.82rem;font-weight:700;">
+                <span>❌ Reject</span>
+              </button>
+              <button onclick="deleteCitizenReport('${r.report_id}')" class="btn-outline" style="padding:8px 10px;font-size:0.82rem;" title="Delete Report">
+                <span>🗑️</span>
+              </button>
+            ` : (isApproved ? `
+              <div style="flex:1;font-size:0.8rem;color:#059669;font-weight:800;display:flex;align-items:center;gap:6px;">
+                <span class="pulse-dot green"></span> Live on Citizen Feed
+              </div>
+              <button onclick="rejectCitizenReport('${r.report_id}')" class="btn-outline" style="padding:6px 12px;font-size:0.78rem;color:#dc2626;border-color:#fca5a5;">
+                Hide / Revoke
+              </button>
+              <button onclick="deleteCitizenReport('${r.report_id}')" class="btn-outline" style="padding:6px 8px;font-size:0.78rem;" title="Delete">
+                🗑️
+              </button>
+            ` : `
+              <div style="flex:1;font-size:0.8rem;color:#dc2626;font-weight:700;">
+                ❌ Rejected (Hidden from Feed)
+              </div>
+              <button onclick="approveCitizenReport('${r.report_id}')" class="btn-outline" style="padding:6px 12px;font-size:0.78rem;color:#059669;border-color:#86efac;font-weight:700;">
+                ✅ Re-Approve
+              </button>
+              <button onclick="deleteCitizenReport('${r.report_id}')" class="btn-outline" style="padding:6px 8px;font-size:0.78rem;" title="Delete">
+                🗑️
+              </button>
+            `)}
           </div>
         `;
         container.appendChild(div);
       });
     }
+
+    async function approveCitizenReport(reportId) {
+      const rep = allCitizenReports.find(x => x.report_id === reportId);
+      if (!rep) return;
+
+      rep.status = "APPROVED";
+
+      // 1. Update Backend
+      try {
+        await fetch(`${API_BASE}/admin/community-reports/${encodeURIComponent(reportId)}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Admin-Key": adminKey
+          },
+          body: JSON.stringify({ status: "APPROVED" }),
+          signal: AbortSignal.timeout(3500)
+        });
+      } catch (err) {
+        console.log("Backend PATCH offline/fallback:", err.message);
+      }
+
+      // 2. Sync to LocalStorage for cross-tab realtime feed
+      syncCitizenReportToLocalStorage(rep);
+
+      updateCitizenReportsKPIs();
+      renderCitizenReports();
+      showToast(`✅ Incident #${reportId} Approved! Now live on Citizen Feed.`, "success");
+    }
+
+    async function rejectCitizenReport(reportId) {
+      const rep = allCitizenReports.find(x => x.report_id === reportId);
+      if (!rep) return;
+
+      rep.status = "REJECTED";
+
+      // 1. Update Backend
+      try {
+        await fetch(`${API_BASE}/admin/community-reports/${encodeURIComponent(reportId)}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Admin-Key": adminKey
+          },
+          body: JSON.stringify({ status: "REJECTED" }),
+          signal: AbortSignal.timeout(3500)
+        });
+      } catch (err) {
+        console.log("Backend PATCH offline/fallback:", err.message);
+      }
+
+      // 2. Sync to LocalStorage
+      syncCitizenReportToLocalStorage(rep);
+
+      updateCitizenReportsKPIs();
+      renderCitizenReports();
+      showToast(`❌ Incident #${reportId} Rejected and hidden from public feed.`, "info");
+    }
+
+    async function deleteCitizenReport(reportId) {
+      if (!confirm(`Are you sure you want to permanently delete incident report #${reportId}?`)) return;
+
+      allCitizenReports = allCitizenReports.filter(x => x.report_id !== reportId);
+
+      // 1. Backend DELETE
+      try {
+        await fetch(`${API_BASE}/admin/community-reports/${encodeURIComponent(reportId)}`, {
+          method: "DELETE",
+          headers: { "X-Admin-Key": adminKey },
+          signal: AbortSignal.timeout(3500)
+        });
+      } catch (err) {
+        console.log("Backend DELETE offline/fallback:", err.message);
+      }
+
+      // 2. LocalStorage delete
+      try {
+        let localSaved = JSON.parse(localStorage.getItem("aapda_community_reports") || "[]");
+        localSaved = localSaved.filter(x => x.report_id !== reportId);
+        localStorage.setItem("aapda_community_reports", JSON.stringify(localSaved));
+      } catch (e) {}
+
+      updateCitizenReportsKPIs();
+      renderCitizenReports();
+      showToast(`Incident #${reportId} deleted permanently.`, "success");
+    }
+
+    function syncCitizenReportToLocalStorage(updatedRep) {
+      try {
+        let localSaved = JSON.parse(localStorage.getItem("aapda_community_reports") || "[]");
+        const idx = localSaved.findIndex(x => x.report_id === updatedRep.report_id);
+        if (idx >= 0) {
+          localSaved[idx] = Object.assign({}, localSaved[idx], updatedRep);
+        } else {
+          localSaved.unshift(updatedRep);
+        }
+        localStorage.setItem("aapda_community_reports", JSON.stringify(localSaved));
+      } catch (e) {
+        console.error("Local sync error:", e);
+      }
+    }
+
+    /* ================= PRIVATE VEHICLE BOOKINGS MANAGEMENT ================= */
+    const DEMO_VEHICLE_BOOKINGS = [
+      {
+        booking_id: "PVT-CAB-4091",
+        user_name: "Rahul Verma",
+        user_phone: "+91 98112 34567",
+        vehicle_type: "4x4 Offroad SUV / Mahindra Thar",
+        passengers: 4,
+        pickup_location: "Alaknanda Riverbank, Rudraprayag, Uttarakhand",
+        drop_location: "Dehradun Safe Relief Camp #4",
+        estimated_distance_km: 140,
+        estimated_fare: 3500,
+        urgency: "HIGH",
+        status: "PENDING_APPROVAL",
+        assigned_vehicle_no: "",
+        driver_name: "",
+        driver_phone: "",
+        special_notes: "Elderly person with wheelchair, water is 1 foot deep near road",
+        created_at: new Date().toISOString()
+      },
+      {
+        booking_id: "PVT-CAB-8120",
+        user_name: "Kavita Sharma",
+        user_phone: "+91 97234 56789",
+        vehicle_type: "Private Motor Boat",
+        passengers: 5,
+        pickup_location: "Low-lying colony, Aluva, Ernakulam, Kerala",
+        drop_location: "Periyar Higher Secondary Shelter Ground",
+        estimated_distance_km: 12,
+        estimated_fare: 4500,
+        urgency: "CRITICAL",
+        status: "CONFIRMED",
+        assigned_vehicle_no: "BOAT-KL-07-22",
+        driver_name: "Captain M. Jose",
+        driver_phone: "+91 94471 22334",
+        special_notes: "Water surrounded house, need evacuation before 3 PM",
+        created_at: new Date(Date.now() - 3600000).toISOString()
+      },
+      {
+        booking_id: "PVT-CAB-6145",
+        user_name: "Anand Biradar",
+        user_phone: "+91 99887 66554",
+        vehicle_type: "Private Emergency Ambulance",
+        passengers: 2,
+        pickup_location: "Chiplun Market Road, Ratnagiri, Maharashtra",
+        drop_location: "District Civil Hospital Ratnagiri",
+        estimated_distance_km: 45,
+        estimated_fare: 2700,
+        urgency: "CRITICAL",
+        status: "DISPATCHED",
+        assigned_vehicle_no: "MH-08-AM-108",
+        driver_name: "Driver R. Kadam",
+        driver_phone: "+91 98220 11223",
+        special_notes: "Oxygen support patient evacuation needed",
+        created_at: new Date(Date.now() - 7200000).toISOString()
+      }
+    ];
+
+    let allVehicleBookings = [];
+    let currentVehicleFilter = "ALL";
+
+    async function loadVehicleBookings() {
+      const container = document.getElementById("vehicleBookingsFeed");
+      if (!container) return;
+      container.innerHTML = "<p style='color:var(--text-muted);font-size:0.85rem;'>Fetching private vehicle bookings...</p>";
+
+      let bookingsMap = new Map();
+      DEMO_VEHICLE_BOOKINGS.forEach(b => bookingsMap.set(b.booking_id, b));
+
+      // 1. Fetch from LocalStorage for instant cross-tab sync with citizen booking
+      try {
+        const localSaved = JSON.parse(localStorage.getItem("aapda_vehicle_bookings") || "[]");
+        if (Array.isArray(localSaved)) {
+          localSaved.forEach(b => {
+            if (b && b.booking_id) {
+              bookingsMap.set(b.booking_id, Object.assign({}, bookingsMap.get(b.booking_id) || {}, b));
+            }
+          });
+        }
+      } catch (e) {
+        console.log("Local vehicle bookings read error:", e);
+      }
+
+      // 2. Fetch from Backend Admin endpoint
+      try {
+        const res = await fetch(`${API_BASE}/admin/vehicles/bookings`, {
+          headers: { "X-Admin-Key": adminKey },
+          signal: AbortSignal.timeout(3500)
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const items = Array.isArray(data) ? data : (data.bookings || []);
+          items.forEach(b => {
+            if (b && b.booking_id) {
+              bookingsMap.set(b.booking_id, Object.assign({}, bookingsMap.get(b.booking_id) || {}, b));
+            }
+          });
+        }
+      } catch (e) {
+        console.log("Backend admin vehicle bookings offline/fallback:", e.message);
+      }
+
+      allVehicleBookings = Array.from(bookingsMap.values());
+      allVehicleBookings.sort((a, b) => {
+        const tA = a.created_at ? new Date(a.created_at).getTime() : 0;
+        const tB = b.created_at ? new Date(b.created_at).getTime() : 0;
+        return tB - tA;
+      });
+
+      updateVehicleKPIs();
+      renderVehicleBookingsList();
+    }
+
+    function updateVehicleKPIs() {
+      const allCount = allVehicleBookings.length;
+      const pendingCount = allVehicleBookings.filter(b => (b.status || "PENDING_APPROVAL").toUpperCase() === "PENDING_APPROVAL").length;
+      const confirmedCount = allVehicleBookings.filter(b => (b.status || "").toUpperCase() === "CONFIRMED").length;
+      const dispatchedCount = allVehicleBookings.filter(b => (b.status || "").toUpperCase() === "DISPATCHED").length;
+      const completedCount = allVehicleBookings.filter(b => (b.status || "").toUpperCase() === "COMPLETED").length;
+      const cancelledCount = allVehicleBookings.filter(b => (b.status || "").toUpperCase() === "CANCELLED").length;
+
+      document.getElementById("cntAllVeh") && (document.getElementById("cntAllVeh").textContent = allCount);
+      document.getElementById("cntPendingVeh") && (document.getElementById("cntPendingVeh").textContent = pendingCount);
+      document.getElementById("cntConfirmedVeh") && (document.getElementById("cntConfirmedVeh").textContent = confirmedCount);
+      document.getElementById("cntDispatchedVeh") && (document.getElementById("cntDispatchedVeh").textContent = dispatchedCount);
+      document.getElementById("cntCompletedVeh") && (document.getElementById("cntCompletedVeh").textContent = completedCount);
+      document.getElementById("cntCancelledVeh") && (document.getElementById("cntCancelledVeh").textContent = cancelledCount);
+
+      const kpi = document.getElementById("kpiVehicleCount");
+      if (kpi) kpi.textContent = allCount;
+
+      const cmdBadge = document.getElementById("cmdPendingVehiclesBadge");
+      if (cmdBadge) {
+        cmdBadge.textContent = pendingCount;
+        cmdBadge.style.display = pendingCount > 0 ? "inline-block" : "none";
+      }
+    }
+
+    function filterVehicleBookings(filterType) {
+      currentVehicleFilter = filterType;
+      document.querySelectorAll("#secVehicleBookings .filter-tab-btn").forEach(btn => btn.classList.remove("active"));
+      if (filterType === "ALL") document.getElementById("tabVehAll")?.classList.add("active");
+      if (filterType === "PENDING_APPROVAL") document.getElementById("tabVehPending")?.classList.add("active");
+      if (filterType === "CONFIRMED") document.getElementById("tabVehConfirmed")?.classList.add("active");
+      if (filterType === "DISPATCHED") document.getElementById("tabVehDispatched")?.classList.add("active");
+      if (filterType === "COMPLETED") document.getElementById("tabVehCompleted")?.classList.add("active");
+      if (filterType === "CANCELLED") document.getElementById("tabVehCancelled")?.classList.add("active");
+      renderVehicleBookingsList();
+    }
+
+    function renderVehicleBookingsList() {
+      const container = document.getElementById("vehicleBookingsFeed");
+      if (!container) return;
+      container.innerHTML = "";
+
+      let filtered = allVehicleBookings;
+      if (currentVehicleFilter !== "ALL") {
+        filtered = allVehicleBookings.filter(b => (b.status || "PENDING_APPROVAL").toUpperCase() === currentVehicleFilter);
+      }
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div style="grid-column:1/-1;text-align:center;padding:32px 16px;background:#f8fafc;border-radius:var(--radius-md);border:1px dashed var(--border-light);color:var(--text-muted);">
+            <div style="font-size:2rem;margin-bottom:8px;">🚗</div>
+            <strong style="color:var(--navy);font-size:0.95rem;display:block;margin-bottom:4px;">No vehicle bookings in "${currentVehicleFilter}" category</strong>
+            <span style="font-size:0.82rem;">Citizen private ride bookings will automatically appear here.</span>
+          </div>
+        `;
+        return;
+      }
+
+      filtered.forEach(b => {
+        const rawStatus = (b.status || "PENDING_APPROVAL").toUpperCase();
+        const isPending = rawStatus === "PENDING_APPROVAL";
+        const isConfirmed = rawStatus === "CONFIRMED";
+        const isDispatched = rawStatus === "DISPATCHED";
+        const isCompleted = rawStatus === "COMPLETED";
+        const isCancelled = rawStatus === "CANCELLED";
+
+        let vehIcon = "🚗";
+        const vLower = (b.vehicle_type || "").toLowerCase();
+        if (vLower.includes("boat")) vehIcon = "🛥️";
+        else if (vLower.includes("ambulance")) vehIcon = "🚑";
+        else if (vLower.includes("tractor")) vehIcon = "🚜";
+        else if (vLower.includes("bus")) vehIcon = "🚌";
+        else if (vLower.includes("suv") || vLower.includes("4x4")) vehIcon = "🚙";
+
+        let statusBadgeHtml = "";
+        if (isPending) {
+          statusBadgeHtml = `<span class="badge-status pending" style="animation:pulseDangerMarker 2s infinite;">⏳ PENDING APPROVAL</span>`;
+        } else if (isConfirmed) {
+          statusBadgeHtml = `<span class="badge-status approved">✅ CONFIRMED</span>`;
+        } else if (isDispatched) {
+          statusBadgeHtml = `<span class="badge-status en_route">🚀 DISPATCHED</span>`;
+        } else if (isCompleted) {
+          statusBadgeHtml = `<span class="badge-status rescued">🏁 COMPLETED</span>`;
+        } else if (isCancelled) {
+          statusBadgeHtml = `<span class="badge-status rejected">❌ CANCELLED</span>`;
+        }
+
+        const div = document.createElement("div");
+        div.className = `vehicle-booking-card ${isPending ? 'status-pending' : (isConfirmed ? 'status-confirmed' : (isDispatched ? 'status-dispatched' : ''))}`;
+
+        div.innerHTML = `
+          <div>
+            <!-- Card Header -->
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;gap:8px;">
+              <div>
+                <strong style="color:var(--navy);font-size:1.05rem;">${vehIcon} ${b.booking_id}</strong>
+                <span style="font-size:0.82rem;color:var(--text-muted);display:block;margin-top:2px;">
+                  ${b.vehicle_type || 'Private Evacuation Vehicle'} • 👥 ${b.passengers || 1} Person(s)
+                </span>
+              </div>
+              <div style="text-align:right;">
+                ${statusBadgeHtml}
+                <span class="badge-pill ${b.urgency === 'CRITICAL' ? 'critical' : (b.urgency === 'HIGH' ? 'warning' : 'safe')}" style="font-size:0.7rem;margin-top:4px;display:inline-block;">
+                  ${b.urgency || 'HIGH'} PRIORITY
+                </span>
+              </div>
+            </div>
+
+            <!-- Route Details -->
+            <div style="background:#f8fafc;border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:12px;font-size:0.84rem;line-height:1.45;border-left:3px solid ${isPending ? '#f59e0b' : '#10b981'};">
+              <div style="margin-bottom:4px;color:#1e293b;">
+                📍 <strong>Pickup:</strong> ${b.pickup_location || 'Not specified'}
+              </div>
+              <div style="color:#0f172a;">
+                🏁 <strong>Drop-off:</strong> ${b.drop_location || 'Safe Shelter / Higher Ground'}
+              </div>
+              <div style="font-size:0.78rem;color:#64748b;margin-top:6px;">
+                📏 Distance: <strong>${b.estimated_distance_km || 10} km</strong> • Fare: <strong>₹${b.estimated_fare || 500}</strong>
+              </div>
+            </div>
+
+            <!-- Passenger Details -->
+            <div style="font-size:0.8rem;color:#475569;margin-bottom:12px;display:flex;flex-direction:column;gap:4px;">
+              <div>👤 Passenger: <strong>${b.user_name || 'Citizen'}</strong></div>
+              <div>📞 Contact: <a href="tel:${b.user_phone}" style="color:#2563eb;font-weight:700;text-decoration:none;">${b.user_phone} ↗</a></div>
+              ${b.special_notes ? `<div style="font-size:0.78rem;color:#94a3b8;font-style:italic;">📝 Notes: "${b.special_notes}"</div>` : ''}
+              ${b.assigned_vehicle_no ? `
+                <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;padding:6px 10px;margin-top:4px;">
+                  🛡️ <strong>Assigned Unit:</strong> ${b.assigned_vehicle_no} • Driver: <strong>${b.driver_name || 'Driver'}</strong> (<a href="tel:${b.driver_phone}" style="color:#15803d;font-weight:700;">${b.driver_phone || 'Call'}</a>)
+                </div>
+              ` : ''}
+            </div>
+          </div>
+
+          <!-- Action & Assignment Section -->
+          <div style="border-top:1px solid #e2e8f0;padding-top:12px;margin-top:8px;">
+            ${(isPending || isConfirmed) ? `
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+                <input type="text" id="inpDriverName-${b.booking_id}" class="form-input" style="padding:6px 10px;font-size:0.78rem;" placeholder="Driver Name" value="${b.driver_name || ''}">
+                <input type="tel" id="inpDriverPhone-${b.booking_id}" class="form-input" style="padding:6px 10px;font-size:0.78rem;" placeholder="Driver Phone" value="${b.driver_phone || ''}">
+              </div>
+              <div style="margin-bottom:10px;">
+                <input type="text" id="inpVehNo-${b.booking_id}" class="form-input" style="padding:6px 10px;font-size:0.78rem;" placeholder="Vehicle Plate / Reg No. (e.g. UK-07-TA-4491)" value="${b.assigned_vehicle_no || ''}">
+              </div>
+            ` : ''}
+
+            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+              ${isPending ? `
+                <button onclick="confirmVehicleBooking('${b.booking_id}')" class="quick-action-btn approve" style="flex:1;">
+                  <span>✅ Confirm & Assign Vehicle</span>
+                </button>
+                <button onclick="cancelVehicleBooking('${b.booking_id}')" class="quick-action-btn cancel" title="Reject Booking">
+                  <span>❌ Reject</span>
+                </button>
+              ` : (isConfirmed ? `
+                <button onclick="dispatchVehicleBooking('${b.booking_id}')" class="quick-action-btn" style="flex:1;background:#2563eb;color:#fff;">
+                  <span>🚀 Dispatch Ride</span>
+                </button>
+                <button onclick="completeVehicleBooking('${b.booking_id}')" class="quick-action-btn rescued">
+                  <span>🏁 Complete</span>
+                </button>
+                <button onclick="cancelVehicleBooking('${b.booking_id}')" class="quick-action-btn cancel" title="Cancel Booking">
+                  <span>❌</span>
+                </button>
+              ` : (isDispatched ? `
+                <button onclick="completeVehicleBooking('${b.booking_id}')" class="quick-action-btn rescued" style="flex:1;">
+                  <span>🏁 Mark Evacuation Completed</span>
+                </button>
+                <a href="tel:${b.driver_phone || b.user_phone}" class="quick-action-btn" style="background:#f1f5f9;color:#334155;border:1px solid #cbd5e1;text-decoration:none;">
+                  <span>📞 Call</span>
+                </a>
+              ` : (isCompleted ? `
+                <div style="flex:1;font-size:0.82rem;color:#059669;font-weight:800;display:flex;align-items:center;gap:6px;">
+                  <span>✅ Passenger Safely Evacuated</span>
+                </div>
+              ` : `
+                <div style="flex:1;font-size:0.82rem;color:#dc2626;font-weight:700;">
+                  <span>❌ Booking Cancelled</span>
+                </div>
+              `)))}
+            </div>
+          </div>
+        `;
+
+        container.appendChild(div);
+      });
+    }
+
+    async function confirmVehicleBooking(bookingId) {
+      const driverName = document.getElementById(`inpDriverName-${bookingId}`)?.value.trim() || "Driver Assigned";
+      const driverPhone = document.getElementById(`inpDriverPhone-${bookingId}`)?.value.trim() || "+91 98000 11223";
+      const vehNo = document.getElementById(`inpVehNo-${bookingId}`)?.value.trim() || "UK-07-EV-101";
+
+      try {
+        await fetch(`${API_BASE}/admin/vehicles/bookings/${encodeURIComponent(bookingId)}`, {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Admin-Key": adminKey
+          },
+          body: JSON.stringify({
+            status: "CONFIRMED",
+            driver_name: driverName,
+            driver_phone: driverPhone,
+            assigned_vehicle_no: vehNo
+          }),
+          signal: AbortSignal.timeout(3500)
+        });
+      } catch (e) {
+        console.log("Local confirm vehicle booking:", e.message);
+      }
+
+      // Update in localStorage
+      try {
+        let saved = JSON.parse(localStorage.getItem("aapda_vehicle_bookings") || "[]");
+        const idx = saved.findIndex(x => (x.booking_id || "").toUpperCase() === bookingId.toUpperCase());
+        if (idx >= 0) {
+          saved[idx].status = "CONFIRMED";
+          saved[idx].driver_name = driverName;
+          saved[idx].driver_phone = driverPhone;
+          saved[idx].assigned_vehicle_no = vehNo;
+        }
+        localStorage.setItem("aapda_vehicle_bookings", JSON.stringify(saved));
+
+        // Also update in rescue tickets for live tracker
+        let rescueSaved = JSON.parse(localStorage.getItem("aapda_rescue_tickets") || "[]");
+        const rIdx = rescueSaved.findIndex(x => (x.request_id || x.booking_id || "").toUpperCase() === bookingId.toUpperCase());
+        if (rIdx >= 0) {
+          rescueSaved[rIdx].status = "ACCEPTED";
+          rescueSaved[rIdx].assigned_vehicle_no = vehNo;
+          rescueSaved[rIdx].driver_name = driverName;
+          rescueSaved[rIdx].driver_phone = driverPhone;
+          localStorage.setItem("aapda_rescue_tickets", JSON.stringify(rescueSaved));
+        }
+      } catch (e) {}
+
+      const target = allVehicleBookings.find(x => x.booking_id === bookingId);
+      if (target) {
+        target.status = "CONFIRMED";
+        target.driver_name = driverName;
+        target.driver_phone = driverPhone;
+        target.assigned_vehicle_no = vehNo;
+      }
+      updateVehicleKPIs();
+      renderVehicleBookingsList();
+      showToast(`✅ Booking ${bookingId} CONFIRMED! Driver ${driverName} assigned.`, "success");
+    }
+
+    async function dispatchVehicleBooking(bookingId) {
+      try {
+        await fetch(`${API_BASE}/admin/vehicles/bookings/${encodeURIComponent(bookingId)}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json", "X-Admin-Key": adminKey },
+          body: JSON.stringify({ status: "DISPATCHED" }),
+          signal: AbortSignal.timeout(3500)
+        });
+      } catch (e) {}
+
+      try {
+        let saved = JSON.parse(localStorage.getItem("aapda_vehicle_bookings") || "[]");
+        const idx = saved.findIndex(x => (x.booking_id || "").toUpperCase() === bookingId.toUpperCase());
+        if (idx >= 0) saved[idx].status = "DISPATCHED";
+        localStorage.setItem("aapda_vehicle_bookings", JSON.stringify(saved));
+      } catch (e) {}
+
+      const target = allVehicleBookings.find(x => x.booking_id === bookingId);
+      if (target) target.status = "DISPATCHED";
+      updateVehicleKPIs();
+      renderVehicleBookingsList();
+      showToast(`🚀 Vehicle ${bookingId} Dispatched for evacuation pickup!`, "info");
+    }
+
+    async function completeVehicleBooking(bookingId) {
+      try {
+        await fetch(`${API_BASE}/admin/vehicles/bookings/${encodeURIComponent(bookingId)}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json", "X-Admin-Key": adminKey },
+          body: JSON.stringify({ status: "COMPLETED" }),
+          signal: AbortSignal.timeout(3500)
+        });
+      } catch (e) {}
+
+      try {
+        let saved = JSON.parse(localStorage.getItem("aapda_vehicle_bookings") || "[]");
+        const idx = saved.findIndex(x => (x.booking_id || "").toUpperCase() === bookingId.toUpperCase());
+        if (idx >= 0) saved[idx].status = "COMPLETED";
+        localStorage.setItem("aapda_vehicle_bookings", JSON.stringify(saved));
+      } catch (e) {}
+
+      const target = allVehicleBookings.find(x => x.booking_id === bookingId);
+      if (target) target.status = "COMPLETED";
+      updateVehicleKPIs();
+      renderVehicleBookingsList();
+      showToast(`🏁 Evacuation Ride ${bookingId} COMPLETED successfully!`, "success");
+    }
+
+    async function cancelVehicleBooking(bookingId) {
+      if (!confirm(`Are you sure you want to cancel booking ${bookingId}?`)) return;
+
+      try {
+        await fetch(`${API_BASE}/admin/vehicles/bookings/${encodeURIComponent(bookingId)}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json", "X-Admin-Key": adminKey },
+          body: JSON.stringify({ status: "CANCELLED" }),
+          signal: AbortSignal.timeout(3500)
+        });
+      } catch (e) {}
+
+      try {
+        let saved = JSON.parse(localStorage.getItem("aapda_vehicle_bookings") || "[]");
+        const idx = saved.findIndex(x => (x.booking_id || "").toUpperCase() === bookingId.toUpperCase());
+        if (idx >= 0) saved[idx].status = "CANCELLED";
+        localStorage.setItem("aapda_vehicle_bookings", JSON.stringify(saved));
+      } catch (e) {}
+
+      const target = allVehicleBookings.find(x => x.booking_id === bookingId);
+      if (target) target.status = "CANCELLED";
+      updateVehicleKPIs();
+      renderVehicleBookingsList();
+      showToast(`Booking ${bookingId} cancelled.`, "info");
+    }
+
+    // Auto-listen to cross-tab updates when citizens submit reports, rescue tickets, or vehicle bookings
+    window.addEventListener("storage", (e) => {
+      if (e.key === "aapda_community_reports") {
+        console.log("Cross-tab report sync detected, updating admin feed...");
+        loadCitizenReports();
+      } else if (e.key === "aapda_rescue_tickets") {
+        console.log("Cross-tab rescue ticket sync detected, updating admin rescue list...");
+        loadRescueTickets();
+      } else if (e.key === "aapda_vehicle_bookings") {
+        console.log("Cross-tab vehicle booking sync detected, updating vehicle list...");
+        loadVehicleBookings();
+      }
+    });
 
     /* ================= DAM GATE OPENING LOGIC ================= */
     function autoFillDamDetails() {

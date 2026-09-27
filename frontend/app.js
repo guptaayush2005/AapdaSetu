@@ -644,6 +644,30 @@ async function trigger1ClickRescue(customOriginCoords) {
     private_token: pvtToken
   };
 
+  // Immediate Local Sync: Save ticket to aapda_rescue_tickets so Admin EOC & tracking immediately have it
+  const localTicketObj = {
+    request_id: ticketId,
+    name: payload.name,
+    phone: payload.phone,
+    people: payload.people,
+    rescue_vehicle: payload.rescue_vehicle,
+    pickup_location: locName,
+    priority: payload.priority,
+    flood_risk: "CRITICAL",
+    additional_info: "1-Click Immediate Emergency SOS Broadcast",
+    status: "REQUESTED",
+    latitude: lat,
+    longitude: lon,
+    created_at: new Date().toISOString()
+  };
+  try {
+    let saved = JSON.parse(localStorage.getItem("aapda_rescue_tickets") || "[]");
+    saved.unshift(localTicketObj);
+    localStorage.setItem("aapda_rescue_tickets", JSON.stringify(saved));
+  } catch (e) {
+    console.warn("Local rescue ticket store error:", e);
+  }
+
   // INSTANT FEEDBACK: Show the interactive confirmed modal immediately (0ms delay)!
   showRescueConfirmedModal(ticketId, payload, rawMessage, mapsLink, whatsappUrl, smsUrl, dmDetails, dmMailtoUrl, dmGmailUrl);
 
@@ -682,6 +706,18 @@ async function trigger1ClickRescue(customOriginCoords) {
         payload.pickup_location = locName;
         updateRescueConfirmedModalData(ticketId, lat, lon, locName);
         dropSosMapMarker(lat, lon, ticketId, nowStr, dmDetails, whatsappUrl);
+
+        // Update local ticket with refined GPS
+        try {
+          let saved = JSON.parse(localStorage.getItem("aapda_rescue_tickets") || "[]");
+          const idx = saved.findIndex(x => x.request_id === ticketId);
+          if (idx >= 0) {
+            saved[idx].latitude = lat;
+            saved[idx].longitude = lon;
+            saved[idx].pickup_location = locName;
+            localStorage.setItem("aapda_rescue_tickets", JSON.stringify(saved));
+          }
+        } catch (e) {}
       } catch (e) {
         console.log("GPS calibrated fallback used:", e.message);
       }
@@ -697,8 +733,21 @@ async function trigger1ClickRescue(customOriginCoords) {
       });
       if (res.ok) {
         const data = await res.json();
+        const oldId = ticketId;
         if (data.request_id) ticketId = data.request_id;
         if (data.private_token) serverToken = data.private_token;
+
+        // Update local ticket ID if server assigned a new canonical ID
+        if (ticketId !== oldId) {
+          try {
+            let saved = JSON.parse(localStorage.getItem("aapda_rescue_tickets") || "[]");
+            const idx = saved.findIndex(x => x.request_id === oldId);
+            if (idx >= 0) {
+              saved[idx].request_id = ticketId;
+              localStorage.setItem("aapda_rescue_tickets", JSON.stringify(saved));
+            }
+          } catch (e) {}
+        }
       }
     } catch (err) {
       console.log("Offline rescue ticket queued:", ticketId);
@@ -2453,13 +2502,19 @@ document.addEventListener("click", function (e) {
     openEmergencySOSModal();
     return;
   }
-  // Ensure emergency chip clicks reliably launch dialer on all mobile and web browsers
-  const chip = e.target.closest(".emergency-chip");
-  if (chip && chip.getAttribute("href") && chip.getAttribute("href").startsWith("tel:")) {
-    // Let browser default handle or trigger fallback
-    const telNumber = chip.getAttribute("href");
-    if (telNumber) {
-      window.location.href = telNumber;
+  // Ensure ANY emergency helpline or phone link clicked gives immediate user feedback
+  const telLink = e.target.closest("a[href^='tel:']");
+  if (telLink) {
+    const rawHref = telLink.getAttribute("href");
+    const telNumber = rawHref.replace("tel:", "").trim();
+    if (typeof showToast === "function") {
+      showToast(`📞 Connecting to Emergency Helpline: ${telNumber}... Stay calm!`, "error");
     }
+    // Allow natural browser behavior for tel: link, but guarantee window.location fallback
+    setTimeout(() => {
+      try {
+        window.location.href = rawHref;
+      } catch (err) {}
+    }, 50);
   }
 });

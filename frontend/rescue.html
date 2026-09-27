@@ -108,6 +108,18 @@
           </div>
         </button>
 
+        <!-- Tab 3: Private Vehicle Booking (NEW) -->
+        <button type="button" id="tabVehicleMode" class="rescue-mode-tab tab-vehicle" onclick="switchRescueMode('vehicle')" style="border-left:4px solid #10b981;">
+          <div class="tab-icon">🚗</div>
+          <div class="tab-content">
+            <div class="tab-title-row">
+              <span class="tab-title">Book Private Vehicle</span>
+              <span class="tab-tag" style="background:#ecfdf5;color:#047857;border:1px solid #a7f3d0;">Direct Evacuation Ride</span>
+            </div>
+            <span class="tab-subtitle">Book private 4x4 SUV, boat, tractor or ambulance for fast family transport.</span>
+          </div>
+        </button>
+
       </div>
     </div>
 
@@ -263,6 +275,160 @@
           </div>
         </section>
 
+        <!-- ================= VIEW 3: BOOK PRIVATE VEHICLE / EVACUATION CAB ================= -->
+        <section id="viewVehicleForm" class="content-card" style="display:none;">
+          <div class="card-header-bar">
+            <div class="card-title-group">
+              <div class="card-title-icon" style="background:#ecfdf5;color:#059669;">🚗</div>
+              <div>
+                <h2 class="card-title">Book Private Evacuation Vehicle / Transport</h2>
+                <p class="card-subtitle">Fast-track evacuation booking for families and luggage with verified private drivers.</p>
+              </div>
+            </div>
+          </div>
+
+          <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-left:5px solid #10b981;padding:12px 16px;border-radius:8px;margin-bottom:18px;">
+            <strong style="color:#166534;font-size:0.88rem;display:flex;align-items:center;gap:6px;">
+              <span>🛡️</span> Verified Disaster Fleet • Government Subsidized or Direct Pay
+            </strong>
+            <span style="font-size:0.8rem;color:#15803d;display:block;margin-top:2px;">
+              Bookings are directly dispatched to available private drivers & verified rescue operators near your area.
+            </span>
+          </div>
+
+          <form id="privateVehicleForm" onsubmit="event.preventDefault(); submitPrivateVehicleBooking();">
+            <div style="display:flex;flex-direction:column;gap:16px;">
+              
+              <!-- Vehicle Selection Grid -->
+              <div class="input-group">
+                <label class="input-label">Select Vehicle Type *</label>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(130px, 1fr));gap:10px;" id="vehicleTypeOptions">
+                  <label class="pvt-veh-card selected" onclick="selectPvtVehicle('4x4 SUV / Offroad Jeep', this)" style="border:2px solid #059669;background:#f0fdf4;border-radius:10px;padding:12px;cursor:pointer;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                    <span style="font-size:1.8rem;">🚙</span>
+                    <strong style="font-size:0.84rem;color:#0f172a;">4x4 Offroad SUV</strong>
+                    <span style="font-size:0.72rem;color:#64748b;">Water wading 700mm</span>
+                  </label>
+                  <label class="pvt-veh-card" onclick="selectPvtVehicle('Private Motor Boat / Raft', this)" style="border:1px solid #cbd5e1;background:#fff;border-radius:10px;padding:12px;cursor:pointer;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                    <span style="font-size:1.8rem;">🚤</span>
+                    <strong style="font-size:0.84rem;color:#0f172a;">Private Motor Boat</strong>
+                    <span style="font-size:0.72rem;color:#64748b;">Flooded street transit</span>
+                  </label>
+                  <label class="pvt-veh-card" onclick="selectPvtVehicle('Emergency Ambulance', this)" style="border:1px solid #cbd5e1;background:#fff;border-radius:10px;padding:12px;cursor:pointer;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                    <span style="font-size:1.8rem;">🚑</span>
+                    <strong style="font-size:0.84rem;color:#0f172a;">Private Ambulance</strong>
+                    <span style="font-size:0.72rem;color:#64748b;">Oxygen & Stretcher</span>
+                  </label>
+                  <label class="pvt-veh-card" onclick="selectPvtVehicle('High-Clearance Evacuation Tractor', this)" style="border:1px solid #cbd5e1;background:#fff;border-radius:10px;padding:12px;cursor:pointer;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                    <span style="font-size:1.8rem;">🚜</span>
+                    <strong style="font-size:0.84rem;color:#0f172a;">Evacuation Tractor</strong>
+                    <span style="font-size:0.72rem;color:#64748b;">Deep mud & debris</span>
+                  </label>
+                  <label class="pvt-veh-card" onclick="selectPvtVehicle('12-Seater Evacuation Mini Bus', this)" style="border:1px solid #cbd5e1;background:#fff;border-radius:10px;padding:12px;cursor:pointer;text-align:center;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                    <span style="font-size:1.8rem;">🚐</span>
+                    <strong style="font-size:0.84rem;color:#0f172a;">12-Seater Mini Bus</strong>
+                    <span style="font-size:0.72rem;color:#64748b;">Large joint families</span>
+                  </label>
+                </div>
+                <input type="hidden" id="selectedPvtVehicleType" value="4x4 SUV / Offroad Jeep">
+              </div>
+
+              <!-- Passenger & Contact Details -->
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                <div class="input-group">
+                  <label for="pvtUserName" class="input-label">Passenger / Booker Name *</label>
+                  <input type="text" id="pvtUserName" class="form-input" placeholder="e.g. Kaushal Sharma" required>
+                </div>
+                <div class="input-group">
+                  <label for="pvtUserPhone" class="input-label">Contact Mobile Number *</label>
+                  <input type="tel" id="pvtUserPhone" class="form-input" placeholder="e.g. 9876543210" required>
+                </div>
+              </div>
+
+              <!-- Pickup & Drop Locations -->
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                <div class="input-group">
+                  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                    <label for="pvtPickup" class="input-label" style="margin-bottom:0;">Pickup Location *</label>
+                    <button type="button" onclick="detectPvtPickupGPS()" style="background:none;border:none;color:#2563eb;font-size:0.75rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:2px;">
+                      📍 Use GPS
+                    </button>
+                  </div>
+                  <input type="text" id="pvtPickup" class="form-input" placeholder="e.g. Near Mandakini Bridge, Ward 3, Rudraprayag" required>
+                </div>
+                <div class="input-group">
+                  <label for="pvtDrop" class="input-label">Destination / Shelter Drop-off *</label>
+                  <input type="text" id="pvtDrop" class="form-input" placeholder="e.g. Degree College Relief Shelter / Highway" required>
+                </div>
+              </div>
+
+              <!-- People Count, Urgency & Distance -->
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;">
+                <div class="input-group">
+                  <label for="pvtPassengers" class="input-label">Passengers *</label>
+                  <input type="number" id="pvtPassengers" class="form-input" min="1" max="25" value="3" required>
+                </div>
+                <div class="input-group">
+                  <label for="pvtUrgency" class="input-label">Urgency Level *</label>
+                  <select id="pvtUrgency" class="form-select" required>
+                    <option value="CRITICAL">🔴 Critical (Evacuate Now)</option>
+                    <option value="HIGH" selected>🟠 High (Water Rising)</option>
+                    <option value="STANDARD">🟡 Standard (Precautionary)</option>
+                  </select>
+                </div>
+                <div class="input-group">
+                  <label for="pvtEstDistance" class="input-label">Est. Distance (km)</label>
+                  <input type="number" id="pvtEstDistance" class="form-input" min="1" max="150" value="8" oninput="calcPvtFare()">
+                </div>
+              </div>
+
+              <div class="input-group">
+                <label for="pvtNotes" class="input-label">Luggage / Pets / Special Assistance</label>
+                <input type="text" id="pvtNotes" class="form-input" placeholder="e.g. 2 elder members, 2 suitcases, family pet dog">
+              </div>
+
+              <!-- Estimated Fare / Price Card -->
+              <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+                <div>
+                  <span style="font-size:0.75rem;color:#64748b;font-weight:700;text-transform:uppercase;">Estimated Transit Charge</span>
+                  <div style="font-size:1.3rem;font-weight:900;color:#0f172a;">
+                    <span id="pvtFareDisplay">₹450 - ₹600</span> <span style="font-size:0.75rem;color:#16a34a;font-weight:700;">(Relief Subsidized Rate)</span>
+                  </div>
+                </div>
+                <div style="font-size:0.78rem;color:#64748b;max-width:280px;text-align:right;">
+                  Pay direct to driver via Cash/UPI on arrival. Free evacuation voucher applied if residing in Red Flood Zone.
+                </div>
+              </div>
+
+              <button type="submit" id="submitPvtVehBtn" class="btn-primary" style="width:100%;padding:14px;background:#059669;font-size:1.05rem;font-weight:900;box-shadow:0 4px 14px rgba(5,150,105,0.35);">
+                <span>🚗 Confirm & Book Private Vehicle</span>
+              </button>
+            </div>
+          </form>
+
+          <!-- Private Booking Success Box -->
+          <div id="pvtBookingSuccessBox" style="display:none;margin-top:20px;padding:18px;background:#f0fdf4;border:1px solid #86efac;border-radius:var(--radius-md);">
+            <strong style="color:#15803d;display:flex;align-items:center;gap:6px;font-size:1.05rem;margin-bottom:6px;">
+              <span>✅</span> Private Vehicle Booking Dispatched to Control Room!
+            </strong>
+            <p style="font-size:0.9rem;color:#166534;margin-bottom:8px;">
+              Your Booking ID: <strong id="pvtBookingIdDisplay" style="font-size:1.15rem;color:#0f172a;letter-spacing:0.04em;">PVT-CAB-XXXX</strong>
+            </p>
+            <div id="pvtBookingStatusCard" style="background:#fff;padding:12px;border-radius:8px;border:1px solid #bbf7d0;font-size:0.85rem;color:#334155;margin-bottom:10px;">
+              <div>Status: <span id="pvtLiveStatus" class="badge-status pending" style="padding:3px 8px;border-radius:999px;font-weight:800;font-size:0.75rem;">PENDING ADMIN DRIVER ASSIGNMENT</span></div>
+              <div id="pvtDriverDetailsWrap" style="margin-top:8px;font-size:0.82rem;color:#475569;display:none;">
+                🚗 <strong>Assigned Vehicle:</strong> <span id="pvtAssignedVehicleNo">-</span><br>
+                👤 <strong>Driver:</strong> <span id="pvtDriverName">-</span> (<span id="pvtDriverPhone">-</span>)
+              </div>
+              <div style="margin-top:6px;font-size:0.8rem;color:#64748b;">
+                EOC Admin is assigning a certified private operator. Once confirmed, driver details will appear here.
+              </div>
+            </div>
+            <button onclick="document.getElementById('trackInput').value=document.getElementById('pvtBookingIdDisplay').textContent; trackRescue();" class="btn-outline" style="padding:6px 14px;font-size:0.82rem;">
+              🔍 Track in Live Timeline
+            </button>
+          </div>
+        </section>
+
       </div>
 
       <!-- Live Ticket Status Tracker -->
@@ -364,20 +530,18 @@
     function switchRescueMode(mode) {
       const tabEmergency = document.getElementById("tabEmergencyMode");
       const tabNormal = document.getElementById("tabNormalMode");
+      const tabVehicle = document.getElementById("tabVehicleMode");
       const viewEmergency = document.getElementById("viewEmergencyZeroForm");
       const viewNormal = document.getElementById("viewNormalForm");
+      const viewVehicle = document.getElementById("viewVehicleForm");
 
-      if (mode === "emergency") {
-        if (tabEmergency) tabEmergency.classList.add("active");
-        if (tabNormal) tabNormal.classList.remove("active");
-        if (viewEmergency) viewEmergency.style.display = "block";
-        if (viewNormal) viewNormal.style.display = "none";
-      } else {
-        if (tabEmergency) tabEmergency.classList.remove("active");
-        if (tabNormal) tabNormal.classList.add("active");
-        if (viewEmergency) viewEmergency.style.display = "none";
-        if (viewNormal) viewNormal.style.display = "block";
-      }
+      if (tabEmergency) tabEmergency.classList.toggle("active", mode === "emergency");
+      if (tabNormal) tabNormal.classList.toggle("active", mode === "normal");
+      if (tabVehicle) tabVehicle.classList.toggle("active", mode === "vehicle");
+
+      if (viewEmergency) viewEmergency.style.display = mode === "emergency" ? "block" : "none";
+      if (viewNormal) viewNormal.style.display = mode === "normal" ? "block" : "none";
+      if (viewVehicle) viewVehicle.style.display = mode === "vehicle" ? "block" : "none";
     }
 
     // Read URL query parameters on load
@@ -386,6 +550,8 @@
       const mode = urlParams.get("mode");
       if (mode === "normal") {
         switchRescueMode("normal");
+      } else if (mode === "vehicle") {
+        switchRescueMode("vehicle");
       } else {
         switchRescueMode("emergency");
       }
@@ -396,6 +562,147 @@
         trackRescue();
       }
     });
+
+    function selectPvtVehicle(vehType, el) {
+      document.querySelectorAll(".pvt-veh-card").forEach(c => {
+        c.style.border = "1px solid #cbd5e1";
+        c.style.background = "#fff";
+      });
+      el.style.border = "2px solid #059669";
+      el.style.background = "#f0fdf4";
+      document.getElementById("selectedPvtVehicleType").value = vehType;
+      calcPvtFare();
+    }
+
+    function calcPvtFare() {
+      const dist = parseFloat(document.getElementById("pvtEstDistance").value) || 8;
+      const veh = document.getElementById("selectedPvtVehicleType").value;
+      let baseRate = 45;
+      if (veh.includes("Boat")) baseRate = 80;
+      if (veh.includes("Ambulance")) baseRate = 60;
+      if (veh.includes("Tractor")) baseRate = 50;
+      if (veh.includes("Mini Bus")) baseRate = 75;
+
+      const minFare = Math.max(300, Math.round(dist * baseRate));
+      const maxFare = Math.round(minFare * 1.35);
+      const display = document.getElementById("pvtFareDisplay");
+      if (display) {
+        display.textContent = `₹${minFare} - ₹${maxFare}`;
+      }
+    }
+
+    function detectPvtPickupGPS() {
+      if (!navigator.geolocation) {
+        return showToast("Geolocation is not supported by your browser", "error");
+      }
+      showToast("📡 Calibrating satellite GPS coordinates...", "info");
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const lat = pos.coords.latitude;
+          const lon = pos.coords.longitude;
+          const inp = document.getElementById("pvtPickup");
+          if (inp) {
+            inp.value = `Satellite GPS (${lat.toFixed(4)}, ${lon.toFixed(4)})`;
+            showToast("✅ Exact GPS location pinned for pickup", "success");
+          }
+        },
+        (err) => {
+          showToast("Could not detect live GPS: " + err.message, "warning");
+        },
+        { timeout: 5000, enableHighAccuracy: true }
+      );
+    }
+
+    async function submitPrivateVehicleBooking() {
+      const name = document.getElementById("pvtUserName").value.trim();
+      const phone = document.getElementById("pvtUserPhone").value.trim();
+      const vehType = document.getElementById("selectedPvtVehicleType").value;
+      const pickup = document.getElementById("pvtPickup").value.trim();
+      const drop = document.getElementById("pvtDrop").value.trim();
+      const passengers = parseInt(document.getElementById("pvtPassengers").value) || 1;
+      const urgency = document.getElementById("pvtUrgency").value;
+      const dist = parseFloat(document.getElementById("pvtEstDistance").value) || 8;
+      const notes = document.getElementById("pvtNotes").value.trim();
+      const btn = document.getElementById("submitPvtVehBtn");
+
+      btn.disabled = true;
+      btn.innerHTML = "⏳ Transmitting Booking to Private Driver Grid & EOC...";
+
+      let bookingId = "PVT-CAB-" + Math.floor(1000 + Math.random() * 9000);
+
+      const payload = {
+        user_name: name,
+        user_phone: phone,
+        vehicle_type: vehType,
+        passengers: passengers,
+        pickup_location: pickup,
+        drop_location: drop,
+        estimated_distance_km: dist,
+        estimated_fare: dist * 50,
+        urgency: urgency,
+        special_notes: notes
+      };
+
+      try {
+        const res = await fetch(`${API_BASE}/vehicles/book`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+          signal: AbortSignal.timeout(4500)
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data.booking_id) bookingId = data.booking_id;
+        }
+      } catch (err) {
+        console.warn("Backend offline note, local booking generated:", err.message);
+      }
+
+      // Save to local private vehicle bookings & rescue tickets store
+      const bookingObj = {
+        booking_id: bookingId,
+        request_id: bookingId,
+        name: name,
+        phone: phone,
+        user_name: name,
+        user_phone: phone,
+        vehicle_type: vehType,
+        rescue_vehicle: vehType,
+        people: passengers,
+        passengers: passengers,
+        pickup_location: pickup,
+        drop_location: drop,
+        priority: urgency === "CRITICAL" ? "Critical" : "High",
+        urgency: urgency,
+        special_notes: notes,
+        additional_info: `Private Ride: ${vehType} to ${drop}. Notes: ${notes}`,
+        status: "PENDING_APPROVAL",
+        created_at: new Date().toISOString()
+      };
+
+      try {
+        let pvtSaved = JSON.parse(localStorage.getItem("aapda_vehicle_bookings") || "[]");
+        pvtSaved.unshift(bookingObj);
+        localStorage.setItem("aapda_vehicle_bookings", JSON.stringify(pvtSaved));
+
+        let rescueSaved = JSON.parse(localStorage.getItem("aapda_rescue_tickets") || "[]");
+        rescueSaved.unshift(bookingObj);
+        localStorage.setItem("aapda_rescue_tickets", JSON.stringify(rescueSaved));
+      } catch (e) {
+        console.error("Local booking save failed:", e);
+      }
+
+      btn.disabled = false;
+      btn.innerHTML = "<span>🚗 Confirm & Book Private Vehicle</span>";
+
+      document.getElementById("pvtBookingIdDisplay").textContent = bookingId;
+      document.getElementById("pvtBookingSuccessBox").style.display = "block";
+      document.getElementById("trackInput").value = bookingId;
+
+      showToast(`🚗 Private Vehicle Booking Created: ${bookingId}`, "success");
+      trackRescue();
+    }
 
     async function submitRescueRequest() {
       const name = document.getElementById("callerName").value;
@@ -436,6 +743,25 @@
         console.warn("Backend offline note, local ticket generated:", err.message);
       }
 
+      // Save ticket to local sync store so Admin EOC immediately receives it
+      const ticketObj = {
+        request_id: ticketId,
+        name: name,
+        phone: phone,
+        people: people,
+        rescue_vehicle: vehicle,
+        pickup_location: location,
+        priority: priority,
+        additional_info: info,
+        status: "REQUESTED",
+        created_at: new Date().toISOString()
+      };
+      try {
+        let saved = JSON.parse(localStorage.getItem("aapda_rescue_tickets") || "[]");
+        saved.unshift(ticketObj);
+        localStorage.setItem("aapda_rescue_tickets", JSON.stringify(saved));
+      } catch (e) {}
+
       btn.disabled = false;
       btn.innerHTML = "📝 Submit Normal Rescue Request";
 
@@ -447,31 +773,58 @@
     }
 
     async function trackRescue() {
-      const trackId = document.getElementById("trackInput").value.trim();
+      const trackId = document.getElementById("trackInput").value.trim().toUpperCase();
       if (!trackId) return;
 
       const detailBox = document.getElementById("ticketDetailBox");
       detailBox.style.display = "block";
 
       let status = "REQUESTED";
-      let name = "Ramesh Kumar";
+      let name = "Citizen";
       let vehicle = "Motorized Rescue Boat";
 
+      // 1. Check local sync storage first (rescue tickets & private vehicle bookings)
       try {
-        const res = await fetch(`${API_BASE}/rescue/${trackId}`, { signal: AbortSignal.timeout(3500) });
-        if (res.ok) {
-          const data = await res.json();
-          status = data.status || "REQUESTED";
-          name = data.name || name;
-          vehicle = data.rescue_vehicle || vehicle;
+        const saved = JSON.parse(localStorage.getItem("aapda_rescue_tickets") || "[]");
+        const pvtSaved = JSON.parse(localStorage.getItem("aapda_vehicle_bookings") || "[]");
+        const found = saved.find(t => (t.request_id || "").toUpperCase() === trackId) || pvtSaved.find(t => (t.booking_id || "").toUpperCase() === trackId);
+        if (found) {
+          status = found.status || status;
+          name = found.name || found.user_name || name;
+          vehicle = found.assigned_vehicle_no ? `${found.vehicle_type} (${found.assigned_vehicle_no}) - Driver: ${found.driver_name} (${found.driver_phone})` : (found.assigned_vehicle || found.rescue_vehicle || found.vehicle_type || vehicle);
+        }
+      } catch (e) {}
+
+      // 2. Fetch from Backend
+      try {
+        if (trackId.startsWith("PVT-CAB")) {
+          const res = await fetch(`${API_BASE}/vehicles/bookings/${encodeURIComponent(trackId)}`, { signal: AbortSignal.timeout(3500) });
+          if (res.ok) {
+            const data = await res.json();
+            const b = data.booking;
+            if (b) {
+              status = b.status || status;
+              name = b.user_name || name;
+              vehicle = b.assigned_vehicle_no ? `${b.vehicle_type} (${b.assigned_vehicle_no}) - Driver: ${b.driver_name} (${b.driver_phone})` : (b.vehicle_type || vehicle);
+            }
+          }
+        } else {
+          const res = await fetch(`${API_BASE}/rescue/${encodeURIComponent(trackId)}`, { signal: AbortSignal.timeout(3500) });
+          if (res.ok) {
+            const data = await res.json();
+            status = data.status || status;
+            name = data.name || name;
+            vehicle = data.assigned_vehicle || data.rescue_vehicle || vehicle;
+          }
         }
       } catch (e) {
-        console.log("Using simulated tracker status:", e.message);
+        console.log("Using cached/local tracker status:", e.message);
       }
 
+      const normStatus = (status || "REQUESTED").toUpperCase();
       document.getElementById("dtName").textContent = name;
       document.getElementById("dtVehicle").textContent = vehicle;
-      document.getElementById("dtStatus").textContent = status;
+      document.getElementById("dtStatus").textContent = normStatus;
 
       // Update badge states
       const b1 = document.querySelector("#step-requested .step-badge");
@@ -479,18 +832,23 @@
       const b3 = document.querySelector("#step-ontheway .step-badge");
       const b4 = document.querySelector("#step-rescued .step-badge");
 
+      // Reset
       b1.style.background = "#10b981"; b1.style.color = "#fff";
-      b2.style.background = "#1677ff"; b2.style.color = "#fff";
+      b2.style.background = "#e2e8f0"; b2.style.color = "#64748b";
       b3.style.background = "#e2e8f0"; b3.style.color = "#64748b";
       b4.style.background = "#e2e8f0"; b4.style.color = "#64748b";
 
-      if (status === "ON_THE_WAY" || status === "ASSIGNED") {
-        b2.style.background = "#10b981";
-        b3.style.background = "#1677ff";
-      } else if (status === "RESCUED") {
-        b2.style.background = "#10b981";
-        b3.style.background = "#10b981";
-        b4.style.background = "#10b981";
+      if (normStatus === "ACCEPTED" || normStatus === "ASSIGNED" || normStatus === "CONFIRMED") {
+        b2.style.background = "#10b981"; b2.style.color = "#fff";
+        b3.style.background = "#3b82f6"; b3.style.color = "#fff";
+      } else if (normStatus === "EN_ROUTE" || normStatus === "ON_THE_WAY" || normStatus === "DISPATCHED") {
+        b2.style.background = "#10b981"; b2.style.color = "#fff";
+        b3.style.background = "#10b981"; b3.style.color = "#fff";
+        b4.style.background = "#f59e0b"; b4.style.color = "#fff";
+      } else if (normStatus === "RESCUED" || normStatus === "COMPLETED") {
+        b2.style.background = "#10b981"; b2.style.color = "#fff";
+        b3.style.background = "#10b981"; b3.style.color = "#fff";
+        b4.style.background = "#10b981"; b4.style.color = "#fff";
       }
     }
   </script>

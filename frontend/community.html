@@ -90,7 +90,7 @@
             <div class="card-title-icon" style="background:#ede9fe;color:#7c3aed;">📝</div>
             <div>
               <h2 class="card-title">Report a Disaster Incident</h2>
-              <p class="card-subtitle">Broadcast local hazards to authorities and citizens.</p>
+              <p class="card-subtitle">Submit local hazard to EOC. Approved reports are published to the live public feed.</p>
             </div>
           </div>
         </div>
@@ -150,25 +150,38 @@
               </div>
             </div>
 
-            <button type="submit" id="submitReportBtn" class="btn-primary" style="width:100%;margin-top:8px;">
-              <span>📢 Broadcast Incident to Feed</span>
+            <button type="submit" id="submitReportBtn" class="btn-primary" style="width:100%;margin-top:8px;padding:14px;font-size:1rem;font-weight:800;">
+              <span>📢 Submit Incident for Admin Verification</span>
             </button>
+
+            <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:var(--radius-sm);padding:10px 14px;font-size:0.78rem;color:#166534;display:flex;align-items:center;gap:8px;">
+              <span>🛡️</span>
+              <span><strong>Official Verification Flow:</strong> Your incident report goes directly to the National EOC Admin Panel. As soon as disaster authorities approve it, it appears live on the citizen feed.</span>
+            </div>
           </div>
         </form>
       </section>
 
       <!-- Live Community Feed -->
       <section class="content-card">
-        <div class="card-header-bar">
+        <div class="card-header-bar" style="flex-wrap:wrap;gap:10px;">
           <div class="card-title-group">
             <div class="card-title-icon" style="background:#e0f2fe;color:#0284c7;">📢</div>
             <div>
               <h2 class="card-title">Live Citizen Incident Feed</h2>
-              <p class="card-subtitle">Real-time crowdsourced reports from disaster zones.</p>
+              <p class="card-subtitle">Verified crowdsourced reports approved by disaster authorities.</p>
             </div>
           </div>
-          <span class="badge-pill active"><span class="pulse-dot green"></span> Live Sync</span>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <button onclick="loadCommunityReports()" class="btn-outline" style="padding:5px 10px;font-size:0.78rem;">
+              🔄 Refresh Feed
+            </button>
+            <span class="badge-pill active"><span class="pulse-dot green"></span> Live Sync</span>
+          </div>
         </div>
+
+        <!-- Notification container for user's pending submissions -->
+        <div id="userPendingAlertBox" style="display:none;margin-bottom:14px;"></div>
 
         <div id="reportsFeed" style="display:flex;flex-direction:column;gap:14px;max-height:650px;overflow-y:auto;padding-right:6px;">
           <!-- Dynamic incident reports inserted here -->
@@ -192,9 +205,9 @@
   <script src="translations.js"></script>
   <script src="app.js"></script>
   <script>
-    const INITIAL_REPORTS = [
+    const SEED_APPROVED_REPORTS = [
       {
-        id: "REP-7801",
+        report_id: "REP-7801",
         state: "Uttarakhand",
         district: "Rudraprayag",
         category: "WATERLOGGING",
@@ -205,18 +218,18 @@
         time: "10 mins ago"
       },
       {
-        id: "REP-7802",
+        report_id: "REP-7802",
         state: "Assam",
         district: "Dhemaji",
         category: "EMERGENCY_RESCUE",
         message: "Family of 6 trapped on rooftop in Silapathar ward 3. Current is strong, need rescue boat immediately.",
         urgency: "CRITICAL",
-        status: "RESCUE_DISPATCHED",
+        status: "VERIFIED",
         reporter: "Barun Bora",
         time: "25 mins ago"
       },
       {
-        id: "REP-7803",
+        report_id: "REP-7803",
         state: "Kerala",
         district: "Wayanad",
         category: "LANDSLIDE_BLOCK",
@@ -227,7 +240,7 @@
         time: "45 mins ago"
       },
       {
-        id: "REP-7804",
+        report_id: "REP-7804",
         state: "Maharashtra",
         district: "Kolhapur",
         category: "WATERLOGGING",
@@ -239,39 +252,150 @@
       }
     ];
 
-    let reportsList = INITIAL_REPORTS;
+    let liveApprovedReports = [];
 
     document.addEventListener("DOMContentLoaded", () => {
       loadLocations("state", "district", "submitReportBtn");
-      renderReports();
+      loadCommunityReports();
     });
+
+    async function loadCommunityReports() {
+      const feed = document.getElementById("reportsFeed");
+      let reportsMap = new Map();
+
+      // Seed baseline reports
+      SEED_APPROVED_REPORTS.forEach(r => reportsMap.set(r.report_id, r));
+
+      // 1. Check local storage for all reports (pending and approved)
+      let pendingList = [];
+      try {
+        const localSaved = JSON.parse(localStorage.getItem("aapda_community_reports") || "[]");
+        if (Array.isArray(localSaved)) {
+          localSaved.forEach(r => {
+            if (r && r.report_id) {
+              const st = (r.status || "PENDING").toUpperCase();
+              if (st === "APPROVED" || st === "VERIFIED" || st === "ACTIVE") {
+                reportsMap.set(r.report_id, Object.assign({}, reportsMap.get(r.report_id) || {}, r, { status: "VERIFIED BY EOC" }));
+              } else if (st === "PENDING") {
+                pendingList.push(r);
+              }
+            }
+          });
+        }
+      } catch (e) {
+        console.log("Local reports read error:", e);
+      }
+
+      // 2. Fetch official approved reports from Backend
+      try {
+        const res = await fetch(`${API_BASE}/community/reports`, { signal: AbortSignal.timeout(3500) });
+        if (res.ok) {
+          const data = await res.json();
+          const items = Array.isArray(data) ? data : (data.reports || []);
+          items.forEach(r => {
+            if (r && r.report_id) {
+              reportsMap.set(r.report_id, Object.assign({}, reportsMap.get(r.report_id) || {}, r, {
+                status: "VERIFIED BY EOC",
+                reporter: r.contact_name || r.reporter || "Anonymous Citizen"
+              }));
+            }
+          });
+        }
+      } catch (err) {
+        console.log("Using cached/seed community reports:", err.message);
+      }
+
+      // Render Pending Notice if user has pending reports awaiting admin review
+      const pendingBox = document.getElementById("userPendingAlertBox");
+      if (pendingBox) {
+        if (pendingList.length > 0) {
+          pendingBox.style.display = "block";
+          pendingBox.innerHTML = `
+            <div style="background:#fffbeb;border:1.5px solid #f59e0b;border-radius:var(--radius-sm);padding:14px 16px;box-shadow:var(--shadow-sm);">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
+                <strong style="color:#b45309;font-size:0.9rem;display:flex;align-items:center;gap:6px;">
+                  <span>⏳</span> Your Report is Under Review by EOC Admin
+                </strong>
+                <span class="badge-status pending" style="font-size:0.72rem;padding:3px 8px;">AWAITING ADMIN APPROVAL</span>
+              </div>
+              ${pendingList.map(p => `
+                <div style="background:#ffffff;border:1px solid #fde68a;border-radius:6px;padding:8px 12px;margin-bottom:6px;font-size:0.82rem;color:#78350f;">
+                  <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                    <strong>📍 ${p.district}, ${p.state} • ${p.category}</strong>
+                    <code style="font-size:0.75rem;color:#b45309;">${p.report_id}</code>
+                  </div>
+                  <p style="margin:0 0 4px;line-height:1.4;">${p.message}</p>
+                  <span style="font-size:0.72rem;color:#92400e;">🕒 Dispatched ${p.time || 'recently'} • Will show on public live feed once Admin clicks Approve.</span>
+                </div>
+              `).join("")}
+            </div>
+          `;
+        } else {
+          pendingBox.style.display = "none";
+        }
+      }
+
+      liveApprovedReports = Array.from(reportsMap.values());
+      // Sort newest first
+      liveApprovedReports.sort((a, b) => {
+        const tA = a.created_at ? new Date(a.created_at).getTime() : 0;
+        const tB = b.created_at ? new Date(b.created_at).getTime() : 0;
+        return tB - tA;
+      });
+
+      renderReports();
+    }
 
     function renderReports() {
       const feed = document.getElementById("reportsFeed");
       feed.innerHTML = "";
 
-      reportsList.forEach(r => {
+      if (liveApprovedReports.length === 0) {
+        feed.innerHTML = `
+          <div style="text-align:center;padding:32px;color:var(--text-muted);font-size:0.88rem;">
+            No verified incident reports currently published.
+          </div>
+        `;
+        return;
+      }
+
+      liveApprovedReports.forEach(r => {
         const isCritical = r.urgency === "CRITICAL" || r.urgency === "HIGH";
         const badgeClass = isCritical ? "critical" : "warning";
 
+        const categoryIconMap = {
+          "WATERLOGGING": "🌊",
+          "EMERGENCY_RESCUE": "🚨",
+          "BRIDGE_DAMAGED": "🌉",
+          "BRIDGE_OVERFLOW": "🌉",
+          "LANDSLIDE_BLOCK": "⛰️",
+          "LANDSLIDE_DEBRIS": "⛰️",
+          "POWER_OUTAGE": "⚡",
+          "SHELTER_NEEDED": "🏕️",
+          "ROAD_CUTOFF": "🚧"
+        };
+        const catIcon = categoryIconMap[r.category] || "📢";
+
         const card = document.createElement("div");
-        card.style.cssText = "background:#f8fafc;border:1px solid var(--border-light);border-radius:var(--radius-sm);padding:16px;";
+        card.style.cssText = "background:#ffffff;border:1px solid var(--border-light);border-radius:var(--radius-sm);padding:16px;box-shadow:var(--shadow-sm);";
         card.innerHTML = `
           <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px;gap:10px;">
             <div>
-              <span class="badge-pill ${badgeClass}">${r.category.replace('_', ' ')}</span>
+              <span class="badge-pill ${badgeClass}">${catIcon} ${(r.category || 'INCIDENT').replace(/_/g, ' ')}</span>
               <strong style="font-size:0.9rem;color:var(--navy);margin-left:6px;">${r.district}, ${r.state}</strong>
             </div>
-            <span class="badge-pill safe" style="font-size:0.7rem;">${r.status}</span>
+            <span class="badge-pill safe" style="font-size:0.7rem;background:#d1fae5;color:#065f46;border:1px solid #10b981;">
+              ✅ ${r.status || 'VERIFIED'}
+            </span>
           </div>
 
           <p style="font-size:0.88rem;color:#334155;line-height:1.5;margin-bottom:10px;">
             ${r.message}
           </p>
 
-          <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.78rem;color:var(--text-muted);border-top:1px solid #e2e8f0;padding-top:8px;">
-            <span>Reported by: <strong>${r.reporter}</strong></span>
-            <span>🕒 ${r.time} • ${r.id}</span>
+          <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.78rem;color:var(--text-muted);border-top:1px solid #f1f5f9;padding-top:8px;">
+            <span>Reported by: <strong>${r.reporter || r.contact_name || 'Anonymous Citizen'}</strong></span>
+            <span>🕒 ${r.time || 'Recently'} • ${r.report_id || r.id}</span>
           </div>
         `;
         feed.appendChild(card);
@@ -288,23 +412,42 @@
       const phone = document.getElementById("reporterPhone").value;
       const btn = document.getElementById("submitReportBtn");
 
-      if (!state || !district || !message) return;
+      if (!state || !district || !message) {
+        showToast("Please select state, district and describe the incident", "warning");
+        return;
+      }
 
       btn.disabled = true;
-      btn.innerHTML = "⏳ Transmitting Report...";
+      btn.innerHTML = "⏳ Transmitting Report to EOC Admin...";
+
+      const reportId = "CR-" + Math.floor(100000 + Math.random() * 900000);
 
       const newRep = {
-        id: "REP-" + Math.floor(1000 + Math.random() * 9000),
+        report_id: reportId,
+        id: reportId,
         state,
         district,
         category,
         message,
         urgency,
-        status: "SUBMITTED",
+        status: "PENDING",
         reporter: name,
-        time: "Just now"
+        contact_name: name,
+        contact_phone: phone,
+        time: "Just now",
+        created_at: new Date().toISOString()
       };
 
+      // 1. Save locally to trigger cross-tab Admin notification
+      try {
+        let localSaved = JSON.parse(localStorage.getItem("aapda_community_reports") || "[]");
+        localSaved.unshift(newRep);
+        localStorage.setItem("aapda_community_reports", JSON.stringify(localSaved));
+      } catch (e) {
+        console.log("Local save error:", e);
+      }
+
+      // 2. Submit to Backend
       try {
         await fetch(`${API_BASE}/community/report`, {
           method: "POST",
@@ -319,13 +462,24 @@
         console.log("Logged report locally:", e.message);
       }
 
-      reportsList.unshift(newRep);
-      renderReports();
       document.getElementById("message").value = "";
       btn.disabled = false;
-      btn.innerHTML = "📢 Broadcast Incident to Feed";
-      showToast("Incident report broadcasted successfully!", "success");
+      btn.innerHTML = "<span>📢 Submit Incident for Admin Verification</span>";
+
+      showToast(`Incident #${reportId} submitted! Dispatched to Admin Panel for approval.`, "success");
+      loadCommunityReports();
     }
+
+    // Auto-listen to Admin approvals in other tabs/windows
+    window.addEventListener("storage", (e) => {
+      if (e.key === "aapda_community_reports") {
+        console.log("Incident moderation change detected from Admin Panel, updating citizen feed...");
+        loadCommunityReports();
+      }
+    });
+
+    // Lightweight periodic poll to ensure instant reflection when Admin approves
+    setInterval(loadCommunityReports, 4000);
   </script>
 </body>
 </html>
