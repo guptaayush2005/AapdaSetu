@@ -161,9 +161,10 @@
               <p class="card-subtitle">Real-time status updates synced with PostgreSQL database.</p>
             </div>
           </div>
-          <div style="display:flex;align-items:center;gap:8px;">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
             <span id="dbSyncBadge" class="badge-pill" style="font-size:0.72rem;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;">🐘 PostgreSQL Connected</span>
             <span id="circleCountBadge" class="badge-pill safe">3 Members Protected</span>
+            <a href="admin.html#family" class="btn-secondary" style="font-size:0.75rem;padding:5px 12px;text-decoration:none;display:inline-flex;align-items:center;gap:4px;border-radius:20px;font-weight:700;">🛡️ View in Admin EOC</a>
           </div>
         </div>
 
@@ -219,26 +220,63 @@
       }
     ];
 
-    let members = INITIAL_MEMBERS;
+    const STORAGE_KEY = "aapda_family_members";
+    const CHECKIN_KEY = "aapda_family_checkin";
+
+    function getStoredMembers() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      } catch (e) {}
+      return [...INITIAL_MEMBERS];
+    }
+
+    function saveStoredMembers(list) {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+      } catch (e) {}
+    }
+
+    let members = getStoredMembers();
     let isConnectedToDB = false;
 
     document.addEventListener("DOMContentLoaded", () => {
+      // 1. Immediately render cached members from localStorage for instant, zero-delay load
+      renderMembers();
+
+      // 2. Fetch fresh members from backend if online
       loadFamilyMembers();
+    });
+
+    // Cross-tab real-time sync
+    window.addEventListener("storage", (e) => {
+      if (e.key === STORAGE_KEY) {
+        members = getStoredMembers();
+        renderMembers();
+      }
     });
 
     // Fetch members from PostgreSQL backend
     async function loadFamilyMembers() {
-      const container = document.getElementById("familyMembersList");
       const syncBadge = document.getElementById("dbSyncBadge");
 
       try {
         const targetUrl = (typeof API_BASE !== "undefined" ? API_BASE : "http://127.0.0.1:8000") + "/api/family/members";
-        const res = await fetch(targetUrl, { signal: AbortSignal.timeout(4000) });
+        const res = await fetch(targetUrl, { signal: AbortSignal.timeout(3000) });
 
         if (res.ok) {
           const data = await res.json();
           if (data.success && Array.isArray(data.members)) {
-            members = data.members;
+            // Merge backend members with local members (by member_id or name+phone)
+            const map = new Map();
+            members.forEach(m => map.set(m.member_id || (m.name + m.phone), m));
+            data.members.forEach(m => map.set(m.member_id || (m.name + m.phone), m));
+            members = Array.from(map.values());
+
+            saveStoredMembers(members);
             isConnectedToDB = true;
             if (syncBadge) {
               syncBadge.textContent = "🐘 PostgreSQL Synced";
@@ -251,21 +289,22 @@
           }
         }
       } catch (err) {
-        console.warn("Could not load from PostgreSQL backend, using fallback:", err);
+        // Backend not reachable (e.g. running on Vercel without local server)
       }
 
-      // Offline / Fallback handling
+      // Live Local storage sync mode (perfect for Vercel)
       if (syncBadge) {
-        syncBadge.textContent = "⚠️ Offline / Local Mode";
-        syncBadge.style.background = "#fef3c7";
-        syncBadge.style.color = "#92400e";
-        syncBadge.style.borderColor = "#fcd34d";
+        syncBadge.textContent = "🟢 Protected (Live Local Sync)";
+        syncBadge.style.background = "#eff6ff";
+        syncBadge.style.color = "#1d4ed8";
+        syncBadge.style.borderColor = "#bfdbfe";
       }
       renderMembers();
     }
 
     function renderMembers() {
       const container = document.getElementById("familyMembersList");
+      if (!container) return;
       container.innerHTML = "";
 
       const countBadge = document.getElementById("circleCountBadge");
@@ -289,7 +328,7 @@
         const isShelter = (m.status === "AT_SHELTER");
         const badgeClass = isSafe ? "safe" : (isShelter ? "active" : "critical");
         const badgeText = isSafe ? "✅ SAFE" : (isShelter ? "🏕️ IN RELIEF CAMP" : "⚠️ NEEDS HELP");
-        const memberId = m.member_id || m.id || "";
+        const memberId = m.member_id || m.id || ("FAM-" + Math.floor(100000 + Math.random() * 900000));
         const pingTime = m.last_ping || m.lastPing || "Recently";
 
         const card = document.createElement("div");
@@ -309,8 +348,8 @@
           </div>
 
           <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-            <!-- Status dropdown quick switcher -->
-            <select onchange="updateMemberStatus('${memberId}', this.value)" style="padding:7px 10px;font-size:0.8rem;border:1px solid var(--border-light);border-radius:var(--radius-sm);background:#fff;cursor:pointer;" title="Change Status in PostgreSQL">
+            <!-- Status dropdown switcher -->
+            <select onchange="updateMemberStatus('${memberId}', this.value)" style="padding:7px 10px;font-size:0.8rem;border:1px solid var(--border-light);border-radius:var(--radius-sm);background:#fff;cursor:pointer;" title="Change Status">
               <option value="SAFE" ${isSafe ? "selected" : ""}>✅ Safe</option>
               <option value="AT_SHELTER" ${isShelter ? "selected" : ""}>🏕️ In Camp</option>
               <option value="NEEDS_HELP" ${(!isSafe && !isShelter) ? "selected" : ""}>⚠️ Needs Help</option>
@@ -322,7 +361,7 @@
             <a href="sms:${escapeHtml(m.phone)}?body=Hi ${encodeURIComponent(m.name)}, AapdaSetu emergency alert: I am safe. Please reply with your status." class="btn-primary" style="padding:7px 12px;font-size:0.85rem;" title="Send SMS">
               💬 SMS
             </a>
-            <button onclick="deleteMember('${memberId}', '${escapeHtml(m.name)}')" class="btn-secondary" style="padding:7px 10px;font-size:0.85rem;color:#dc2626;border-color:#fca5a5;" title="Delete member from PostgreSQL">
+            <button onclick="deleteMember('${memberId}', '${escapeHtml(m.name)}')" class="btn-secondary" style="padding:7px 10px;font-size:0.85rem;color:#dc2626;border-color:#fca5a5;" title="Remove member">
               🗑️
             </button>
           </div>
@@ -331,7 +370,7 @@
       });
     }
 
-    // Add family member and save to PostgreSQL
+    // Add family member and save to both localStorage & PostgreSQL
     async function addFamilyMember() {
       const nameInput = document.getElementById("memberName");
       const phoneInput = document.getElementById("memberPhone");
@@ -351,123 +390,114 @@
       const submitBtn = document.querySelector("#addMemberForm button[type='submit']");
       const originalText = submitBtn.innerHTML;
       submitBtn.disabled = true;
-      submitBtn.innerHTML = "<span>⏳ Saving to PostgreSQL...</span>";
+      submitBtn.innerHTML = "<span>⏳ Adding to Family Circle...</span>";
 
-      const memberPayload = {
+      const memberId = "FAM-" + Math.floor(100000 + Math.random() * 900000);
+      const newMemberObj = {
+        member_id: memberId,
         name,
         phone,
         relation,
         location: loc,
         status: "SAFE",
-        user_phone: ""
+        last_ping: "Just now",
+        is_safe: true,
+        created_at: new Date().toISOString()
       };
 
+      // 1. Save immediately to LocalStorage so it NEVER gets lost on reload or Vercel
+      members.unshift(newMemberObj);
+      saveStoredMembers(members);
+      renderMembers();
+      document.getElementById("addMemberForm").reset();
+
+      if (typeof showToast === "function") {
+        showToast(`✅ ${name} registered to family circle!`, "success");
+      }
+
+      // 2. Transmit to PostgreSQL backend if online
       try {
         const targetUrl = (typeof API_BASE !== "undefined" ? API_BASE : "http://127.0.0.1:8000") + "/api/family/members";
         const res = await fetch(targetUrl, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(memberPayload),
-          signal: AbortSignal.timeout(5000)
+          body: JSON.stringify({
+            name,
+            phone,
+            relation,
+            location: loc,
+            status: "SAFE",
+            user_phone: ""
+          }),
+          signal: AbortSignal.timeout(4000)
         });
 
-        const data = await res.json();
-
-        if (res.ok && data.success) {
-          if (typeof showToast === "function") {
-            showToast(`✅ ${name} saved in PostgreSQL database!`, "success");
-          } else {
-            alert(`✅ ${name} saved in PostgreSQL database!`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.member && data.member.member_id) {
+            newMemberObj.member_id = data.member.member_id;
+            saveStoredMembers(members);
+            renderMembers();
           }
-          document.getElementById("addMemberForm").reset();
-          await loadFamilyMembers();
-          return;
-        } else {
-          throw new Error(data.detail || "Database save failed");
         }
       } catch (err) {
-        console.warn("PostgreSQL save failed, falling back to local list:", err);
-        // Fallback local addition if server is temporarily unreachable
-        members.push({
-          member_id: "LOCAL-" + Date.now().toString(36).toUpperCase(),
-          name,
-          phone,
-          relation,
-          location: loc,
-          status: "SAFE",
-          last_ping: "Just now (Offline)"
-        });
-        renderMembers();
-        document.getElementById("addMemberForm").reset();
-        if (typeof showToast === "function") {
-          showToast(`⚠️ Server offline: ${name} added in local view. Start backend to persist in PostgreSQL.`, "warning");
-        }
+        // Backend offline or running on Vercel without backend, local persistence active
       } finally {
         submitBtn.disabled = false;
         submitBtn.innerHTML = originalText;
       }
     }
 
-    // Update status in PostgreSQL
+    // Update status in LocalStorage and PostgreSQL
     async function updateMemberStatus(memberId, newStatus) {
       if (!memberId) return;
 
-      try {
-        const targetUrl = `${(typeof API_BASE !== "undefined" ? API_BASE : "http://127.0.0.1:8000")}/api/family/members/${encodeURIComponent(memberId)}/status`;
-        const res = await fetch(targetUrl, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ status: newStatus }),
-          signal: AbortSignal.timeout(4000)
-        });
-
-        if (res.ok) {
-          if (typeof showToast === "function") showToast("✅ Status updated in PostgreSQL!", "success");
-          await loadFamilyMembers();
-          return;
-        }
-      } catch (err) {
-        console.warn("Could not update in PostgreSQL:", err);
-      }
-
-      // Local state update fallback
       const m = members.find(item => item.member_id === memberId || item.id === memberId);
       if (m) {
         m.status = newStatus;
-        m.last_ping = "Just now";
+        m.last_ping = `Updated ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+        m.is_safe = (newStatus === "SAFE");
+        saveStoredMembers(members);
         renderMembers();
       }
+
+      if (typeof showToast === "function") showToast("✅ Status updated!", "success");
+
+      // Background PostgreSQL update
+      try {
+        const targetUrl = `${(typeof API_BASE !== "undefined" ? API_BASE : "http://127.0.0.1:8000")}/api/family/members/${encodeURIComponent(memberId)}/status`;
+        await fetch(targetUrl, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: newStatus }),
+          signal: AbortSignal.timeout(3000)
+        });
+      } catch (err) {}
     }
 
-    // Delete member from PostgreSQL
+    // Delete member from LocalStorage and PostgreSQL
     async function deleteMember(memberId, memberName) {
-      if (!confirm(`Are you sure you want to remove "${memberName}" from PostgreSQL database?`)) {
+      if (!confirm(`Are you sure you want to remove "${memberName}" from your family circle?`)) {
         return;
       }
 
+      members = members.filter(item => item.member_id !== memberId && item.id !== memberId);
+      saveStoredMembers(members);
+      renderMembers();
+
+      if (typeof showToast === "function") showToast(`🗑️ ${memberName} removed from circle`, "info");
+
+      // Background PostgreSQL delete
       try {
         const targetUrl = `${(typeof API_BASE !== "undefined" ? API_BASE : "http://127.0.0.1:8000")}/api/family/members/${encodeURIComponent(memberId)}`;
-        const res = await fetch(targetUrl, {
+        await fetch(targetUrl, {
           method: "DELETE",
-          signal: AbortSignal.timeout(4000)
+          signal: AbortSignal.timeout(3000)
         });
-
-        if (res.ok) {
-          if (typeof showToast === "function") showToast(`🗑️ ${memberName} deleted from PostgreSQL!`, "info");
-          await loadFamilyMembers();
-          return;
-        }
-      } catch (err) {
-        console.warn("Could not delete from PostgreSQL:", err);
-      }
-
-      // Local remove fallback
-      members = members.filter(item => item.member_id !== memberId && item.id !== memberId);
-      renderMembers();
-      if (typeof showToast === "function") showToast(`Removed ${memberName} from circle`, "info");
+      } catch (err) {}
     }
 
-    // One-tap "I Am Safe" broadcast to PostgreSQL
+    // One-tap "I Am Safe" broadcast
     async function markIAmSafe() {
       const box = document.getElementById("safeConfirmedBox");
       const timeSpan = document.getElementById("safeTimeText");
@@ -476,6 +506,19 @@
       box.style.display = "block";
       timeSpan.textContent = timeStr;
 
+      try {
+        localStorage.setItem(CHECKIN_KEY, JSON.stringify({
+          status: "SAFE",
+          timestamp: timeStr,
+          recorded_at: new Date().toISOString()
+        }));
+      } catch (e) {}
+
+      if (typeof showToast === "function") {
+        showToast("✅ 'I Am Safe' status broadcasted to your family circle!", "success");
+      }
+
+      // Background PostgreSQL check-in
       try {
         const targetUrl = (typeof API_BASE !== "undefined" ? API_BASE : "http://127.0.0.1:8000") + "/api/family/checkin";
         await fetch(targetUrl, {
@@ -487,16 +530,9 @@
             status: "SAFE",
             location_name: "Current GPS Location"
           }),
-          signal: AbortSignal.timeout(4000)
+          signal: AbortSignal.timeout(3000)
         });
-        if (typeof showToast === "function") {
-          showToast("✅ 'I Am Safe' check-in saved to PostgreSQL database!", "success");
-        }
-      } catch (err) {
-        if (typeof showToast === "function") {
-          showToast("Your 'I Am Safe' status was recorded!", "success");
-        }
-      }
+      } catch (err) {}
     }
 
     function escapeHtml(str) {

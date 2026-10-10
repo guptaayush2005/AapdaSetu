@@ -507,7 +507,7 @@
         </div>
       </div>
 
-      <div class="stat-card" style="cursor:pointer;" onclick="switchAdminSection('secFamilyRegistry')">
+      <div class="stat-card" style="cursor:pointer;" onclick="switchAdminSection('secFamilyRegistry', true)">
         <div class="stat-icon" style="background:#fce7f3;color:#db2777;">👨‍👩‍👧</div>
         <div class="stat-content">
           <span class="stat-val" id="kpiFamilyCount">3</span>
@@ -1088,13 +1088,16 @@
 
     let currentRescues = [...DEMO_RESCUE_TICKETS];
 
-    function switchAdminSection(sectionId) {
+    function switchAdminSection(sectionId, shouldScroll = false) {
       document.querySelectorAll(".admin-section-panel").forEach(panel => panel.classList.remove("active"));
       document.querySelectorAll(".cmd-tab-btn").forEach(btn => btn.classList.remove("active"));
 
       const targetPanel = document.getElementById(sectionId);
       if (targetPanel) {
         targetPanel.classList.add("active");
+        if (shouldScroll) {
+          targetPanel.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
       }
 
       const tabMap = {
@@ -3074,58 +3077,83 @@ ${letterText}
       }
     ];
 
+    function updateFamilyKPIs(membersList) {
+      if (!Array.isArray(membersList)) return;
+      const total = membersList.length;
+      const safe = membersList.filter(m => m.status === 'SAFE').length;
+      const shelter = membersList.filter(m => m.status === 'AT_SHELTER').length;
+      const alertCnt = membersList.filter(m => m.status === 'NEEDS_HELP').length;
+
+      const totalEl = document.getElementById("adminFamilyTotalCount");
+      if (totalEl) totalEl.textContent = total;
+      const safeEl = document.getElementById("adminFamilySafeCount");
+      if (safeEl) safeEl.textContent = safe;
+      const shelterEl = document.getElementById("adminFamilyShelterCount");
+      if (shelterEl) shelterEl.textContent = shelter;
+      const alertEl = document.getElementById("adminFamilyAlertCount");
+      if (alertEl) alertEl.textContent = alertCnt;
+
+      const badge = document.getElementById("cmdFamilyCountBadge");
+      if (badge) badge.textContent = total;
+
+      const kpiFam = document.getElementById("kpiFamilyCount");
+      if (kpiFam) kpiFam.textContent = total;
+    }
+
     async function loadAdminFamilyMembers() {
       const feed = document.getElementById("adminFamilyFeed");
       if (!feed) return;
 
+      // 1. Immediately read from localStorage (cross-tab sync with family.html on Vercel & Local)
+      let activeMembers = [];
+      try {
+        const raw = localStorage.getItem("aapda_family_members");
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            activeMembers = parsed;
+          }
+        }
+      } catch (e) {}
+
+      if (activeMembers.length === 0) {
+        activeMembers = [...FALLBACK_ADMIN_FAMILY];
+      }
+
+      // Instant 0ms render
+      updateFamilyKPIs(activeMembers);
+      renderAdminFamilyCards(activeMembers);
+
+      // 2. Background sync with PostgreSQL backend (if backend is running)
       try {
         const targetUrl = (typeof API_BASE !== "undefined" ? API_BASE : "http://127.0.0.1:8000") + "/admin/family/members";
-        const res = await fetch(targetUrl, { signal: AbortSignal.timeout(4000) });
+        const res = await fetch(targetUrl, { signal: AbortSignal.timeout(3000) });
 
         if (res.ok) {
           const data = await res.json();
           if (data.success && Array.isArray(data.members)) {
-            // Update KPIs
-            const total = data.total_members !== undefined ? data.total_members : data.members.length;
-            const safe = data.safe_count !== undefined ? data.safe_count : data.members.filter(m => m.status === 'SAFE').length;
-            const shelter = data.shelter_count !== undefined ? data.shelter_count : data.members.filter(m => m.status === 'AT_SHELTER').length;
-            const alertCnt = data.alert_count !== undefined ? data.alert_count : data.members.filter(m => m.status === 'NEEDS_HELP').length;
+            // Merge backend data with local storage
+            const map = new Map();
+            activeMembers.forEach(m => map.set(m.member_id || (m.name + m.phone), m));
+            data.members.forEach(m => map.set(m.member_id || (m.name + m.phone), m));
+            const merged = Array.from(map.values());
 
-            const totalEl = document.getElementById("adminFamilyTotalCount");
-            if (totalEl) totalEl.textContent = total;
-            const safeEl = document.getElementById("adminFamilySafeCount");
-            if (safeEl) safeEl.textContent = safe;
-            const shelterEl = document.getElementById("adminFamilyShelterCount");
-            if (shelterEl) shelterEl.textContent = shelter;
-            const alertEl = document.getElementById("adminFamilyAlertCount");
-            if (alertEl) alertEl.textContent = alertCnt;
-
-            const badge = document.getElementById("cmdFamilyCountBadge");
-            if (badge) badge.textContent = total;
-
-            const kpiFam = document.getElementById("kpiFamilyCount");
-            if (kpiFam) kpiFam.textContent = total;
-
-            renderAdminFamilyCards(data.members);
-            return;
+            try { localStorage.setItem("aapda_family_members", JSON.stringify(merged)); } catch (e) {}
+            updateFamilyKPIs(merged);
+            renderAdminFamilyCards(merged);
           }
         }
       } catch (err) {
-        console.warn("Could not load admin family members from PostgreSQL backend:", err);
+        // Backend not reachable, local persistence already displayed smoothly
       }
-
-      // If backend was not reached, show fallback baseline data so the UI is never blank
-      const kpiFam = document.getElementById("kpiFamilyCount");
-      if (kpiFam) kpiFam.textContent = FALLBACK_ADMIN_FAMILY.length;
-      const totalEl = document.getElementById("adminFamilyTotalCount");
-      if (totalEl) totalEl.textContent = FALLBACK_ADMIN_FAMILY.length;
-      const safeEl = document.getElementById("adminFamilySafeCount");
-      if (safeEl) safeEl.textContent = 2;
-      const shelterEl = document.getElementById("adminFamilyShelterCount");
-      if (shelterEl) shelterEl.textContent = 1;
-
-      renderAdminFamilyCards(FALLBACK_ADMIN_FAMILY);
     }
+
+    // Real-time cross-tab synchronization
+    window.addEventListener("storage", (e) => {
+      if (e.key === "aapda_family_members") {
+        loadAdminFamilyMembers();
+      }
+    });
 
     function renderAdminFamilyCards(members) {
       const feed = document.getElementById("adminFamilyFeed");

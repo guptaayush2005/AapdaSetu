@@ -1,5 +1,6 @@
-from typing import Optional, Dict, List, Any
-from fastapi import FastAPI, HTTPException, Header
+from fastapi import FastAPI, HTTPException, Header, Request
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from datetime import datetime, timedelta, timezone
@@ -20,7 +21,7 @@ import psycopg
 from dotenv import load_dotenv
 from xgboost import XGBClassifier
 from urllib.parse import urlencode, quote_plus
-from urllib.request import Request, urlopen
+from urllib.request import Request as URLRequest, urlopen
 from urllib.error import URLError, HTTPError
 
 # Add current backend dir to sys.path
@@ -81,6 +82,12 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"]
 )
+
+# Mount frontend static files directory
+_frontend_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend")
+if os.path.exists(_frontend_dir):
+    app.mount("/frontend", StaticFiles(directory=_frontend_dir, html=True), name="frontend")
+
 
 
 # =========================================================
@@ -346,11 +353,23 @@ create_vehicle_bookings_table()
 # =========================================================
 
 @app.get("/")
-def home():
+def home(request: Request):
+    accept = request.headers.get("accept", "")
+    if "text/html" in accept:
+        return RedirectResponse(url="/frontend/index.html")
     return {
         "project": "AapdaSetu",
         "status": "Backend is running"
     }
+
+
+@app.get("/{page}.html")
+def html_page_redirect(page: str):
+    target = os.path.join(_frontend_dir, f"{page}.html")
+    if os.path.exists(target):
+        return RedirectResponse(url=f"/frontend/{page}.html")
+    raise HTTPException(status_code=404, detail="Page not found")
+
 
 
 # =========================================================
