@@ -107,7 +107,9 @@
               title="Ekdum emergency me bina form bhare seedhe 1-click help">
               <span>⚡ 1-Click Emergency SOS (No Form)</span>
             </button>
-            <a href="tel:112" class="btn-danger" style="padding:12px 22px;font-weight:900;font-size:1rem;text-decoration:none;display:inline-flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(224,36,36,0.45);" title="Dial National Emergency Helpline 112">
+            <a href="tel:112" class="btn-danger"
+              style="padding:12px 22px;font-weight:900;font-size:1rem;text-decoration:none;display:inline-flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(224,36,36,0.45);"
+              title="Dial National Emergency Helpline 112">
               <span>📞 Call 112 Now</span>
             </a>
             <a href="rescue.html?mode=normal" class="btn-secondary"
@@ -223,7 +225,8 @@
               <h2 class="card-title" style="margin:0;">National Flood Risk & Water Station Map</h2>
               <span class="badge-pill active"><span class="pulse-dot green"></span> Live Telemetry Feed</span>
             </div>
-            <p class="card-subtitle" style="margin-top:2px;">Real-time flood telemetry, danger marks, and reservoir levels across India.</p>
+            <p class="card-subtitle" style="margin-top:2px;">Real-time flood telemetry, danger marks, and reservoir
+              levels across India.</p>
           </div>
         </div>
 
@@ -233,13 +236,18 @@
             <span class="badge-pill warning"><span class="pulse-dot amber"></span> Warning</span>
             <span class="badge-pill safe"><span class="pulse-dot green"></span> Normal</span>
           </div>
-          <button type="button" onclick="fitHomeMapIndia()" class="btn-primary" style="padding:7px 14px;font-size:0.82rem;display:inline-flex;align-items:center;gap:6px;" title="Reset view to entire India">
+          <button type="button" onclick="fitHomeMapIndia()" class="btn-primary"
+            style="padding:7px 14px;font-size:0.82rem;display:inline-flex;align-items:center;gap:6px;"
+            title="Reset view to entire India">
             <span>🇮🇳 Show Entire India</span>
           </button>
-          <a href="monitoring.html" class="btn-secondary" style="padding:7px 14px;font-size:0.82rem;display:inline-flex;align-items:center;gap:6px;">
+          <a href="monitoring.html" class="btn-secondary"
+            style="padding:7px 14px;font-size:0.82rem;display:inline-flex;align-items:center;gap:6px;">
             <span>🌊 Full Telemetry Hub →</span>
           </a>
-          <button type="button" id="fsHomeToggleBtn" onclick="toggleHomeMapFullscreen()" class="btn-outline" style="padding:7px 14px;font-size:0.82rem;display:inline-flex;align-items:center;gap:6px;" title="Toggle Fullscreen">
+          <button type="button" id="fsHomeToggleBtn" onclick="toggleHomeMapFullscreen()" class="btn-outline"
+            style="padding:7px 14px;font-size:0.82rem;display:inline-flex;align-items:center;gap:6px;"
+            title="Toggle Fullscreen">
             <span>⛶ Fullscreen</span>
           </button>
         </div>
@@ -247,17 +255,28 @@
 
       <!-- Quick Basins -->
       <div class="map-quick-chips-bar" style="margin-bottom:12px;">
-        <span style="font-size:0.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;margin-right:4px;">Quick Basins:</span>
-        <button type="button" class="map-chip-btn active" data-basin="ALL" onclick="filterHomeMap('ALL')">🇮🇳 Entire India (24)</button>
-        <button type="button" class="map-chip-btn" data-basin="Uttarakhand" onclick="filterHomeMap('Uttarakhand')">🏔️ Uttarakhand (5)</button>
-        <button type="button" class="map-chip-btn" data-basin="Himachal Pradesh" onclick="filterHomeMap('Himachal Pradesh')">⛰️ Himachal (3)</button>
-        <button type="button" class="map-chip-btn" data-basin="Assam" onclick="filterHomeMap('Assam')">🌊 Assam (2)</button>
-        <button type="button" class="map-chip-btn" data-basin="Bihar" onclick="filterHomeMap('Bihar')">🌾 Bihar (3)</button>
-        <button type="button" class="map-chip-btn" data-basin="Kerala" onclick="filterHomeMap('Kerala')">🌴 Kerala (3)</button>
-        <button type="button" class="map-chip-btn" data-basin="Maharashtra" onclick="filterHomeMap('Maharashtra')">🚜 Maharashtra (3)</button>
+        <span
+          style="font-size:0.75rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;margin-right:4px;">Quick
+          Basins:</span>
+        <button type="button" class="map-chip-btn active" data-basin="ALL" onclick="filterHomeMap('ALL')">🇮🇳 Entire
+          India (24)</button>
+        <button type="button" class="map-chip-btn" data-basin="Uttarakhand" onclick="filterHomeMap('Uttarakhand')">🏔️
+          Uttarakhand (5)</button>
+        <button type="button" class="map-chip-btn" data-basin="Himachal Pradesh"
+          onclick="filterHomeMap('Himachal Pradesh')">⛰️ Himachal (3)</button>
+        <button type="button" class="map-chip-btn" data-basin="Assam" onclick="filterHomeMap('Assam')">🌊 Assam
+          (2)</button>
+        <button type="button" class="map-chip-btn" data-basin="Bihar" onclick="filterHomeMap('Bihar')">🌾 Bihar
+          (3)</button>
+        <button type="button" class="map-chip-btn" data-basin="Kerala" onclick="filterHomeMap('Kerala')">🌴 Kerala
+          (3)</button>
+        <button type="button" class="map-chip-btn" data-basin="Maharashtra" onclick="filterHomeMap('Maharashtra')">🚜
+          Maharashtra (3)</button>
       </div>
 
-      <div id="homeMap" style="height:560px;min-height:460px;border-radius:var(--radius-md);overflow:hidden;border:1px solid var(--border-light);box-shadow:inset 0 2px 6px rgba(0,0,0,0.1);position:relative;"></div>
+      <div id="homeMap"
+        style="height:560px;min-height:460px;border-radius:var(--radius-md);overflow:hidden;border:1px solid var(--border-light);box-shadow:inset 0 2px 6px rgba(0,0,0,0.1);position:relative;">
+      </div>
     </section>
 
     <!-- Quick Services Grid (12 Modules) -->
