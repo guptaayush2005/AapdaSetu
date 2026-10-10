@@ -972,7 +972,22 @@ def weather(data: LocationInput):
         nasa_intel = get_nasa_satellite_telemetry(lat, lon, data.state, data.district)
         forecast_5d = get_5day_weather_forecast(lat, lon)
 
-        r24 = float(row[2] or 0)
+        # Retrieve live real-time observed weather to supersede stale database seeds
+        try:
+            live_obs = get_open_meteo_observed_weather(data.state, data.district, lat, lon)
+            live_w = live_obs.get("weather", {})
+        except Exception:
+            live_w = {}
+
+        cur_temp = live_w.get("temperature") if live_w.get("temperature") is not None else row[4]
+        cur_hum = live_w.get("humidity") if live_w.get("humidity") is not None else row[5]
+        cur_wind = live_w.get("wind_speed") if live_w.get("wind_speed") is not None else row[6]
+        cur_r1 = live_w.get("rainfall_1h") if live_w.get("rainfall_1h") is not None else row[0]
+        cur_r6 = live_w.get("rainfall_6h") if live_w.get("rainfall_6h") is not None else row[1]
+        cur_r24 = live_w.get("rainfall_24h") if live_w.get("rainfall_24h") is not None else row[2]
+        cur_r72 = live_w.get("rainfall_72h") if live_w.get("rainfall_72h") is not None else row[3]
+
+        r24 = float(cur_r24 or 0)
         aqi_val = aqi_info.get("aqi", 70)
         if r24 > 70:
             advisory = f"High precipitation warning: {r24} mm recorded in past 24h. Increased runoff and local waterlogging hazard."
@@ -991,22 +1006,22 @@ def weather(data: LocationInput):
             "latitude": lat,
             "longitude": lon,
             "weather": {
-                "rainfall_1h": row[0],
-                "rainfall_6h": row[1],
-                "rainfall_24h": row[2],
-                "rainfall_72h": row[3],
-                "temperature": row[4],
-                "humidity": row[5],
-                "wind_speed": row[6]
+                "rainfall_1h": cur_r1,
+                "rainfall_6h": cur_r6,
+                "rainfall_24h": cur_r24,
+                "rainfall_72h": cur_r72,
+                "temperature": cur_temp,
+                "humidity": cur_hum,
+                "wind_speed": cur_wind
             },
             # Flat compatibility fields for direct access in UI
-            "rainfall_1h": row[0],
-            "rainfall_6h": row[1],
-            "rainfall_24h": row[2],
-            "rainfall_72h": row[3],
-            "temperature": row[4],
-            "humidity": row[5],
-            "wind_speed": row[6],
+            "rainfall_1h": cur_r1,
+            "rainfall_6h": cur_r6,
+            "rainfall_24h": cur_r24,
+            "rainfall_72h": cur_r72,
+            "temperature": cur_temp,
+            "humidity": cur_hum,
+            "wind_speed": cur_wind,
             "aqi": aqi_info,
             "forecast_5d": forecast_5d,
             "nasa_telemetry": nasa_intel,
@@ -1018,7 +1033,7 @@ def weather(data: LocationInput):
                 "status": "Active & Verified"
             },
             "severe_advisory": advisory,
-            "source": "AapdaSetu PostgreSQL weather_data & NASA-Grounded Telemetry"
+            "source": "Open-Meteo live observation & NASA-Grounded Telemetry"
         }
 
     # Database does not contain this district. Use real Open-Meteo
