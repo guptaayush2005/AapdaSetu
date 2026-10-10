@@ -968,24 +968,26 @@ def weather(data: LocationInput):
             except Exception:
                 lat, lon = 28.6139, 77.2090
 
-        aqi_info = get_realtime_aqi(lat, lon, data.state, data.district)
-        nasa_intel = get_nasa_satellite_telemetry(lat, lon, data.state, data.district)
-        forecast_5d = get_5day_weather_forecast(lat, lon)
-
-        # Retrieve live real-time observed weather to supersede stale database seeds
+        # Always fetch live current meteorological observations from Open-Meteo so temperature is live
+        live_w = {}
         try:
-            live_obs = get_open_meteo_observed_weather(data.state, data.district, lat, lon)
+            live_obs = get_open_meteo_observed_weather(data.state, data.district, lat=lat, lon=lon)
             live_w = live_obs.get("weather", {})
-        except Exception:
+        except Exception as _e:
+            print(f"[Live Meteo Notice]: {_e}")
             live_w = {}
 
         cur_temp = live_w.get("temperature") if live_w.get("temperature") is not None else row[4]
         cur_hum = live_w.get("humidity") if live_w.get("humidity") is not None else row[5]
         cur_wind = live_w.get("wind_speed") if live_w.get("wind_speed") is not None else row[6]
+        cur_r24 = live_w.get("rainfall_24h") if live_w.get("rainfall_24h") is not None else float(row[2] or 0)
         cur_r1 = live_w.get("rainfall_1h") if live_w.get("rainfall_1h") is not None else row[0]
         cur_r6 = live_w.get("rainfall_6h") if live_w.get("rainfall_6h") is not None else row[1]
-        cur_r24 = live_w.get("rainfall_24h") if live_w.get("rainfall_24h") is not None else row[2]
         cur_r72 = live_w.get("rainfall_72h") if live_w.get("rainfall_72h") is not None else row[3]
+
+        aqi_info = get_realtime_aqi(lat, lon, data.state, data.district)
+        nasa_intel = get_nasa_satellite_telemetry(lat, lon, data.state, data.district)
+        forecast_5d = get_5day_weather_forecast(lat, lon)
 
         r24 = float(cur_r24 or 0)
         aqi_val = aqi_info.get("aqi", 70)
@@ -1033,7 +1035,7 @@ def weather(data: LocationInput):
                 "status": "Active & Verified"
             },
             "severe_advisory": advisory,
-            "source": "Open-Meteo live observation & NASA-Grounded Telemetry"
+            "source": "Open-Meteo Live Observations & NASA-Grounded Telemetry"
         }
 
     # Database does not contain this district. Use real Open-Meteo
