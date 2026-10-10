@@ -158,10 +158,13 @@
             <div class="card-title-icon" style="background:#fce7f3;color:#db2777;">👨‍👩‍👧</div>
             <div>
               <h2 class="card-title">My Family Circle Status</h2>
-              <p class="card-subtitle">Real-time status updates and emergency contact actions.</p>
+              <p class="card-subtitle">Real-time status updates synced with PostgreSQL database.</p>
             </div>
           </div>
-          <span id="circleCountBadge" class="badge-pill safe">3 Members Protected</span>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span id="dbSyncBadge" class="badge-pill" style="font-size:0.72rem;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;">🐘 PostgreSQL Connected</span>
+            <span id="circleCountBadge" class="badge-pill safe">3 Members Protected</span>
+          </div>
         </div>
 
         <div id="familyMembersList" style="display:flex;flex-direction:column;gap:14px;">
@@ -177,7 +180,7 @@
   <footer class="site-footer">
     <div class="footer-container">
       <div class="footer-bottom">
-        <span>© 2026 AapdaSetu. Family safety circle encrypted and saved to your device.</span>
+        <span>© 2026 AapdaSetu. Family safety circle synchronized and securely stored in PostgreSQL database.</span>
         <a href="tel:112" style="color:#f87171;font-weight:700;" title="Call 112 Helpline Now">🚨 24x7 Emergency Help: Call 112</a>
       </div>
     </div>
@@ -188,105 +191,322 @@
   <script>
     const INITIAL_MEMBERS = [
       {
+        member_id: "FAM-INIT-001",
         name: "Sunita Sharma",
         phone: "9876543211",
         relation: "Mother",
         location: "Rudraprayag, Uttarakhand",
         status: "SAFE",
-        lastPing: "Today at 9:45 AM"
+        last_ping: "Today at 9:45 AM"
       },
       {
+        member_id: "FAM-INIT-002",
         name: "Aman Sharma",
         phone: "9876543212",
         relation: "Brother",
         location: "Dehradun, Uttarakhand",
         status: "SAFE",
-        lastPing: "Today at 10:15 AM"
+        last_ping: "Today at 10:15 AM"
       },
       {
+        member_id: "FAM-INIT-003",
         name: "Rameshwar Prasad",
         phone: "9876543213",
         relation: "Grandfather",
         location: "Chamoli, Uttarakhand",
         status: "AT_SHELTER",
-        lastPing: "Joshimath Relief Center #1"
+        last_ping: "Joshimath Relief Center #1"
       }
     ];
 
     let members = INITIAL_MEMBERS;
+    let isConnectedToDB = false;
 
     document.addEventListener("DOMContentLoaded", () => {
-      renderMembers();
+      loadFamilyMembers();
     });
+
+    // Fetch members from PostgreSQL backend
+    async function loadFamilyMembers() {
+      const container = document.getElementById("familyMembersList");
+      const syncBadge = document.getElementById("dbSyncBadge");
+
+      try {
+        const targetUrl = (typeof API_BASE !== "undefined" ? API_BASE : "http://127.0.0.1:8000") + "/api/family/members";
+        const res = await fetch(targetUrl, { signal: AbortSignal.timeout(4000) });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && Array.isArray(data.members)) {
+            members = data.members;
+            isConnectedToDB = true;
+            if (syncBadge) {
+              syncBadge.textContent = "🐘 PostgreSQL Synced";
+              syncBadge.style.background = "#dcfce7";
+              syncBadge.style.color = "#15803d";
+              syncBadge.style.borderColor = "#86efac";
+            }
+            renderMembers();
+            return;
+          }
+        }
+      } catch (err) {
+        console.warn("Could not load from PostgreSQL backend, using fallback:", err);
+      }
+
+      // Offline / Fallback handling
+      if (syncBadge) {
+        syncBadge.textContent = "⚠️ Offline / Local Mode";
+        syncBadge.style.background = "#fef3c7";
+        syncBadge.style.color = "#92400e";
+        syncBadge.style.borderColor = "#fcd34d";
+      }
+      renderMembers();
+    }
 
     function renderMembers() {
       const container = document.getElementById("familyMembersList");
       container.innerHTML = "";
 
-      document.getElementById("circleCountBadge").textContent = `${members.length} Members Protected`;
+      const countBadge = document.getElementById("circleCountBadge");
+      if (countBadge) {
+        countBadge.textContent = `${members.length} Members Protected`;
+      }
 
-      members.forEach((m, idx) => {
-        const isSafe = m.status === "SAFE";
-        const isShelter = m.status === "AT_SHELTER";
+      if (members.length === 0) {
+        container.innerHTML = `
+          <div style="text-align:center;padding:32px;background:#f8fafc;border-radius:var(--radius-sm);border:1px dashed var(--border-light);color:var(--text-muted);">
+            <div style="font-size:2rem;margin-bottom:8px;">👨‍👩‍👧</div>
+            <p><strong>No family members registered yet in database.</strong></p>
+            <p style="font-size:0.85rem;">Use the form on the left to add your family members to the safety circle.</p>
+          </div>
+        `;
+        return;
+      }
+
+      members.forEach((m) => {
+        const isSafe = (m.status === "SAFE");
+        const isShelter = (m.status === "AT_SHELTER");
         const badgeClass = isSafe ? "safe" : (isShelter ? "active" : "critical");
         const badgeText = isSafe ? "✅ SAFE" : (isShelter ? "🏕️ IN RELIEF CAMP" : "⚠️ NEEDS HELP");
+        const memberId = m.member_id || m.id || "";
+        const pingTime = m.last_ping || m.lastPing || "Recently";
 
         const card = document.createElement("div");
         card.style.cssText = "background:#f8fafc;border:1px solid var(--border-light);border-radius:var(--radius-sm);padding:18px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;";
         card.innerHTML = `
-          <div>
-            <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
-              <strong style="font-size:1.1rem;color:var(--navy);">${m.name}</strong>
+          <div style="flex:1;min-width:240px;">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap;">
+              <strong style="font-size:1.1rem;color:var(--navy);">${escapeHtml(m.name)}</strong>
               <span class="badge-pill ${badgeClass}" style="font-size:0.75rem;">${badgeText}</span>
+              ${m.member_id ? `<span style="font-size:0.7rem;color:#64748b;font-family:monospace;background:#e2e8f0;padding:2px 6px;border-radius:4px;">${m.member_id}</span>` : ""}
             </div>
-            <div style="font-size:0.85rem;color:var(--text-muted);display:flex;gap:14px;flex-wrap:wrap;">
-              <span><strong>Relation:</strong> ${m.relation}</span>
-              <span><strong>Location:</strong> 📍 ${m.location}</span>
-              <span><strong>Last Update:</strong> ${m.lastPing}</span>
+            <div style="font-size:0.85rem;color:var(--text-muted);display:flex;gap:14px;flex-wrap:wrap;line-height:1.6;">
+              <span><strong>Relation:</strong> ${escapeHtml(m.relation)}</span>
+              <span><strong>Location:</strong> 📍 ${escapeHtml(m.location)}</span>
+              <span><strong>Last Update:</strong> ${escapeHtml(pingTime)}</span>
             </div>
           </div>
 
-          <div style="display:flex;gap:10px;">
-            <a href="tel:${m.phone}" class="btn-secondary" style="padding:8px 14px;font-size:0.85rem;">
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <!-- Status dropdown quick switcher -->
+            <select onchange="updateMemberStatus('${memberId}', this.value)" style="padding:7px 10px;font-size:0.8rem;border:1px solid var(--border-light);border-radius:var(--radius-sm);background:#fff;cursor:pointer;" title="Change Status in PostgreSQL">
+              <option value="SAFE" ${isSafe ? "selected" : ""}>✅ Safe</option>
+              <option value="AT_SHELTER" ${isShelter ? "selected" : ""}>🏕️ In Camp</option>
+              <option value="NEEDS_HELP" ${(!isSafe && !isShelter) ? "selected" : ""}>⚠️ Needs Help</option>
+            </select>
+
+            <a href="tel:${escapeHtml(m.phone)}" class="btn-secondary" style="padding:7px 12px;font-size:0.85rem;" title="Call member">
               📞 Call
             </a>
-            <a href="sms:${m.phone}?body=Hi ${m.name}, this is AapdaSetu emergency alert. I am currently safe. Please reply with your status." class="btn-primary" style="padding:8px 14px;font-size:0.85rem;">
-              💬 SMS Ping
+            <a href="sms:${escapeHtml(m.phone)}?body=Hi ${encodeURIComponent(m.name)}, AapdaSetu emergency alert: I am safe. Please reply with your status." class="btn-primary" style="padding:7px 12px;font-size:0.85rem;" title="Send SMS">
+              💬 SMS
             </a>
+            <button onclick="deleteMember('${memberId}', '${escapeHtml(m.name)}')" class="btn-secondary" style="padding:7px 10px;font-size:0.85rem;color:#dc2626;border-color:#fca5a5;" title="Delete member from PostgreSQL">
+              🗑️
+            </button>
           </div>
         `;
         container.appendChild(card);
       });
     }
 
-    function addFamilyMember() {
-      const name = document.getElementById("memberName").value.trim();
-      const phone = document.getElementById("memberPhone").value.trim();
-      const relation = document.getElementById("memberRelation").value;
-      const loc = document.getElementById("memberLocation").value.trim();
+    // Add family member and save to PostgreSQL
+    async function addFamilyMember() {
+      const nameInput = document.getElementById("memberName");
+      const phoneInput = document.getElementById("memberPhone");
+      const relationSelect = document.getElementById("memberRelation");
+      const locationInput = document.getElementById("memberLocation");
 
-      if (!name || !phone) return;
+      const name = nameInput.value.trim();
+      const phone = phoneInput.value.trim();
+      const relation = relationSelect.value;
+      const loc = locationInput.value.trim();
 
-      members.push({
+      if (!name || !phone || !loc) {
+        if (typeof showToast === "function") showToast("Please fill all required fields", "warning");
+        return;
+      }
+
+      const submitBtn = document.querySelector("#addMemberForm button[type='submit']");
+      const originalText = submitBtn.innerHTML;
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = "<span>⏳ Saving to PostgreSQL...</span>";
+
+      const memberPayload = {
         name,
         phone,
         relation,
         location: loc,
         status: "SAFE",
-        lastPing: "Just now"
-      });
+        user_phone: ""
+      };
 
-      renderMembers();
-      document.getElementById("addMemberForm").reset();
-      showToast(`${name} added to family protection circle!`, "success");
+      try {
+        const targetUrl = (typeof API_BASE !== "undefined" ? API_BASE : "http://127.0.0.1:8000") + "/api/family/members";
+        const res = await fetch(targetUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(memberPayload),
+          signal: AbortSignal.timeout(5000)
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          if (typeof showToast === "function") {
+            showToast(`✅ ${name} saved in PostgreSQL database!`, "success");
+          } else {
+            alert(`✅ ${name} saved in PostgreSQL database!`);
+          }
+          document.getElementById("addMemberForm").reset();
+          await loadFamilyMembers();
+          return;
+        } else {
+          throw new Error(data.detail || "Database save failed");
+        }
+      } catch (err) {
+        console.warn("PostgreSQL save failed, falling back to local list:", err);
+        // Fallback local addition if server is temporarily unreachable
+        members.push({
+          member_id: "LOCAL-" + Date.now().toString(36).toUpperCase(),
+          name,
+          phone,
+          relation,
+          location: loc,
+          status: "SAFE",
+          last_ping: "Just now (Offline)"
+        });
+        renderMembers();
+        document.getElementById("addMemberForm").reset();
+        if (typeof showToast === "function") {
+          showToast(`⚠️ Server offline: ${name} added in local view. Start backend to persist in PostgreSQL.`, "warning");
+        }
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalText;
+      }
     }
 
-    function markIAmSafe() {
+    // Update status in PostgreSQL
+    async function updateMemberStatus(memberId, newStatus) {
+      if (!memberId) return;
+
+      try {
+        const targetUrl = `${(typeof API_BASE !== "undefined" ? API_BASE : "http://127.0.0.1:8000")}/api/family/members/${encodeURIComponent(memberId)}/status`;
+        const res = await fetch(targetUrl, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: newStatus }),
+          signal: AbortSignal.timeout(4000)
+        });
+
+        if (res.ok) {
+          if (typeof showToast === "function") showToast("✅ Status updated in PostgreSQL!", "success");
+          await loadFamilyMembers();
+          return;
+        }
+      } catch (err) {
+        console.warn("Could not update in PostgreSQL:", err);
+      }
+
+      // Local state update fallback
+      const m = members.find(item => item.member_id === memberId || item.id === memberId);
+      if (m) {
+        m.status = newStatus;
+        m.last_ping = "Just now";
+        renderMembers();
+      }
+    }
+
+    // Delete member from PostgreSQL
+    async function deleteMember(memberId, memberName) {
+      if (!confirm(`Are you sure you want to remove "${memberName}" from PostgreSQL database?`)) {
+        return;
+      }
+
+      try {
+        const targetUrl = `${(typeof API_BASE !== "undefined" ? API_BASE : "http://127.0.0.1:8000")}/api/family/members/${encodeURIComponent(memberId)}`;
+        const res = await fetch(targetUrl, {
+          method: "DELETE",
+          signal: AbortSignal.timeout(4000)
+        });
+
+        if (res.ok) {
+          if (typeof showToast === "function") showToast(`🗑️ ${memberName} deleted from PostgreSQL!`, "info");
+          await loadFamilyMembers();
+          return;
+        }
+      } catch (err) {
+        console.warn("Could not delete from PostgreSQL:", err);
+      }
+
+      // Local remove fallback
+      members = members.filter(item => item.member_id !== memberId && item.id !== memberId);
+      renderMembers();
+      if (typeof showToast === "function") showToast(`Removed ${memberName} from circle`, "info");
+    }
+
+    // One-tap "I Am Safe" broadcast to PostgreSQL
+    async function markIAmSafe() {
       const box = document.getElementById("safeConfirmedBox");
       const timeSpan = document.getElementById("safeTimeText");
+      const timeStr = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
       box.style.display = "block";
-      timeSpan.textContent = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-      showToast("Your 'I Am Safe' status was recorded!", "success");
+      timeSpan.textContent = timeStr;
+
+      try {
+        const targetUrl = (typeof API_BASE !== "undefined" ? API_BASE : "http://127.0.0.1:8000") + "/api/family/checkin";
+        await fetch(targetUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            user_name: "Citizen Kaushal",
+            user_phone: "+91 98765 43210",
+            status: "SAFE",
+            location_name: "Current GPS Location"
+          }),
+          signal: AbortSignal.timeout(4000)
+        });
+        if (typeof showToast === "function") {
+          showToast("✅ 'I Am Safe' check-in saved to PostgreSQL database!", "success");
+        }
+      } catch (err) {
+        if (typeof showToast === "function") {
+          showToast("Your 'I Am Safe' status was recorded!", "success");
+        }
+      }
+    }
+
+    function escapeHtml(str) {
+      if (!str) return "";
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
     }
   </script>
 </body>

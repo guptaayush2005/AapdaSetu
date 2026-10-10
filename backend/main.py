@@ -227,6 +227,30 @@ class DoctorVolunteerUpdate(BaseModel):
     approved_at: str | None = None
 
 
+class FamilyMemberCreate(BaseModel):
+    name: str
+    phone: str
+    relation: str
+    location: str
+    user_phone: Optional[str] = ""
+    status: Optional[str] = "SAFE"
+
+
+class FamilyMemberStatusUpdate(BaseModel):
+    status: str
+    location: Optional[str] = None
+    last_ping: Optional[str] = None
+
+
+class FamilyCheckinRequest(BaseModel):
+    user_name: Optional[str] = "Citizen"
+    user_phone: Optional[str] = ""
+    status: Optional[str] = "SAFE"
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    location_name: Optional[str] = ""
+
+
 # =========================================================
 # DATABASE HELPER
 # =========================================================
@@ -3148,6 +3172,32 @@ def create_feature_tables():
             approved_by VARCHAR(150) DEFAULT '',
             approved_at TIMESTAMP,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );""",
+        """CREATE TABLE IF NOT EXISTS family_members (
+            id SERIAL PRIMARY KEY,
+            member_id VARCHAR(50) UNIQUE NOT NULL,
+            user_phone VARCHAR(30) DEFAULT '',
+            name VARCHAR(150) NOT NULL,
+            phone VARCHAR(30) NOT NULL,
+            relation VARCHAR(50) NOT NULL,
+            location TEXT NOT NULL,
+            status VARCHAR(30) DEFAULT 'SAFE',
+            last_ping VARCHAR(100) DEFAULT 'Just now',
+            is_safe BOOLEAN DEFAULT TRUE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );""",
+        """CREATE TABLE IF NOT EXISTS family_checkins (
+            id SERIAL PRIMARY KEY,
+            checkin_id VARCHAR(50) UNIQUE NOT NULL,
+            user_name VARCHAR(150) DEFAULT 'Citizen',
+            user_phone VARCHAR(30) DEFAULT '',
+            status VARCHAR(30) DEFAULT 'SAFE',
+            latitude DOUBLE PRECISION,
+            longitude DOUBLE PRECISION,
+            location_name TEXT DEFAULT '',
+            timestamp_str VARCHAR(100) DEFAULT '',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );"""
     ]
     try:
@@ -3156,9 +3206,35 @@ def create_feature_tables():
                 for query in queries:
                     cur.execute(query)
             conn.commit()
+        seed_default_family_members()
         print("AapdaSetu feature tables ready")
     except Exception as e:
         print(f"WARNING: Feature tables could not be created: {e}")
+
+
+def seed_default_family_members():
+    try:
+        with psycopg.connect(get_database_url()) as conn:
+            with conn.cursor() as cur:
+                cur.execute("SELECT COUNT(*) FROM family_members;")
+                count = cur.fetchone()[0]
+                if count == 0:
+                    default_members = [
+                        ("FAM-INIT-001", "", "Sunita Sharma", "9876543211", "Mother", "Rudraprayag, Uttarakhand", "SAFE", "Today at 9:45 AM", True),
+                        ("FAM-INIT-002", "", "Aman Sharma", "9876543212", "Brother", "Dehradun, Uttarakhand", "SAFE", "Today at 10:15 AM", True),
+                        ("FAM-INIT-003", "", "Rameshwar Prasad", "9876543213", "Grandfather", "Chamoli, Uttarakhand", "AT_SHELTER", "Joshimath Relief Center #1", False)
+                    ]
+                    for m in default_members:
+                        cur.execute(
+                            """INSERT INTO family_members 
+                            (member_id, user_phone, name, phone, relation, location, status, last_ping, is_safe)
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                            ON CONFLICT (member_id) DO NOTHING;""",
+                            m
+                        )
+            conn.commit()
+    except Exception as e:
+        print(f"Notice: Default family members seeding skipped: {e}")
 
 
 def _env_bool(name: str, default=True):
@@ -4546,6 +4622,242 @@ def dam_broadcast(data: DamBroadcastRequest, x_admin_key: str | None = Header(de
         "dm_notified": True,
         "dm_email": dm_email
     }
+
+
+# =========================================================
+# FAMILY SAFETY CIRCLE & CHECK-IN API ENDPOINTS
+# =========================================================
+
+@app.post("/api/family/members")
+def add_family_member(data: FamilyMemberCreate):
+    name = data.name.strip()
+    phone = data.phone.strip()
+    relation = data.relation.strip()
+    location = data.location.strip()
+
+    if not name or not phone:
+        raise HTTPException(status_code=400, detail="Member name and phone are required")
+
+    member_id = "FAM-" + uuid.uuid4().hex[:10].upper()
+    status = data.status.strip().upper() if data.status else "SAFE"
+    is_safe = (status == "SAFE")
+    last_ping = "Just now"
+
+    try:
+        with psycopg.connect(get_database_url()) as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """INSERT INTO family_members 
+                    (member_id, user_phone, name, phone, relation, location, status, last_ping, is_safe)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    RETURNING id, member_id, created_at;""",
+                    (member_id, data.user_phone.strip(), name, phone, relation, location, status, last_ping, is_safe)
+                )
+                row = cur.fetchone()
+            conn.commit()
+
+        return {
+            "success": True,
+            "message": f"{name} registered successfully to family safety circle in PostgreSQL",
+            "member": {
+                "id": row[0],
+                "member_id": row[1],
+                "name": name,
+                "phone": phone,
+                "relation": relation,
+                "location": location,
+                "status": status,
+                "last_ping": last_ping,
+                "is_safe": is_safe,
+                "created_at": str(row[2])
+            }
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Database error while saving family member: {e}")
+
+
+@app.get("/api/family/members")
+def get_family_members(user_phone: Optional[str] = None):
+    try:
+        with psycopg.connect(get_database_url()) as conn:
+            with conn.cursor() as cur:
+                if user_phone and user_phone.strip():
+                    cur.execute(
+                        """SELECT id, member_id, user_phone, name, phone, relation, location, status, last_ping, is_safe, created_at
+                        FROM family_members 
+                        WHERE user_phone = %s OR user_phone = ''
+                        ORDER BY id ASC;""",
+                        (user_phone.strip(),)
+                    )
+                else:
+                    cur.execute(
+                        """SELECT id, member_id, user_phone, name, phone, relation, location, status, last_ping, is_safe, created_at
+                        FROM family_members 
+                        ORDER BY id ASC;"""
+                    )
+                rows = cur.fetchall()
+
+        members = []
+        for r in rows:
+            members.append({
+                "id": r[0],
+                "member_id": r[1],
+                "user_phone": r[2],
+                "name": r[3],
+                "phone": r[4],
+                "relation": r[5],
+                "location": r[6],
+                "status": r[7],
+                "last_ping": r[8],
+                "is_safe": r[9],
+                "created_at": str(r[10])
+            })
+
+        return {
+            "success": True,
+            "count": len(members),
+            "members": members
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Database error while retrieving family members: {e}")
+
+
+@app.put("/api/family/members/{member_id}/status")
+def update_family_member_status(member_id: str, data: FamilyMemberStatusUpdate):
+    status = data.status.strip().upper()
+    is_safe = (status == "SAFE")
+    last_ping = data.last_ping or f"Updated {datetime.now().strftime('%I:%M %p')}"
+
+    try:
+        with psycopg.connect(get_database_url()) as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """UPDATE family_members
+                    SET status = %s,
+                        is_safe = %s,
+                        last_ping = %s,
+                        location = COALESCE(%s, location),
+                        updated_at = CURRENT_TIMESTAMP
+                    WHERE member_id = %s
+                    RETURNING id, name, status, last_ping;""",
+                    (status, is_safe, last_ping, data.location, member_id)
+                )
+                row = cur.fetchone()
+                if not row:
+                    raise HTTPException(status_code=404, detail="Family member not found")
+            conn.commit()
+
+        return {
+            "success": True,
+            "message": f"Status updated for member {row[1]}",
+            "member_id": member_id,
+            "status": row[2],
+            "last_ping": row[3]
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Database error while updating status: {e}")
+
+
+@app.delete("/api/family/members/{member_id}")
+def delete_family_member(member_id: str):
+    try:
+        with psycopg.connect(get_database_url()) as conn:
+            with conn.cursor() as cur:
+                cur.execute("DELETE FROM family_members WHERE member_id = %s RETURNING id, name;", (member_id,))
+                row = cur.fetchone()
+                if not row:
+                    raise HTTPException(status_code=404, detail="Family member not found")
+            conn.commit()
+
+        return {
+            "success": True,
+            "message": f"{row[1]} removed from family circle in database"
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Database error while deleting family member: {e}")
+
+
+@app.post("/api/family/checkin")
+def family_checkin(data: FamilyCheckinRequest):
+    checkin_id = "CHK-" + uuid.uuid4().hex[:10].upper()
+    now_str = datetime.now().strftime("%Y-%m-%d %I:%M %p")
+    status = data.status.strip().upper() if data.status else "SAFE"
+    try:
+        with psycopg.connect(get_database_url()) as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """INSERT INTO family_checkins 
+                    (checkin_id, user_name, user_phone, status, latitude, longitude, location_name, timestamp_str)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                    RETURNING id, created_at;""",
+                    (checkin_id, data.user_name, data.user_phone, status, data.latitude, data.longitude, data.location_name, now_str)
+                )
+                row = cur.fetchone()
+            conn.commit()
+
+        return {
+            "success": True,
+            "message": "Safety check-in broadcasted and recorded in PostgreSQL database",
+            "checkin_id": checkin_id,
+            "timestamp": now_str,
+            "status": status
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Database error during checkin: {e}")
+
+
+@app.get("/admin/family/members")
+def admin_get_family_members():
+    try:
+        with psycopg.connect(get_database_url()) as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """SELECT id, member_id, user_phone, name, phone, relation, location, status, last_ping, is_safe, created_at
+                    FROM family_members 
+                    ORDER BY created_at DESC;"""
+                )
+                rows = cur.fetchall()
+
+                cur.execute(
+                    """SELECT 
+                        COUNT(*) as total,
+                        COUNT(*) FILTER (WHERE status = 'SAFE') as safe_count,
+                        COUNT(*) FILTER (WHERE status = 'AT_SHELTER') as shelter_count,
+                        COUNT(*) FILTER (WHERE status = 'NEEDS_HELP') as alert_count
+                    FROM family_members;"""
+                )
+                stats = cur.fetchone()
+
+        members = []
+        for r in rows:
+            members.append({
+                "id": r[0],
+                "member_id": r[1],
+                "user_phone": r[2],
+                "name": r[3],
+                "phone": r[4],
+                "relation": r[5],
+                "location": r[6],
+                "status": r[7],
+                "last_ping": r[8],
+                "is_safe": r[9],
+                "created_at": str(r[10])
+            })
+
+        return {
+            "success": True,
+            "total_members": stats[0],
+            "safe_count": stats[1],
+            "shelter_count": stats[2],
+            "alert_count": stats[3],
+            "members": members
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Database error: {e}")
 
 
 # Create/upgrade feature tables after all helper definitions are available.
