@@ -372,12 +372,13 @@
           <div class="bot-status-group">
             <div class="bot-avatar-badge">🤖</div>
             <div>
-              <div style="font-size:1rem;font-weight:800;color:var(--navy);font-family:'Outfit',sans-serif;">
-                AapdaSetu Safety Copilot
+              <div style="font-size:1rem;font-weight:800;color:var(--navy);font-family:'Outfit',sans-serif;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                <span>AapdaSetu Safety Copilot</span>
+                <span style="font-size:0.7rem;font-weight:700;background:linear-gradient(135deg,#0284c7,#0d9488);color:#fff;padding:2px 8px;border-radius:12px;letter-spacing:0.5px;">⚡ Powered by TinyFish AI</span>
               </div>
               <div style="display:flex;align-items:center;gap:6px;font-size:0.75rem;color:#059669;font-weight:600;margin-top:2px;">
                 <span style="width:8px;height:8px;border-radius:50%;background:#10b981;display:inline-block;animation:pulse 2s infinite;"></span>
-                <span>Active 24x7 • Ground Disaster Protocol Engine</span>
+                <span>Active 24x7 • TinyFish Grounded Disaster Engine</span>
               </div>
             </div>
           </div>
@@ -393,8 +394,8 @@
           <!-- Welcome Message -->
           <div class="chat-msg-row bot">
             <div class="msg-bubble">
-              <strong>Namaste! 🙏 I am AapdaSetu AI Disaster Assistant.</strong><br><br>
-              Aap mujhse flood alerts, flash flood warnings, safe shelters, rescue procedures, ya water safety ke bare mein kisi bhi bhasha (Hindi, English, Hinglish) me pooch sakte hain.
+              <strong>Namaste! 🙏 I am AapdaSetu AI Disaster Assistant (Powered by TinyFish AI).</strong><br><br>
+              Aap mujhse flood alerts, flash flood warnings, safe shelters, rescue procedures, ya water safety ke bare mein kisi bhi bhasha (Hindi, English, Hinglish) me pooch sakte hain. Live search aur verified disaster guidance enabled hai.
               <span class="msg-time">Just now</span>
               <button class="speech-read-btn" onclick="speakText(this.parentElement.textContent)">
                 🔊 Listen
@@ -583,6 +584,57 @@
       window.speechSynthesis.speak(utter);
     }
 
+    const TINYFISH_API_KEY = "sk-tinyfish-YnBtCv3e-qkM4cKIvUSQCuy7ZG3LSx9c";
+
+    async function queryTinyFishDirect(query, lang) {
+      const searchTerms = `${query} flood safety disaster rescue India`;
+      const url = `https://api.search.tinyfish.ai/?query=${encodeURIComponent(searchTerms)}`;
+
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          "X-API-Key": TINYFISH_API_KEY,
+          "Accept": "application/json"
+        },
+        signal: AbortSignal.timeout(6500)
+      });
+
+      if (!response.ok) {
+        throw new Error("TinyFish API error: " + response.status);
+      }
+
+      const data = await response.json();
+      const results = (data && data.results) || [];
+      if (!results.length) {
+        throw new Error("No TinyFish results returned");
+      }
+
+      const topSnippets = results
+        .filter(r => r.snippet && r.snippet.length > 20)
+        .slice(0, 3)
+        .map(r => r.snippet.replace(/\s+/g, " ").trim());
+
+      const sources = results
+        .filter(r => r.title && r.url)
+        .slice(0, 2)
+        .map(r => `<a href="${r.url}" target="_blank" rel="noopener noreferrer" style="color:#0284c7;text-decoration:underline;">${r.title}</a>`);
+
+      let guidance = "";
+      if (lang === "hi") {
+        guidance = "🤖 [TinyFish AI लाइव इंटेलिजेंस]:\n• " + topSnippets.join("\n• ") + "\n\n🚨 आपातकालीन सहायता:\n• जीवन संकट में तुरंत 112 या NDRF 1078 डायल करें।\n• बाढ़ के पानी में वाहन न चलाएं और सुरक्षित ऊंचाई पर रहें।";
+      } else if (lang === "en") {
+        guidance = "🤖 [Powered by TinyFish AI Intelligence]:\n• " + topSnippets.join("\n• ") + "\n\n🚨 Immediate Emergency Guidelines:\n• For life-threatening distress, dial 112 or NDRF helpline 1078 immediately.\n• Never drive or walk through moving flood water. Evacuate to higher elevation.";
+      } else {
+        guidance = "🤖 [TinyFish AI Live Guidance]:\n• " + topSnippets.join("\n• ") + "\n\n🚨 Emergency Action Steps:\n• Critical emergency me turant 112 ya 1078 (NDRF) par call karein.\n• Moving flood water me drive ya walk na karein. Safe shelters page se relief camp check karein.";
+      }
+
+      if (sources.length > 0) {
+        guidance += "\n\n🌐 Verified Sources: " + sources.join(" | ");
+      }
+
+      return guidance;
+    }
+
     async function sendQuery(query) {
       appendMessage(query, "user");
       submitBtn.disabled = true;
@@ -592,23 +644,45 @@
 
       const lang = document.getElementById("languageSelector") ? document.getElementById("languageSelector").value : "hinglish";
 
+      // 1. First attempt backend endpoint if reachable
+      let replyFound = false;
       try {
         const res = await fetch(`${API_BASE}/chat`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ message: query, language: lang }),
-          signal: AbortSignal.timeout(6000)
+          signal: AbortSignal.timeout(5000)
         });
 
-        if (!res.ok) throw new Error("HTTP " + res.status);
-        const data = await res.json();
-        const reply = data.reply || data.response || data.message || "Aapke question ka jawab abhi generate nahi ho paya.";
-        loader.classList.remove("active");
-        appendMessage(reply, "bot");
-        if (voiceToggle.checked) speakText(reply);
-
+        if (res.ok) {
+          const data = await res.json();
+          const reply = data.reply || data.response || data.message;
+          if (reply) {
+            replyFound = true;
+            loader.classList.remove("active");
+            appendMessage(reply, "bot");
+            if (voiceToggle.checked) speakText(reply);
+          }
+        }
       } catch (err) {
-        console.log("Using offline fallback responder:", err.message);
+        console.log("Local backend not available, routing via TinyFish AI direct:", err.message);
+      }
+
+      if (replyFound) {
+        submitBtn.disabled = false;
+        input.disabled = false;
+        input.focus();
+        return;
+      }
+
+      // 2. Client-side direct TinyFish AI Grounded Search (Works globally on Vercel)
+      try {
+        const tfReply = await queryTinyFishDirect(query, lang);
+        loader.classList.remove("active");
+        appendMessage(tfReply, "bot");
+        if (voiceToggle.checked) speakText(tfReply);
+      } catch (err) {
+        console.log("Using smart offline fallback:", err.message);
         loader.classList.remove("active");
         const fallback = getSmartFallback(query, lang);
         appendMessage(fallback, "bot");

@@ -19,7 +19,7 @@ import pandas as pd
 import psycopg
 from dotenv import load_dotenv
 from xgboost import XGBClassifier
-from urllib.parse import urlencode
+from urllib.parse import urlencode, quote_plus
 from urllib.request import Request, urlopen
 from urllib.error import URLError, HTTPError
 
@@ -56,6 +56,7 @@ load_dotenv(env_path)
 load_dotenv()
 
 NASA_API_KEY = os.getenv("NASA_API_KEY", "RYdRXs6dzwqJwEwnP4YfZ437N0PhPMqR9F2fSp7w").strip()
+TINYFISH_API_KEY = os.getenv("TINYFISH_API_KEY", "sk-tinyfish-YnBtCv3e-qkM4cKIvUSQCuy7ZG3LSx9c").strip()
 
 
 # =========================================================
@@ -1648,6 +1649,32 @@ def debug_weather(data: LocationInput):
 
 
 # =========================================================
+# TINYFISH AI GROUNDED DISASTER INTELLIGENCE
+# =========================================================
+
+def query_tinyfish_search(query: str, limit: int = 3) -> List[Dict[str, Any]]:
+    """Query TinyFish Web Search API for grounded disaster and emergency intelligence."""
+    if not TINYFISH_API_KEY:
+        return []
+    clean_q = quote_plus(f"{query} flood disaster safety guidelines India")
+    url = f"https://api.search.tinyfish.ai/?query={clean_q}"
+    try:
+        req = Request(
+            url,
+            headers={
+                "X-API-Key": TINYFISH_API_KEY,
+                "Accept": "application/json"
+            }
+        )
+        with urlopen(req, timeout=4.0) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            return data.get("results", [])[:limit]
+    except Exception as e:
+        print(f"[TinyFish Search Notice]: {e}")
+        return []
+
+
+# =========================================================
 # AI CHATBOT
 # =========================================================
 
@@ -1658,6 +1685,50 @@ def chat(data: ChatInput):
 
     if not message:
         raise HTTPException(status_code=400, detail="Message cannot be empty")
+
+    key_masked = f"{TINYFISH_API_KEY[:14]}...{TINYFISH_API_KEY[-4:]}" if len(TINYFISH_API_KEY) >= 18 else "AUTHENTICATED"
+
+    # 1. Attempt Grounded Intelligence via TinyFish Search API
+    tf_results = query_tinyfish_search(data.message)
+    if tf_results:
+        snippets = [r.get("snippet") or r.get("title") for r in tf_results if r.get("snippet") or r.get("title")]
+        source_titles = [r.get("title") for r in tf_results if r.get("title")]
+
+        bullet_points = "\n• ".join(snippets[:2])
+        if language in {"hindi", "hi"}:
+            reply_text = (
+                f"🤖 [TinyFish AI Live Intelligence]:\n"
+                f"• {bullet_points}\n\n"
+                f"🚨 आधिकारिक आपातकालीन निर्देश:\n"
+                f"1. गंभीर स्थिति में तुरंत 112 या 1078 (NDRF) पर कॉल करें।\n"
+                f"2. बहते बाढ़ के पानी में वाहन न चलाएं और सुरक्षित ऊंचाई पर रहें।"
+            )
+        elif language in {"english", "en"}:
+            reply_text = (
+                f"🤖 [Powered by TinyFish AI Intelligence]:\n"
+                f"• {bullet_points}\n\n"
+                f"🚨 Immediate Emergency Guidelines:\n"
+                f"1. For life-threatening distress, dial 112 or NDRF helpline 1078 immediately.\n"
+                f"2. Never drive or walk through moving flood water. Evacuate to higher elevation."
+            )
+        else:  # Hinglish / Default
+            reply_text = (
+                f"🤖 [TinyFish AI Live Guidance]:\n"
+                f"• {bullet_points}\n\n"
+                f"🚨 Emergency Action Steps:\n"
+                f"1. Critical emergency me turant 112 ya 1078 (NDRF) par call karein.\n"
+                f"2. Moving flood water me drive ya walk na karein. Safe shelters page se relief camp check karein."
+            )
+
+        return {
+            "reply": reply_text,
+            "powered_by": "TinyFish AI Infrastructure",
+            "api_key_masked": key_masked,
+            "tinyfish_verified": True,
+            "sources": source_titles[:2],
+            "type": "tinyfish_grounded",
+            "language": language
+        }
 
     if language in {"english", "en"}:
         replies = {
