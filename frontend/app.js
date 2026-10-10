@@ -17,51 +17,155 @@ let API_BASE = (window.API_BASE) ? window.API_BASE : "http://127.0.0.1:8000";
 
 // Fallback Indian States & Districts if backend is starting or offline
 const FALLBACK_LOCATIONS = [
+  // Uttar Pradesh
+  { state: "Uttar Pradesh", district: "Varanasi" },
+  { state: "Uttar Pradesh", district: "Lucknow" },
+  { state: "Uttar Pradesh", district: "Kanpur" },
+  { state: "Uttar Pradesh", district: "Prayagraj" },
+  { state: "Uttar Pradesh", district: "Gorakhpur" },
+  { state: "Uttar Pradesh", district: "Ayodhya" },
+  { state: "Uttar Pradesh", district: "Agra" },
+  { state: "Uttar Pradesh", district: "Meerut" },
+  { state: "Uttar Pradesh", district: "Bareilly" },
+  { state: "Uttar Pradesh", district: "Aligarh" },
+  { state: "Uttar Pradesh", district: "Moradabad" },
+  { state: "Uttar Pradesh", district: "Jhansi" },
+  { state: "Uttar Pradesh", district: "Ghaziabad" },
+  { state: "Uttar Pradesh", district: "Noida" },
+  { state: "Uttar Pradesh", district: "Mathura" },
+  { state: "Uttar Pradesh", district: "Ballia" },
+
+  // Uttarakhand
   { state: "Uttarakhand", district: "Chamoli" },
   { state: "Uttarakhand", district: "Rudraprayag" },
   { state: "Uttarakhand", district: "Uttarkashi" },
   { state: "Uttarakhand", district: "Haridwar" },
   { state: "Uttarakhand", district: "Dehradun" },
   { state: "Uttarakhand", district: "Pauri Garhwal" },
+  { state: "Uttarakhand", district: "Tehri Garhwal" },
+  { state: "Uttarakhand", district: "Nainital" },
+  { state: "Uttarakhand", district: "Pithoragarh" },
+  { state: "Uttarakhand", district: "Bageshwar" },
+  { state: "Uttarakhand", district: "Almora" },
+
+  // Himachal Pradesh
   { state: "Himachal Pradesh", district: "Kullu" },
   { state: "Himachal Pradesh", district: "Mandi" },
   { state: "Himachal Pradesh", district: "Shimla" },
   { state: "Himachal Pradesh", district: "Kangra" },
   { state: "Himachal Pradesh", district: "Kinnaur" },
-  { state: "Assam", district: "Dhemaji" },
-  { state: "Assam", district: "Barpeta" },
-  { state: "Assam", district: "Morigaon" },
-  { state: "Assam", district: "Cachar" },
-  { state: "Assam", district: "Kamrup" },
-  { state: "Assam", district: "Dibrugarh" },
+  { state: "Himachal Pradesh", district: "Lahaul and Spiti" },
+  { state: "Himachal Pradesh", district: "Solan" },
+  { state: "Himachal Pradesh", district: "Chamba" },
+
+  // Bihar
   { state: "Bihar", district: "Patna" },
   { state: "Bihar", district: "Darbhanga" },
   { state: "Bihar", district: "Muzaffarpur" },
   { state: "Bihar", district: "Bhagalpur" },
   { state: "Bihar", district: "Saharsa" },
   { state: "Bihar", district: "Supaul" },
+  { state: "Bihar", district: "Madhubani" },
+  { state: "Bihar", district: "Samastipur" },
+  { state: "Bihar", district: "Gaya" },
+  { state: "Bihar", district: "Purnia" },
+  { state: "Bihar", district: "Katihar" },
+
+  // Assam
+  { state: "Assam", district: "Guwahati" },
+  { state: "Assam", district: "Dhemaji" },
+  { state: "Assam", district: "Barpeta" },
+  { state: "Assam", district: "Morigaon" },
+  { state: "Assam", district: "Cachar" },
+  { state: "Assam", district: "Kamrup" },
+  { state: "Assam", district: "Dibrugarh" },
+  { state: "Assam", district: "Jorhat" },
+  { state: "Assam", district: "Nagaon" },
+  { state: "Assam", district: "Silchar" },
+
+  // Kerala
   { state: "Kerala", district: "Wayanad" },
   { state: "Kerala", district: "Idukki" },
   { state: "Kerala", district: "Ernakulam" },
   { state: "Kerala", district: "Alappuzha" },
   { state: "Kerala", district: "Kottayam" },
+  { state: "Kerala", district: "Thiruvananthapuram" },
+  { state: "Kerala", district: "Kozhikode" },
+  { state: "Kerala", district: "Palakkad" },
+  { state: "Kerala", district: "Thrissur" },
+
+  // Maharashtra
+  { state: "Maharashtra", district: "Mumbai" },
+  { state: "Maharashtra", district: "Pune" },
+  { state: "Maharashtra", district: "Thane" },
   { state: "Maharashtra", district: "Kolhapur" },
   { state: "Maharashtra", district: "Sangli" },
   { state: "Maharashtra", district: "Raigad" },
   { state: "Maharashtra", district: "Ratnagiri" },
-  { state: "Maharashtra", district: "Pune" },
-  { state: "Odisha", district: "Puri" },
-  { state: "Odisha", district: "Cuttack" },
-  { state: "Odisha", district: "Kendrapara" },
-  { state: "Odisha", district: "Balasore" },
+  { state: "Maharashtra", district: "Nagpur" },
+  { state: "Maharashtra", district: "Nashik" },
+
+  // Gujarat
+  { state: "Gujarat", district: "Ahmedabad" },
   { state: "Gujarat", district: "Surat" },
   { state: "Gujarat", district: "Bharuch" },
   { state: "Gujarat", district: "Vadodara" },
   { state: "Gujarat", district: "Navsari" },
-  { state: "Uttar Pradesh", district: "Varanasi" },
-  { state: "Uttar Pradesh", district: "Prayagraj" },
-  { state: "Uttar Pradesh", district: "Gorakhpur" },
-  { state: "Uttar Pradesh", district: "Ballia" }
+
+  // Odisha
+  { state: "Odisha", district: "Bhubaneswar" },
+  { state: "Odisha", district: "Puri" },
+  { state: "Odisha", district: "Cuttack" },
+  { state: "Odisha", district: "Kendrapara" },
+  { state: "Odisha", district: "Balasore" },
+
+  // Delhi (NCT)
+  { state: "Delhi", district: "New Delhi" },
+  { state: "Delhi", district: "Central Delhi" },
+  { state: "Delhi", district: "South Delhi" },
+  { state: "Delhi", district: "North Delhi" },
+  { state: "Delhi", district: "East Delhi" },
+
+  // Rajasthan
+  { state: "Rajasthan", district: "Jaipur" },
+  { state: "Rajasthan", district: "Jodhpur" },
+  { state: "Rajasthan", district: "Udaipur" },
+  { state: "Rajasthan", district: "Kota" },
+
+  // West Bengal
+  { state: "West Bengal", district: "Kolkata" },
+  { state: "West Bengal", district: "Howrah" },
+  { state: "West Bengal", district: "Darjeeling" },
+  { state: "West Bengal", district: "Siliguri" },
+
+  // Karnataka
+  { state: "Karnataka", district: "Bengaluru" },
+  { state: "Karnataka", district: "Mysuru" },
+  { state: "Karnataka", district: "Mangaluru" },
+
+  // Telangana
+  { state: "Telangana", district: "Hyderabad" },
+  { state: "Telangana", district: "Warangal" },
+
+  // Tamil Nadu
+  { state: "Tamil Nadu", district: "Chennai" },
+  { state: "Tamil Nadu", district: "Coimbatore" },
+  { state: "Tamil Nadu", district: "Madurai" },
+
+  // Punjab
+  { state: "Punjab", district: "Amritsar" },
+  { state: "Punjab", district: "Ludhiana" },
+  { state: "Punjab", district: "Jalandhar" },
+
+  // Haryana
+  { state: "Haryana", district: "Gurugram" },
+  { state: "Haryana", district: "Faridabad" },
+  { state: "Haryana", district: "Ambala" },
+
+  // Madhya Pradesh
+  { state: "Madhya Pradesh", district: "Bhopal" },
+  { state: "Madhya Pradesh", district: "Indore" },
+  { state: "Madhya Pradesh", district: "Jabalpur" }
 ];
 
 /**
@@ -74,61 +178,80 @@ async function loadLocations(stateSelectId = "state", districtSelectId = "distri
 
   if (!stateSelect || !districtSelect) return;
 
-  let locations = [];
+  function populateUI(locationsList) {
+    const prevSelectedState = stateSelect.value;
+    const states = [...new Set(locationsList.map(item => item.state))].sort();
 
-  try {
-    const res = await fetch(`${API_BASE}/locations`, { signal: AbortSignal.timeout(3500) });
-    if (res.ok) {
-      locations = await res.json();
-    }
-  } catch (err) {
-    console.warn("Using offline fallback locations:", err.message);
-  }
-
-  if (!locations || locations.length === 0) {
-    locations = FALLBACK_LOCATIONS;
-  }
-
-  const states = [...new Set(locations.map(item => item.state))].sort();
-
-  stateSelect.innerHTML = '<option value="">Select State</option>';
-  states.forEach(state => {
-    const opt = document.createElement("option");
-    opt.value = state;
-    opt.textContent = state;
-    stateSelect.appendChild(opt);
-  });
-
-  stateSelect.addEventListener("change", function () {
-    const selectedState = this.value;
-    districtSelect.innerHTML = '<option value="">Select District</option>';
-    if (predictBtn) predictBtn.disabled = true;
-
-    if (!selectedState) {
-      districtSelect.disabled = true;
-      return;
-    }
-
-    const districts = locations
-      .filter(item => item.state === selectedState)
-      .map(item => item.district)
-      .sort();
-
-    districts.forEach(district => {
+    stateSelect.innerHTML = '<option value="">Select State</option>';
+    states.forEach(st => {
       const opt = document.createElement("option");
-      opt.value = district;
-      opt.textContent = district;
-      districtSelect.appendChild(opt);
+      opt.value = st;
+      opt.textContent = st;
+      if (st === prevSelectedState) opt.selected = true;
+      stateSelect.appendChild(opt);
     });
 
-    districtSelect.disabled = false;
-  });
+    stateSelect.onchange = function () {
+      const selectedState = this.value;
+      districtSelect.innerHTML = '<option value="">Select District</option>';
+      if (predictBtn) predictBtn.disabled = true;
 
-  districtSelect.addEventListener("change", function () {
-    if (predictBtn) {
-      predictBtn.disabled = !this.value;
+      if (!selectedState) {
+        districtSelect.disabled = true;
+        return;
+      }
+
+      const districts = locationsList
+        .filter(item => item.state === selectedState)
+        .map(item => item.district)
+        .sort();
+
+      districts.forEach(dst => {
+        const opt = document.createElement("option");
+        opt.value = dst;
+        opt.textContent = dst;
+        districtSelect.appendChild(opt);
+      });
+
+      districtSelect.disabled = false;
+    };
+
+    districtSelect.onchange = function () {
+      if (predictBtn) {
+        predictBtn.disabled = !this.value;
+      }
+    };
+
+    if (prevSelectedState && states.includes(prevSelectedState)) {
+      stateSelect.dispatchEvent(new Event("change"));
     }
-  });
+  }
+
+  // 1. Immediately render fallback locations so dropdown is populated without delay
+  populateUI(FALLBACK_LOCATIONS);
+
+  // 2. Fetch backend locations in background if reachable and merge
+  try {
+    const isHttps = window.location.protocol === "https:";
+    const isLocalhost = API_BASE.includes("127.0.0.1") || API_BASE.includes("localhost");
+    if (!(isHttps && isLocalhost)) {
+      const res = await fetch(`${API_BASE}/locations`, { signal: AbortSignal.timeout(2500) });
+      if (res.ok) {
+        const remoteLocs = await res.json();
+        if (Array.isArray(remoteLocs) && remoteLocs.length > 0) {
+          const merged = [...FALLBACK_LOCATIONS];
+          remoteLocs.forEach(r => {
+            if (r.state && r.district && !merged.some(m => m.state === r.state && m.district === r.district)) {
+              merged.push({ state: r.state, district: r.district });
+            }
+          });
+          populateUI(merged);
+        }
+      }
+    }
+  } catch (err) {
+    // FALLBACK_LOCATIONS is already populated and functional
+  }
 }
 
 /**

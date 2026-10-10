@@ -488,14 +488,15 @@
   <script src="translations.js"></script>
   <script src="app.js"></script>
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
+    function initWeatherPage() {
       loadLocations("state", "district", "predictBtn");
-    });
+    }
 
-    async function fetchWeather() {
-      const state = document.getElementById("state").value;
-      const district = document.getElementById("district").value;
-      const btn = document.getElementById("predictBtn");
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initWeatherPage);
+    } else {
+      initWeatherPage();
+    }
 
     const NASA_API_KEY_PUBLIC = "RYdRXs6dzwqJwEwnP4YfZ437N0PhPMqR9F2fSp7w";
 
