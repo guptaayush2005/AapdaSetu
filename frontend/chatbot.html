@@ -122,25 +122,35 @@
     }
 
     .chat-msg-row.bot .msg-bubble {
-      background: #ffffff;
-      color: var(--navy);
-      border: 1px solid #e2e8f0;
+      background: #ffffff !important;
+      color: #0b2341 !important;
+      border: 1.5px solid #cbd5e1 !important;
       border-bottom-left-radius: 4px;
-      box-shadow: 0 2px 8px rgba(15,23,42,0.04);
+      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05);
     }
 
     .chat-msg-row.user .msg-bubble {
-      background: linear-gradient(135deg, var(--blue-primary), var(--blue-dark));
-      color: #ffffff;
+      background: linear-gradient(135deg, #1677ff 0%, #0958d9 100%) !important;
+      color: #ffffff !important;
       border-bottom-right-radius: 4px;
-      box-shadow: 0 4px 14px rgba(37,99,235,0.22);
+      box-shadow: 0 4px 14px rgba(22, 119, 255, 0.35);
+      font-weight: 500;
     }
 
     .msg-time {
       font-size: 0.72rem;
-      opacity: 0.65;
       display: block;
-      margin-top: 5px;
+      margin-top: 6px;
+    }
+
+    .chat-msg-row.user .msg-time {
+      color: rgba(255, 255, 255, 0.9) !important;
+      opacity: 1 !important;
+      text-align: right;
+    }
+
+    .chat-msg-row.bot .msg-time {
+      color: #64748b !important;
     }
 
     .speech-read-btn {
@@ -209,17 +219,23 @@
       flex: 1;
       height: 48px;
       padding: 0 16px;
-      border: 1.5px solid var(--border-light);
+      border: 1.5px solid #cbd5e1 !important;
       border-radius: var(--radius-md);
       font-size: 0.95rem;
-      color: var(--navy);
+      background: #ffffff !important;
+      color: #0b2341 !important;
       outline: none;
-      transition: border-color var(--transition-fast);
+      transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+    }
+
+    .chat-text-input::placeholder {
+      color: #94a3b8 !important;
+      opacity: 1;
     }
 
     .chat-text-input:focus {
-      border-color: var(--blue-primary);
-      box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+      border-color: #1677ff !important;
+      box-shadow: 0 0 0 3px rgba(22, 119, 255, 0.18) !important;
     }
 
     @media (max-width: 900px) {
@@ -518,7 +534,6 @@
     const input = document.getElementById("chatUserInput");
     const submitBtn = document.getElementById("chatSubmitBtn");
     const messagesBox = document.getElementById("chatMessages");
-    const loader = document.getElementById("typingLoader");
     const voiceToggle = document.getElementById("voiceToggle");
 
     form.addEventListener("submit", (e) => {
@@ -541,7 +556,7 @@
 
       const bubble = document.createElement("div");
       bubble.className = "msg-bubble";
-      let formattedText = text.replace(/\n/g, "<br>");
+      let formattedText = (text || "").replace(/\n/g, "<br>");
       if (sender === "bot") {
         formattedText = formattedText.replace(/\b(112|1078|1070|1077|108|1091|101)\b/g, '<a href="tel:$1" style="color:#ef4444;font-weight:800;text-decoration:underline;background:rgba(239,68,68,0.12);padding:2px 6px;border-radius:4px;display:inline-flex;align-items:center;gap:4px;" title="Tap to Call $1">📞 $1</a>');
       }
@@ -561,13 +576,18 @@
       }
 
       row.appendChild(bubble);
-      messagesBox.insertBefore(row, loader);
+      const currentLoader = document.getElementById("typingLoader");
+      if (currentLoader && currentLoader.parentNode === messagesBox) {
+        messagesBox.insertBefore(row, currentLoader);
+      } else {
+        messagesBox.appendChild(row);
+      }
       messagesBox.scrollTop = messagesBox.scrollHeight;
     }
 
     function speakText(text) {
       if (!('speechSynthesis' in window)) return;
-      window.speechSynthesis.cancel(); // Stop prior
+      window.speechSynthesis.cancel();
       const clean = text.replace(/<[^>]*>?/gm, '').replace(/https?:\/\/\S+/gi, '');
       const utter = new SpeechSynthesisUtterance(clean);
       utter.rate = 0.95;
@@ -582,6 +602,187 @@
       };
       utter.lang = langSpeechMap[lang] || "en-IN";
       window.speechSynthesis.speak(utter);
+    }
+
+    const DISASTER_KNOWLEDGE = {
+      food: {
+        hinglish: "🍱 FLOOD RELIEF FOOD & RATION GUIDE:\n1. AapdaSetu 'Safe Shelters' tab me jakar nearest Government Relief Camp check karein jahan daily dry ration aur cooked meals banti hain.\n2. District Administration & Red Cross continuous packet drops karte hain safe pickup points par.\n3. Agar emergency me phanse hain aur khana nahi hai to 'Rescue Help' par ticket raise karke 'Food/Water Shortage' mark karein.\n4. Flooded contaminated paani me gira hua khana kabhi na khayein. Emergency ration support ke liye 1070 ya 112 par call karein.",
+        hi: "🍱 बाढ़ राहत भोजन एवं राशन सहायता:\n1. AapdaSetu के 'Safe Shelters' पेज पर निकटतम सरकारी राहत शिविर देखें जहां ताजा भोजन और सूखा राशन उपलब्ध है।\n2. यदि आप बाढ़ में फंसे हैं और राशन समाप्त हो गया है, तो 'Rescue Help' पेज पर तत्काल टिकट बनाएं और Food Shortage चुनें।\n3. दूषित बाढ़ के पानी के संपर्क में आया भोजन कभी न खाएं।\n4. आपातकालीन राशन आपूर्ति हेतु सीधे 1070 या 112 पर सूचित करें।",
+        en: "🍱 EMERGENCY FOOD & RELIEF SUPPLIES:\n1. Check the AapdaSetu 'Safe Shelters' section for verified government community kitchens and dry ration distribution centers.\n2. If stranded without food, raise an urgent ticket on the 'Rescue Help' page specifying food shortage.\n3. Never consume food that has come into contact with floodwaters.\n4. Dial 1070 (Disaster Management) or 112 for priority food packet drops."
+      },
+      water: {
+        hinglish: "💧 PEENE KA PAANI & PURIFICATION:\n1. Flood water me cholera aur hepatitis ke bacteria hote hain. Tap water direct kabhi na piyein!\n2. Paani ko kam se kam 1 se 3 minute tak ubaal kar piyein (rolling boil).\n3. Chlorine tablet: 1 tablet per 20 liter saaf paani me daal kar 30 minute wait karein.\n4. Paani hamesha saaf, dhake hue bartan me rakhein. Relief camp se sealed water pouch lein.",
+        hi: "💧 सुरक्षित पेयजल एवं शुद्धिकरण निर्देश:\n1. बाढ़ का पानी कभी न पिएं, यह संक्रामक बीमारियों से दूषित होता है।\n2. पानी को पीने से पहले कम से कम 1 से 3 मिनट तक अच्छी तरह उबालें।\n3. क्लोरीन / हैलोजन टेबलेट: 20 लीटर पानी में 1 गोली डालकर 30 मिनट तक छोड़ दें।\n4. ओआरएस (ORS) या साफ उबला पानी ही बच्चों और बुजुर्गों को दें।",
+        en: "💧 DRINKING WATER SAFETY & PURIFICATION:\n1. Floodwaters carry severe waterborne pathogens. Never drink untreated tap or surface water.\n2. Bring water to a vigorous rolling boil for at least 1 to 3 minutes before drinking.\n3. Use Chlorine/Halazone tablets: 1 tablet per 20 liters; wait 30 minutes before consuming.\n4. Keep drinking water stored in tightly sealed, elevated containers."
+      },
+      rescue: {
+        hinglish: "🚤 EMERGENCY RESCUE PROCEDURE:\n1. Turant AapdaSetu ke 'Rescue Help' page par jaayein aur apna GPS location, address aur stranded logon ki sankhya darj karein.\n2. Chhat ya unchai par chale jaayein aur chamkila kapda/torch dikhayein rescue boat ko signal karne ke liye.\n3. Ati-sankatkalin sthiti me seedhe 112 ya NDRF Helpline 1078 par call karein.\n4. SDRF/NDRF motor boats aur rescue team dispatch line par hain.",
+        hi: "🚤 आपातकालीन बचाव (Rescue) प्रक्रिया:\n1. AapdaSetu के 'Rescue Help' पेज पर जाकर तुरंत अपनी जीपीएस लोकेशन और सदस्यों की संख्या के साथ रेस्क्यू टिकट बनाएं।\n2. छत या सुरक्षित ऊंची जगह पर रहें और लाल/चमकीला कपड़ा या टॉर्च दिखाकर बचाव दल को संकेत दें।\n3. तत्काल जीवन संकट में सीधे 112 या NDRF 1078 पर फोन करें।",
+        en: "🚤 EMERGENCY RESCUE & EVACUATION:\n1. Navigate to AapdaSetu 'Rescue Help' and submit your exact GPS coordinates and number of trapped individuals.\n2. Move to the highest rooftop/structure and wave a bright cloth or flashlight to attract rescue boats.\n3. In immediate life-threatening peril, call 112 or NDRF Headquarters 1078 now."
+      },
+      helpline: {
+        hinglish: "📞 AAPDASETU VERIFIED 24x7 HELPLINES:\n• 🚨 National Emergency Universal: 112\n• 🛡️ NDRF Flood Control Room: 1078\n• 🏛️ State Disaster Control: 1070\n• 🚑 Medical & Ambulance: 108\n• 🚒 Fire & Rescue: 101\n• 👮 Women Helpline: 1091\n(Sabhi helpline numbers toll-free hain aur bina internet ke bhi dial kiye ja sakte hain).",
+        hi: "📞 राष्ट्रीय आपदा 24x7 हेल्पलाइन नंबर:\n• 🚨 राष्ट्रीय आपातकाल: 112\n• 🛡️ एनडीआरएफ (NDRF): 1078\n• 🏛️ राज्य आपदा राहत: 1070\n• 🚑 एम्बुलेंस सेवा: 108\n• 🚒 दमकल विभाग: 101\n• 👮 महिला सुरक्षा: 1091\n(सभी नंबर 24 घंटे चालू व टोल-फ्री हैं).",
+        en: "📞 OFFICIAL NATIONAL EMERGENCY HELPLINES:\n• 🚨 Unified National Emergency: 112\n• 🛡️ NDRF National Disaster Response: 1078\n• 🏛️ State Disaster Management Authority: 1070\n• 🚑 Emergency Ambulance: 108\n• 🚒 Fire Service: 101\n• 👮 Women Safety: 1091\n(Toll-free across India, operational 24/7 even without internet)."
+      },
+      medical: {
+        hinglish: "🩺 MEDICAL & FIRST-AID PROTOCOL:\n1. Ambulance ke liye turant 108 ya 112 dial karein.\n2. Saanp ke kaatne (Snakebite) par: Mareez ko shant rakhein, daudne na dein, kaati jagah ko dil se neeche rakhein aur tight bandh na baandhein. Turant District Hospital ya camp le jaayein (Anti-Snake Venom available hota hai).\n3. Cut/Ghaav par: Saaf paani se dho kar antiseptic lagayein, flood water ke contact se bachayein.\n4. Diarrhea/vomiting me ORS ghol peete rahein.",
+        hi: "🩺 प्राथमिक चिकित्सा एवं आपातकालीन स्वास्थ्य निर्देश:\n1. एम्बुलेंस के लिए तुरंत 108 या 112 डायल करें।\n2. सर्पदंश (सांप के काटने पर): पीड़ित को शांत रखें, काटी गई जगह को हिलाएं नहीं और दिल के स्तर से नीचे रखें। घाव पर चीरा या तंग पट्टी न बांधें। तुरंत नजदीकी अस्पताल ले जाएं (Anti-Venom उपलब्ध रहता है)।\n3. चोट या घाव को बाढ़ के पानी से बचाएं और तुरंत एंटीसेप्टिक लगाएं।",
+        en: "🩺 EMERGENCY MEDICAL & FIRST AID:\n1. Dial 108 or 112 immediately for emergency ambulance dispatch.\n2. Snakebite Protocol: Keep the victim calm and still. Keep the bite site immobilized below heart level. Do not cut or tourniquet. Rush to the nearest hospital for anti-venom serum.\n3. Wounds: Clean thoroughly with antiseptic and keep completely out of floodwater to prevent tetanus and leptospirosis."
+      },
+      vehicle: {
+        hinglish: "🚗 VEHICLE & DRIVING SAFETY WARNING:\n1. 'Turn Around, Don't Drown'! Sirf 6 inch (15 cm) tezi se behta paani aapko gira sakta hai, aur 12 se 18 inch paani badi car/SUV ko baha le ja sakta hai.\n2. Submerged pul (bridge) aur underwater roads par gaadi bilkul na daalein.\n3. Agar gaadi paani me band ho jaye, to gaadi ke andar na baithein, turant bahar nikal kar unchai par chadhein.\n4. Safe nikalne ke raste ke liye AapdaSetu 'Safe Routes' map check karein.",
+        hi: "🚗 वाहन एवं सड़क सुरक्षा चेतावनी:\n1. बाढ़ के पानी में वाहन कभी न चलाएं! मात्र 15 सेंटीमीटर (6 इंच) बहता पानी गाड़ी का नियंत्रण खो सकता है और 1-2 फीट पानी एसयूवी को भी बहा ले जाता है।\n2. जलमग्न पुलों या अंडरपास में जाने का प्रयास जानलेवा है।\n3. यदि कार पानी में बंद हो जाए, तो अंदर बैठने के बजाय तुरंत बाहर निकलकर छत या ऊंची जगह पर जाएं।\n4. सुरक्षित वैकल्पिक रास्तों के लिए AapdaSetu 'Safe Routes' देखें।",
+        en: "🚗 VEHICLE SAFETY WARNING:\n1. Turn Around, Don't Drown! Just 6 inches of moving water can knock you down, and 12-18 inches can carry away SUVs and heavy trucks.\n2. Never attempt to drive across submerged bridges, culverts, or highways.\n3. If your vehicle stalls in rising water, abandon it immediately and seek higher ground.\n4. Inspect verified open corridors on the AapdaSetu 'Safe Routes' page."
+      },
+      family: {
+        hinglish: "👨‍👩‍👧 FAMILY SAFETY & TRACKING:\n1. AapdaSetu ke 'Family Check-in' tab par jaakar apne parivar ke sadasyon ka naam aur phone number add karein.\n2. Check-in status ko 'Safe' ya 'Need Help' par update karein jisse rishtedaron ko pata chal sake.\n3. Kisi sadasya ke lapata hone par turant Police Help 112 aur Control Room 1070 par unki photo aur aakhri location share karein.",
+        hi: "👨‍👩‍👧 परिवार सुरक्षा एवं परिजन खोज:\n1. AapdaSetu के 'Family Check-in' पेज पर परिवार के सदस्यों को जोड़ें और अपनी लोकेशन दर्ज करें।\n2. सुरक्षित होने पर 'Mark Safe' बटन दबाएं जिससे सभी को आपकी स्थिति तुरंत ज्ञात हो सके।\n3. कोई सदस्य लापता होने पर तुरंत पुलिस हेल्पलाइन 112 और जिला नियंत्रण कक्ष 1070 पर सूचित करें।",
+        en: "👨‍👩‍👧 FAMILY SAFETY CHECK-IN & LOCATOR:\n1. Open AapdaSetu 'Family Check-in' to register household members and share real-time wellness status.\n2. Mark yourself as 'Safe' to inform relatives across relief centers.\n3. To report a missing family member, immediately alert Local Police (112) and District Relief Center (1070)."
+      },
+      shelter: {
+        hinglish: "🏕️ SAFE RELIEF SHELTERS DIRECTORY:\n1. AapdaSetu 'Safe Shelters' section me aapke zille ke government relief camps, dharamshala aur schools ki live list hai.\n2. In camps me beds, clean drinking water, dry ration, doctor facility aur security guard 24x7 uplabdh hain.\n3. Apne saath sirf zaroori go-bag aur documents lekar camp pahuchein.",
+        hi: "🏕️ सुरक्षित राहत शिविर (Shelters):\n1. AapdaSetu के 'Safe Shelters' पेज पर अपने जिले के सभी सक्रिय राहत शिविरों की सूची देखें।\n2. राहत शिविरों में भोजन, शुद्ध पेयजल, चिकित्सा सहायता और सोने की सुरक्षित व्यवस्था उपलब्ध है।\n3. अपने साथ जरूरी दस्तावेज और दवाइयों का आपातकालीन बैग साथ लेकर शिविर जाएं।",
+        en: "🏕️ DESIGNATED RELIEF CAMPS & SHELTERS:\n1. Visit the AapdaSetu 'Safe Shelters' page to find accredited disaster relief camps, schools, and community centers nearby.\n2. Verified camps provide dry lodging, hot food, potable water, medical support, and security.\n3. Carry your waterproof emergency go-bag and valid ID proof when relocating."
+      },
+      dam: {
+        hinglish: "🌊 DAM WATER RELEASE & RESERVOIR ALERT:\n1. AapdaSetu 'Rivers & Dams' page par jaakar Tehri, Bhakra, Hirakud, Sardar Sarovar aadi dams ka live water inflow/outflow check karein.\n2. Jab dam ke gates khulte hain to downstream river bed me paani ka level achanak 3-5 meter badh sakta hai.\n3. Nadi ke kinare se turant kam se kam 500 meter door unchai par chale jaayein.",
+        hi: "🌊 बांध जल निकासी (Dam Alert) चेतावनी:\n1. AapdaSetu 'Rivers & Dams' पेज पर प्रमुख बांधों का लाइव डिस्चार्ज और जलस्तर देखें।\n2. बांध के गेट खुलने पर नदी के निचले इलाकों में पानी तेजी से बढ़ता है।\n3. नदी किनारे या डूब क्षेत्र से तुरंत कम से कम 500 मीटर दूर सुरक्षित ऊंचाई पर चले जाएं।",
+        en: "🌊 DAM SPILLWAY & WATER RELEASE WARNING:\n1. Check the AapdaSetu 'Rivers & Dams' live dashboard for real-time barrage discharge rates and reservoir capacities.\n2. High-volume spillway releases cause rapid downstream surge within 1 to 2 hours.\n3. Evacuate riverbanks and low-lying riparian plains immediately to higher ground."
+      },
+      flash_flood: {
+        hinglish: "⚡ FLASH FLOOD IMMEDIATE ESCAPE:\n1. Flash flood bina warning ke 10-20 minute ke andar aati hai. Nadi kinare ya naale ke paas na rukein.\n2. Turant unche pahaad ya concrete building ke upper floor par bhaagein.\n3. Paani me apna saaman bachane ke liye waqt barbad na karein, pehle jaan bachayein.\n4. Pul ya culvert ke neeche bilkul sharan na lein.",
+        hi: "⚡ अचानक आई बाढ़ (Flash Flood) से बचाव:\n1. फ्लैश फ्लड बिना किसी पूर्व चेतावनी के 15 मिनट में भारी तबाही लाती है।\n2. नाले, नदी तट और निचले इलाकों से तुरंत ऊंची जमीन या मजबूत पक्की छत पर जाएं।\n3. सामान बचाने में समय बर्बाद न करें, जीवन रक्षा सर्वोपरि है।\n4. किसी भी हाल में पानी में बहते रास्तों को पार करने का जोखिम न लें।",
+        en: "⚡ FLASH FLOOD IMMEDIATE PROTOCOL:\n1. Flash floods develop rapidly in 15-30 minutes. Vacate stream beds, canyons, and low terrain immediately.\n2. Head uphill to the highest available concrete structure or natural elevation.\n3. Do not attempt to salvage belongings—your life is the absolute priority.\n4. Never take shelter under culverts or bridge abutments."
+      },
+      kit: {
+        hinglish: "🎒 EMERGENCY GO-BAG ESSENTIALS:\n1. 3 din ka dry food (biscuit, roasted chana) aur sealed bottled water.\n2. First aid kit + Paracetamol, ORS aur parivar ki regular medicines.\n3. Waterproof plastic pouch me Aadhaar, Bank passbook, Insurance documents aur cash.\n4. Powerful LED torch, extra batteries, charged power bank aur emergency seeti (whistle).",
+        hi: "🎒 आपातकालीन आपदा किट (Go-Bag) सामग्री:\n1. 3 दिन का सूखा भोजन (बिस्कुट, चना) और सीलबंद पानी की बोतलें।\n2. फर्स्ट एड किट, ओआरएस पैकेट, जरूरी नियमित दवाइयां।\n3. वाटरप्रूफ पाउच में आधार कार्ड, बैंक दस्तावेज और नकदी।\n4. टॉर्च, अतिरिक्त सेल, मोबाइल पावरबैंक और आपात सीटी।",
+        en: "🎒 EMERGENCY GO-BAG CHECKLIST:\n1. 3-day supply of non-perishable dry food and sealed drinking water bottles.\n2. First aid kit, prescription medicines, antiseptic, and ORS packets.\n3. Waterproof document pouch containing government IDs, bank records, and hard cash.\n4. High-lumen flashlight, spare batteries, fully charged power bank, and rescue whistle."
+      },
+      weather: {
+        hinglish: "🌤️ WEATHER & CYCLONE FORECAST:\n1. AapdaSetu ke 'Weather' page par jakar agle 5 din ka IMD rainfall radar aur cyclone alert dekhein.\n2. Heavy rain ya Red alert hone par ghar se bahar na niklein aur bijli ke khambon se door rahein.\n3. Kache makaan ya tin shed ke bajaye pakke concrete makaan me sharan lein.",
+        hi: "🌤️ मौसम एवं वर्षा चेतावनी:\n1. AapdaSetu के 'Weather' पेज पर मौसम विभाग (IMD) का लाइव पूर्वानुमान और वर्षा चेतावनी देखें।\n2. भारी बारिश (रेड अलर्ट) में अनावश्यक बाहर न निकलें और बिजली के खंभों व पेड़ों से दूर रहें।\n3. सुरक्षित पक्के मकान या सामुदायिक आश्रय में शरण लें।",
+        en: "🌤️ WEATHER FORECAST & EARLY WARNINGS:\n1. Access the AapdaSetu 'Weather' dashboard for live IMD Doppler radar data and 5-day heavy rainfall warnings.\n2. In Red Alert zones, avoid travel and stay clear of electrical poles, transformers, and weak structures.\n3. Monitor local radio and SMS advisories for flash storm updates."
+      },
+      flood: {
+        hinglish: "🌊 FLOOD SAFETY & EVACUATION PROTOCOL:\n1. Main electricity switch aur LPG cylinder valve turant band karein.\n2. Ghar ke sabhi buzurgon, bachhon aur pregnant women ko sabse pehle upper floor ya relief camp bhejein.\n3. AapdaSetu ke 'Safe Routes' page se submerged bridges se bachkar nikalne ka rasta dekhein.\n4. SOS madad ke liye 112 dial karein ya 'Rescue Help' page par ticket darj karein.",
+        hi: "🌊 बाढ़ सुरक्षा एवं निकासी नियम:\n1. घर का मुख्य बिजली स्विच और गैस सिलेंडर तुरंत बंद कर दें।\n2. बच्चों, बुजुर्गों और बीमारों को पहले सुरक्षित शिविर या ऊपरी मंजिल पर स्थानांतरित करें।\n3. AapdaSetu 'Safe Routes' मैप देखकर सुरक्षित मार्ग से ही निकासी करें।\n4. आपातकालीन बचाव के लिए सीधे 112 या 1078 पर संपर्क करें।",
+        en: "🌊 FLOOD SAFETY & EVACUATION DIRECTIVES:\n1. Shut off the main electrical breaker and securely turn off LPG gas regulators.\n2. Prioritize evacuating infants, elderly family members, and medical patients to higher floors or relief camps.\n3. Consult AapdaSetu 'Safe Routes' to bypass flooded roadways.\n4. Dial 112 or NDRF 1078 immediately for emergency extraction."
+      },
+      emergency: {
+        hinglish: "🚨 CRITICAL EMERGENCY IMMEDIATE STEPS:\n1. Jeevan sankat me phone se turant 112 ya 1078 dial karein.\n2. AapdaSetu ke header par '🚨 SOS 112' button dabakar instant police/NDRF dispatch alert bhejein.\n3. Apni battery bachayein aur GPS location WhatsApp/SMS se relatives ke sath share karein.\n4. Paani me akele swim karne ki koshish bilkul na karein.",
+        hi: "🚨 गंभीर आपातकाल में तत्काल कदम:\n1. जीवन संकट में बिना देरी किए 112 या NDRF 1078 डायल करें।\n2. AapdaSetu के हेडर पर '🚨 SOS 112' बटन दबाकर तुरंत अलर्ट भेजें।\n3. अपनी जीपीएस लोकेशन तुरंत परिजनों व प्रशासन को मैसेज करें।\n4. तेज बहाव वाले पानी में कभी तैरने की कोशिश न करें।",
+        en: "🚨 IMMEDIATE CRITICAL EMERGENCY RESPONSE:\n1. Dial 112 or NDRF Helpline 1078 immediately.\n2. Click the '🚨 SOS 112' header button on AapdaSetu to transmit an instant rescue beacon.\n3. Conserve mobile phone battery and broadcast your GPS coordinates to authorities.\n4. Do not attempt to wade or swim across turbulent flood waters."
+      },
+      greeting: {
+        hinglish: "Namaste! 🙏 Main AapdaSetu Emergency AI Assistant hoon. Main aapki flood safety, rescue requests, safe shelters, drinking water, dam release, aur weather alerts me madad kar sakta hoon. Aap apna prashna kisi bhi bhasha (Hindi, English, Hinglish) me pooch sakte hain!",
+        hi: "नमस्ते! 🙏 मैं AapdaSetu आपदा सुरक्षा AI सहायक हूँ। मैं बाढ़ चेतावनी, रेस्क्यू सहायता, सुरक्षित राहत शिविर, पेयजल शुद्धिकरण और आपातकालीन हेल्पलाइन की सटीक जानकारी देता हूँ। कृपया अपना प्रश्न पूछें!",
+        en: "Hello! 🙏 I am AapdaSetu Disaster Safety AI Copilot. I can assist you with flood evacuation routes, rescue team dispatch, safe shelter directories, medical first aid, and drinking water purification. How can I help you today?"
+      }
+    };
+
+    function categorizeQuery(q) {
+      const s = (q || "").toLowerCase().trim();
+      const wordMatch = (pattern) => new RegExp(pattern, 'i').test(s);
+
+      // Exact greeting first
+      if (wordMatch('^(hi|hello|hey|namaste|namaskar|pranam|good\\s+(morning|evening|afternoon))([!?.\\s]*)$')) {
+        return "greeting";
+      }
+
+      // 1. Dam & reservoir
+      if (wordMatch('\\b(dam|bandh|baandh|reservoir|barrage|spillway|gate\\s*open)\\b') || s.includes("बांध") || s.includes("बैराज")) {
+        return "dam";
+      }
+
+      // 2. Flash flood
+      if (wordMatch('\\b(flash\\s*flood|cloudburst|badal\\s*fatna|sudden\\s*water)\\b') || s.includes("फ्लैश फ्लड") || s.includes("बादल फटना") || s.includes("अचानक बाढ़")) {
+        return "flash_flood";
+      }
+
+      // 3. Rescue
+      if (wordMatch('\\b(rescue|bachao|fas\\s*gaye?|fasa\\s*hua|boat|ndrf|sdrf|chhat|evacuate|trapped|stuck|lifeline)\\b') || s.includes("बचाओ") || s.includes("फंसा") || s.includes("रेस्क्यू") || s.includes("नाव") || s.includes("एनडीआरएफ")) {
+        return "rescue";
+      }
+
+      // 4. Medical / First Aid / Snakebite
+      if (wordMatch('\\b(medical|first\\s*aid|dawa|dawai|doctor|ambulance|injection|hospital|bandage|fever|infection|snake|saanp|kat\\s*liya|bite)\\b') || s.includes("दवा") || s.includes("डॉक्टर") || s.includes("अस्पताल") || s.includes("एम्बुलेंस") || s.includes("सांप") || s.includes("बीमार")) {
+        return "medical";
+      }
+
+      // 5. Vehicle / Driving / Road
+      if (wordMatch('\\b(car|bike|drive|driving|vehicle|gaadi|gadi|highway|bridge|submerged\\s*road|rasta)\\b') || s.includes("गाड़ी") || s.includes("कार") || s.includes("सड़क") || s.includes("पुल") || s.includes("रास्ता")) {
+        return "vehicle";
+      }
+
+      // 6. Family checkin & missing
+      if (wordMatch('\\b(family|missing|relative|member|checkin|check-in|parivar|parivaar|bacche|children|khoya|bichhad)\\b') || s.includes("परिवार") || s.includes("लापता") || s.includes("परिजन") || s.includes("बच्चे")) {
+        return "family";
+      }
+
+      // 7. Shelters & camps
+      if (wordMatch('\\b(shelter|camp|shivir|rahat\\s*shivir|relief\\s*camp|school|stay|safe\\s*place|rukne\\s*ki\\s*jagah|ashray)\\b') || s.includes("राहत शिविर") || s.includes("कैंप") || s.includes("शरण") || s.includes("आश्रय")) {
+        return "shelter";
+      }
+
+      // 8. Kit / Go-bag
+      if (wordMatch('\\b(kit|go-bag|bag|samaan|packing|torch|battery|essentials|emergency\\s*pack)\\b') || s.includes("किट") || s.includes("बैग") || s.includes("सामान")) {
+        return "kit";
+      }
+
+      // 9. Helplines & numbers
+      if (wordMatch('\\b(helpline|tollfree|toll-free|number|contact|phone|call|emergency\\s*number|police|dm\\s*office)\\b') || s.includes("हेल्पलाइन") || s.includes("नंबर") || s.includes("फोन") || s.includes("कॉल")) {
+        return "helpline";
+      }
+
+      // 10. Food & Ration
+      if (wordMatch('\\b(food|khana|ration|rashan|bhandara|relief\\s*packet|bhookh|rasoi|roti|bhojan)\\b') || s.includes("खाना") || s.includes("राशन") || s.includes("भोजन") || s.includes("भूख")) {
+        return "food";
+      }
+
+      // 11. Water & Purification
+      if (wordMatch('\\b(water|paani|pani|purify|boil|chlorine|filter|clean\\s*water|peene\\s*ka\\s*paani|jal)\\b') || s.includes("पानी") || s.includes("जल") || s.includes("पीने का पानी") || s.includes("क्लोरीन")) {
+        return "water";
+      }
+
+      // 12. Weather & Forecast
+      if (wordMatch('\\b(weather|mausam|barish|rain|cyclone|toofan|storm|cloud|forecast|rainfall)\\b') || s.includes("मौसम") || s.includes("बारिश") || s.includes("तूफान") || s.includes("वर्षा")) {
+        return "weather";
+      }
+
+      // 13. General Flood
+      if (wordMatch('\\b(flood|baadh|badh|pani\\s*bhara|submerged|danger\\s*level|waterlevel|overflow)\\b') || s.includes("बाढ़") || s.includes("जलस्तर") || s.includes("पानी भर")) {
+        return "flood";
+      }
+
+      // 14. Emergency & SOS
+      if (wordMatch('\\b(emergency|khatra|danger|sos|critical|urgent|madad|sahayata|alert)\\b') || s.includes("आपातकाल") || s.includes("खतरा") || s.includes("मदद") || s.includes("अलर्ट")) {
+        return "emergency";
+      }
+
+      // 15. General greeting fallback
+      if (wordMatch('\\b(hi|hello|hey|namaste|namaskar|pranam)\\b')) {
+        return "greeting";
+      }
+
+      return null;
+    }
+
+    function getSmartDisasterAnswer(category, lang) {
+      const catData = DISASTER_KNOWLEDGE[category];
+      if (!catData) return null;
+      return catData[lang] || catData["hinglish"] || catData["en"];
+    }
+
+    function getDefaultAnswer(query, lang) {
+      if (lang === "hi") {
+        return "AapdaSetu आपदा सुरक्षा सहायक: मैं बाढ़ सुरक्षा, सुरक्षित मार्ग, राहत शिविर, रेस्क्यू सहायता, और पेयजल सुरक्षा की सटीक जानकारी प्रदान करता हूँ। आपातकाल में सीधे 112 या 1078 डायल करें।";
+      }
+      if (lang === "en") {
+        return "AapdaSetu Disaster Safety Assistant: I provide guidance on flood alerts, safe evacuation routes, relief camps, food/water supplies, and rescue operations. For emergency rescue, dial 112 or 1078 immediately.";
+      }
+      return "AapdaSetu Safety Assistant: Main flood safety, evacuation routes, rescue tickets, safe shelters, drinking water aur emergency kit guidance provide karta hoon. Aap food, water, rescue, doctor, shelter, ya helpline ke baare me pooch sakte hain. Emergency me turant 112 dial karein!";
     }
 
     const TINYFISH_API_KEY = "sk-tinyfish-YnBtCv3e-qkM4cKIvUSQCuy7ZG3LSx9c";
@@ -639,33 +840,35 @@
       appendMessage(query, "user");
       submitBtn.disabled = true;
       input.disabled = true;
-      loader.classList.add("active");
+      const loader = document.getElementById("typingLoader");
+      if (loader) loader.classList.add("active");
       messagesBox.scrollTop = messagesBox.scrollHeight;
 
       const lang = document.getElementById("languageSelector") ? document.getElementById("languageSelector").value : "hinglish";
 
-      // 1. First attempt backend endpoint if reachable
+      // 1. First attempt backend endpoint if reachable (returns our upgraded backend engine)
       let replyFound = false;
       try {
-        const res = await fetch(`${API_BASE}/chat`, {
+        const backendUrl = (typeof API_BASE !== "undefined" ? API_BASE : "http://127.0.0.1:8000") + "/chat";
+        const res = await fetch(backendUrl, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ message: query, language: lang }),
-          signal: AbortSignal.timeout(5000)
+          signal: AbortSignal.timeout(4000)
         });
 
         if (res.ok) {
           const data = await res.json();
           const reply = data.reply || data.response || data.message;
-          if (reply) {
+          if (reply && reply.length > 5) {
             replyFound = true;
-            loader.classList.remove("active");
+            if (loader) loader.classList.remove("active");
             appendMessage(reply, "bot");
-            if (voiceToggle.checked) speakText(reply);
+            if (voiceToggle && voiceToggle.checked) speakText(reply);
           }
         }
       } catch (err) {
-        console.log("Local backend not available, routing via TinyFish AI direct:", err.message);
+        console.log("Local backend /chat not reachable:", err.message);
       }
 
       if (replyFound) {
@@ -675,53 +878,38 @@
         return;
       }
 
-      // 2. Client-side direct TinyFish AI Grounded Search (Works globally on Vercel)
+      // 2. Direct client-side intelligence (Works 100% on Vercel & offline)
+      const cat = categorizeQuery(query);
+      if (cat) {
+        const smartAnswer = getSmartDisasterAnswer(cat, lang);
+        if (smartAnswer) {
+          if (loader) loader.classList.remove("active");
+          appendMessage(smartAnswer, "bot");
+          if (voiceToggle && voiceToggle.checked) speakText(smartAnswer);
+          submitBtn.disabled = false;
+          input.disabled = false;
+          input.focus();
+          return;
+        }
+      }
+
+      // 3. TinyFish AI Search Fallback for open-ended / external queries
       try {
         const tfReply = await queryTinyFishDirect(query, lang);
-        loader.classList.remove("active");
+        if (loader) loader.classList.remove("active");
         appendMessage(tfReply, "bot");
-        if (voiceToggle.checked) speakText(tfReply);
+        if (voiceToggle && voiceToggle.checked) speakText(tfReply);
       } catch (err) {
-        console.log("Using smart offline fallback:", err.message);
-        loader.classList.remove("active");
-        const fallback = getSmartFallback(query, lang);
-        appendMessage(fallback, "bot");
-        if (voiceToggle.checked) speakText(fallback);
+        console.log("TinyFish search fallback error:", err.message);
+        if (loader) loader.classList.remove("active");
+        const defaultFallback = getDefaultAnswer(query, lang);
+        appendMessage(defaultFallback, "bot");
+        if (voiceToggle && voiceToggle.checked) speakText(defaultFallback);
       } finally {
         submitBtn.disabled = false;
         input.disabled = false;
         input.focus();
       }
-    }
-
-    function getSmartFallback(q, lang) {
-      const s = q.toLowerCase();
-
-      if (s.includes("flash flood")) {
-        return "⚠️ FLASH FLOOD ALERT PROTOCOL:\n1. Flash flood bina warning ke 15-30 minute me paani ka level badha deta hai.\n2. Sabse pehle low-lying nala, riverbed aur bridges se turant unchai (higher elevation) par bhaagein.\n3. Koi vehicle ya bike paani me lekar na niklein.\n4. Official evacuation alerts ke liye 112 par call karein.";
-      }
-
-      if (s.includes("priority") || s.includes("flood") || s.includes("baadh") || s.includes("बाढ़")) {
-        return "🌊 FLOOD SAFETY RULES:\n1. Main power switch aur LPG gas connection band karein.\n2. Bachhon, buzurgo aur medicines ko sabse pehle upper floor ya safe shelter shift karein.\n3. Drinking water ko boil karke piyein ya chlorine tablets use karein.\n4. Flood water me walk mat karein, submerged wires ya drain open ho sakte hain.";
-      }
-
-      if (s.includes("rescue") || s.includes("bachao") || s.includes("help") || s.includes("fas gaya")) {
-        return "🚑 RESCUE DEPLOYMENT PROCEDURE:\n1. AapdaSetu ke 'Rescue Help' page par jaakar Pickup Location aur No. of People ke saath ticket raise karein.\n2. GPS location share karein jisse NDRF/SDRF motor boats seedhe pahunch sakein.\n3. Critical danger me phone se 112 ya 1078 (NDRF) dial karein.";
-      }
-
-      if (s.includes("drive") || s.includes("car") || s.includes("bike") || s.includes("road")) {
-        return "🚗 VEHICLE SAFETY WARNING:\nKhabardar! Sirf 6 inch ka moving flood water aapke pair gira sakta hai, aur 12-18 inch water badi SUV ko bhi baha sakta hai. Never drive into submerged roads! AapdaSetu 'Safe Routes' page se bypass highway check karein.";
-      }
-
-      if (s.includes("kit") || s.includes("pack") || s.includes("family")) {
-        return "🎒 EMERGENCY GO-BAG CHECKLIST:\n1. 3 din ka dry food & sealed drinking water.\n2. Essential prescription medicines & First Aid kit.\n3. Waterproof pouch me Aadhaar/Bank papers & cash.\n4. Powerbank, torch & emergency whistle.";
-      }
-
-      if (s.includes("water") || s.includes("paani") || s.includes("purify")) {
-        return "💧 DRINKING WATER PURIFICATION:\nFlood ke dauran tap water contaminated ho sakta hai. Paani ko kam se kam 1 minute ubaal kar piyein (rolling boil). Ya per liter paani me 1 chlorine tablet/halogen tablet daal kar 30 mins wait karein.";
-      }
-
-      return "AapdaSetu Safety Assistant: Main flood safety, evacuation routes, rescue team dispatch, river monitoring aur emergency kit guidance provide karta hoon. Kripya apna prashna thoda detail me poochhein ya Emergency 112 call karein.";
     }
 
     function clearChatHistory() {

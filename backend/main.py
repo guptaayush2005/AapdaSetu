@@ -1816,7 +1816,7 @@ def query_tinyfish_search(query: str, limit: int = 3) -> List[Dict[str, Any]]:
     clean_q = quote_plus(f"{query} flood disaster safety guidelines India")
     url = f"https://api.search.tinyfish.ai/?query={clean_q}"
     try:
-        req = Request(
+        req = URLRequest(
             url,
             headers={
                 "X-API-Key": TINYFISH_API_KEY,
@@ -1835,165 +1835,474 @@ def query_tinyfish_search(query: str, limit: int = 3) -> List[Dict[str, Any]]:
 # AI CHATBOT
 # =========================================================
 
+def categorize_disaster_query(msg: str) -> str:
+    import re
+    s = msg.lower().strip()
+
+    if re.search(r'\b(hi|hello|hey|namaste|namaskar|pranam)\b', s) or any(k in s for k in ["kaun ho", "who are you", "kya kar sakte", "नमस्ते", "नमस्कार", "प्रणाम", "हेलो", "हाय"]):
+        if len(s.split()) <= 5:
+            return "greeting"
+
+    if any(k in s for k in ["khana", "food", "ration", "bhookh", "bhukh", "meal", "bhojan", "roti", "chawal", "rasan", "milk", "doodh", "खाना", "राशन", "भोजन", "भूख", "दूध"]):
+        return "food"
+
+    if any(k in s for k in ["purify", "filter", "boil", "ubal", "chlorine", "halogen", "fitkari", "peene ka paani", "peene ke paani", "water safe", "clean water", "drinking water", "safe water", "saaf", "shuddh", "peene", "paani kaise", "पानी", "जल", "शुद्ध", "उबाल", "क्लोरीन"]):
+        return "water"
+
+    if any(k in s for k in ["rescue", "bachao", "fas gaya", "fase hue", "trapped", "boat", "naav", "motor boat", "ndrf", "sdrf", "helicopter", "airdrop", "nikalo", "doob raha", "बचाओ", "फंसे", "रेस्क्यू", "नाव", "एनडीआरएफ", "एसडीआरएफ", "डूब"]):
+        return "rescue"
+
+    if any(k in s for k in ["helpline", "tollfree", "toll free", "number", "phone", "contact", "call kare", "kis number", "emergency number", "हेल्पलाइन", "फोन", "नंबर", "संपर्क"]):
+        return "helpline"
+
+    if any(k in s for k in ["doctor", "medical", "dawa", "medicine", "bukhar", "fever", "chot", "wound", "tetanus", "snake", "saanp", "sap", "diarrhea", "dast", "vomit", "ulti", "first aid", "bandage", "patti", "सांप", "सर्पदंश", "दवा", "डॉक्टर", "अस्पताल", "एम्बुलेंस", "घाव", "पट्टी", "बीमार", "काट"]):
+        return "medical"
+
+    if any(k in s for k in ["drive", "driving", "car", "bike", "gaadi", "gadi", "scooter", "vehicle", "bridge", "pul", "sadak", "road", "गाड़ी", "कार", "सड़क", "पुल", "वाहन"]):
+        return "vehicle"
+
+    if any(k in s for k in ["family", "parivar", "bachche", "children", "bache", "elderly", "buzurg", "circle", "member", "परिवार", "लापता", "परिजन", "बच्चे", "बुजुर्ग"]):
+        return "family"
+
+    if any(k in s for k in ["shelter", "camp", "shivir", "rahat shivir", "kahan ruke", "kaha ruke", "rehne ki", "stay", "accommodation", "राहत शिविर", "शिविर", "कैंप", "शरण", "आश्रय"]):
+        return "shelter"
+
+    if any(k in s for k in ["dam", "barrage", "gate khula", "gate open", "overflow", "tehri", "bhakra", "dam gate", "reservoir", "बांध", "बैराज", "जलाशय"]):
+        return "dam"
+
+    if any(k in s for k in ["flash flood", "flashflood", "achanak baadh", "sudden flood", "cloudburst", "baadal phatna", "landslide", "बादल फटना", "अचानक बाढ़", "फ्लैश फ्लड"]):
+        return "flash_flood"
+
+    if any(k in s for k in ["kit", "bag", "go bag", "saman", "document", "kya rakhein", "kya le jaye", "essential", "packing", "आपदा किट", "किट", "बैग", "टॉर्च"]):
+        return "kit"
+
+    if any(k in s for k in ["weather", "mausam", "rain", "rainfall", "baarish", "forecast", "red alert", "orange alert", "मौसम", "बारिश", "तूफान", "वर्षा"]):
+        return "weather"
+
+    if any(k in s for k in ["flood", "baadh", "badh", "paani bhar", "water level", "inundation", "बाढ़", "जलस्तर", "डूबा"]):
+        return "flood"
+
+    if any(k in s for k in ["emergency", "help", "madad", "danger", "khatra", "sos", "urgent", "112", "आपातकाल", "खतरा", "मदद", "संकट"]):
+        return "emergency"
+
+    return "general"
+
+
 @app.post("/chat")
 def chat(data: ChatInput):
-    message = data.message.strip().lower()
+    message = data.message.strip()
     language = (data.language or "hinglish").strip().lower()
 
     if not message:
         raise HTTPException(status_code=400, detail="Message cannot be empty")
 
+    kind = categorize_disaster_query(message)
+
+    replies_hinglish = {
+        "greeting": (
+            "Namaste! 🙏 Main AapdaSetu AI Disaster Copilot hoon.\n"
+            "Main in important emergency topics par aapki poori madad kar sakta hoon:\n"
+            "• 🍲 Free Food & Rashan (Verified Safe Shelters)\n"
+            "• 💧 Peene ke paani ka Shuddhikarana (4-step Water Purification)\n"
+            "• 🚑 Rescue Team & Boat Dispatch (112 / NDRF 1078)\n"
+            "• 🚗 Flood me gaadi chalane ke khatre (Turn Around, Don't Drown)\n"
+            "• 🏥 Snake bite, wound first aid & doctor seva\n"
+            "• 🏕️ Nearest Safe Shelters & Relief Camps Directory\n"
+            "• 👨‍👩‍👧 Family safety circle & status tracking\n\n"
+            "Aap mujhse koi bhi flood ya emergency related sawaal pooch sakte hain!"
+        ),
+        "food": (
+            "🍲 FLOOD FOOD & RATION RELIEF GUIDELINES:\n"
+            "1. Sabhi 22 Verified Safe Shelters (राहत शिविर) me free packaged meals, dry ration kits, baby food aur clean drinking water available hai.\n"
+            "2. AapdaSetu ke 'Safe Shelters' page (shelters.html) par jaakar apne district ka nearest camp dekhein.\n"
+            "3. Agar aap rooftop par trapped hain aur food khatam ho gaya hai, to turant 112 ya District Control Room 1077 par call karke emergency food packet airdrop request karein.\n"
+            "4. KHABARDAR: Kabhi bhi flood ke paani me submerged hua khana na khayein — isse severe bacterial infection ho sakta hai."
+        ),
+        "water": (
+            "💧 FLOOD WATER PURIFICATION (पीने का पानी सुरक्षित करने के 4 नियम):\n"
+            "1. ROLLING BOIL (उबालना): Paani ko tez aanch par kam se kam 1 se 2 minute tak ubaalein. Ye 99.9% bacteria aur viruses ko khatam karta hai.\n"
+            "2. CHLORINE / HALOGEN TABLET: Agar ubaalna possible nahi hai, to 1 liter paani me 1 Chlorine/Halogen tablet (0.5g) daalein aur 30 minute tak wait karein.\n"
+            "3. FITKARI (Alum): Mittee wale paani me thodi fitkari ghumayein jisse gandagi niche baith jaye, fir upar ka saaf paani chaan kar ubaalein.\n"
+            "4. CHETAVANI: Direct tap ya flood water bina treat kiye kabhi na piyein — isse Cholera aur Diarrhea ho sakta hai."
+        ),
+        "rescue": (
+            "🚑 RESCUE & EVACUATION PROCEDURE:\n"
+            "1. ONLINE TICKET: AapdaSetu ke 'Rescue Help' page (rescue.html) par Pickup Location, No. of People aur Priority select karke rescue request submit karein.\n"
+            "2. IMMEDIATE PHONE DISPATCH: Turant 112 (Universal Emergency) ya 1078 (NDRF HQ) dial karein.\n"
+            "3. SIGNALLING: Agar paani badh raha hai, to building ki chhat (rooftop) par jaayein. Bright rang ka kapda lehrayein ya torch se SOS signal (3 short, 3 long, 3 short flash) dein.\n"
+            "4. IMPORTANT: Chhat par jaate waqt medicines, drinking water, Aadhaar/cash pouch aur phone/powerbank saath le lein."
+        ),
+        "helpline": (
+            "🚨 VERIFIED 24x7 DISASTER HELPLINES:\n"
+            "• 🚨 Universal Emergency: 112\n"
+            "• 🛡️ NDRF Headquarters (National Rescue): 1078\n"
+            "• 🏛️ State Disaster Control Room (SEOC): 1070\n"
+            "• 📍 District Disaster Management (DDMA): 1077\n"
+            "• 🚑 Medical Ambulance Service: 108\n"
+            "• 🚒 Fire & Flood Rescue Services: 101\n"
+            "• 👩 Women & Child Distress Helpline: 1091"
+        ),
+        "medical": (
+            "🏥 FIRST AID & FLOOD HEALTH PROTOCOLS:\n"
+            "1. SNAKE BITE (सांप का काटना): Shant rahein, bhaagein mat (blood circulation slow rakhne ke liye). Kaate huye hisse par cut mat lagayein aur choosne ki koshish na karein! Bitten limb ko dil ke level se niche rakhein aur turant nearest District Hospital jaakar Polyvalent Anti-Snake Venom (ASV) injection lagwayein.\n"
+            "2. FLOOD WOUND / CUT: Saaf paani se dho kar Betadine/antiseptic lagayein. 48 ghante me Tetanus injection lagwayein jisse Leptospirosis aur Tetanus infection se bacha ja sake.\n"
+            "3. DIARRHEA / FEVER: ORS (Oral Rehydration Salts) ya nimbu-paani-namak-cheeni ka ghol lagataar piyein.\n"
+            "4. MEDICAL SEVA: AapdaSetu ke 'Relief Fund & Doctors' page (donation.html#volunteer) se verified doctors se connect karein."
+        ),
+        "vehicle": (
+            "🚗 FLOOD DRIVING HAZARD ('Turn Around, Don't Drown'):\n"
+            "1. 6 INCH WATER: 6 inch ka behta paani insaan ke pair gira deta hai.\n"
+            "2. 12 INCH WATER: 12 inch (1 foot) paani choti car ko taira deta hai aur engine stall ho jata hai.\n"
+            "3. 24 INCH WATER: 2 foot paani badi se badi 4x4 SUV aur trucks ko baha le jaata hai.\n"
+            "4. DANGER: Kabhi bhi submerged bridge ya paani bhari sadak par gaadi na daalein — sadak niche se beh chuki ho sakti hai.\n"
+            "5. SAFE ROADS: AapdaSetu ke 'Safe Routes' page (safe-route.html) se flooded roads ka bypass route check karein."
+        ),
+        "family": (
+            "👨‍👩‍👧 FAMILY SAFETY CIRCLE GUIDELINES:\n"
+            "1. AapdaSetu ke 'Family Safety' page (family.html) par jaakar apne family members ka Naam, Phone aur Location add karein.\n"
+            "2. 'Mark I Am Safe' button dabakar apna real-time safety status aur time broadcast karein.\n"
+            "3. Har member ka status 'Safe', 'In Relief Camp' ya 'Needs Help' me toggle kiya ja sakta hai.\n"
+            "4. Admin EOC dashboard (admin.html#family) me bhi ye real-time reflect hota hai jisse disaster teams priority tracking provide karti hain."
+        ),
+        "shelter": (
+            "🏕️ VERIFIED SAFE RELIEF SHELTERS:\n"
+            "1. AapdaSetu system me 22 Verified Safe Shelters mapped hain jo high elevation par flood risk se door hain.\n"
+            "2. Har shelter me: Beds, Clean Drinking Water, Hot Food, Emergency Medical Kit aur Electricity Backup available hai.\n"
+            "3. 'Safe Shelters' page (shelters.html) par jaakar apna district chunein aur nearest shelter ka distance aur directions dekhein.\n"
+            "4. Helpline 1077 (District Collector) par call karke shelter tak evacuation vehicle bhi request kar sakte hain."
+        ),
+        "dam": (
+            "🌊 RIVERS & DAM GATE WARNINGS:\n"
+            "1. River water level aur Dam Gate openings (Tehri, Bhakra, Narmada, Ganga, Yamuna) ki live telemetry AapdaSetu 'Rivers & Dams' page (monitoring.html) par available hai.\n"
+            "2. Jab dam ke gates khole jaate hain, to downstream nadiyo me agle 2 se 4 ghante me paani tezi se badhta hai.\n"
+            "3. Nadi ke ghat aur tateey bastiyon se turant kam se kam 500 meter door aur unchai par chale jayein.\n"
+            "4. Live dam broadcasts Admin dwara 'Live Alerts' page (alerts.html) par turant issue kiye jaate hain."
+        ),
+        "flash_flood": (
+            "⚠️ FLASH FLOOD SURVIVAL PROTOCOL:\n"
+            "1. Flash flood bina kisi warning ke sirf 15 se 30 minute me paani ka level 10-15 feet badha deta hai.\n"
+            "2. Sabse pehle low-lying nala, riverbed, drain aur bridges se turant door bhaagein aur unchai (higher ground/hill) par pahuchein.\n"
+            "3. Paani aane ka intezaar mat karein — samaan bachane ke chakkar me der na karein.\n"
+            "4. Bijli ke main switch aur gas cylinder band karein. Turant 112 par alert dein."
+        ),
+        "kit": (
+            "🎒 EMERGENCY DISASTER GO-BAG CHECKLIST:\n"
+            "1. 3 din ka dry food (biscuit, chana, dry fruits) aur 3 liter sealed paani per person.\n"
+            "2. Essential medicines (BP, Sugar, inhaler, antiseptic, ORS packets).\n"
+            "3. Waterproof pouch me Aadhaar card, Bank passbook, Insurance papers aur cash.\n"
+            "4. Torch, powerbank, extra batteries aur ek whistle (seeti - rescue signal ke liye).\n"
+            "5. Ek jodi dry kapde aur raincoat/tarpaulin."
+        ),
+        "weather": (
+            "🌦️ WEATHER FORECAST & RADAR:\n"
+            "1. District-wise live temperature, rainfall rate, soil moisture aur IMD alerts dekhne ke liye AapdaSetu 'Weather' page (weather.html) kholein.\n"
+            "2. Red Alert ka matlab hai: Ati-bhaari baarish (Extreme Rainfall) — ghar se bahar na niklein.\n"
+            "3. Orange Alert ka matlab hai: Bhaari baarish aur flash flood ka khatra — alert rahein.\n"
+            "4. Live warning broadcast dekhne ke liye 'Live Alerts' page (alerts.html) par jayein."
+        ),
+        "flood": (
+            "🌊 FLOOD SAFETY RULES:\n"
+            "1. Main power switch aur LPG gas connection band karein.\n"
+            "2. Bachhon, buzurgo aur medicines ko sabse pehle upper floor ya safe shelter shift karein.\n"
+            "3. Drinking water ko boil karke piyein ya chlorine tablets use karein.\n"
+            "4. Flood water me walk mat karein, submerged wires ya drain open ho sakte hain.\n"
+            "5. Emergency me turant 112 ya 1078 (NDRF) dial karein."
+        ),
+        "emergency": (
+            "🚨 CRITICAL EMERGENCY IMMEDIATE ACTIONS:\n"
+            "1. Turant 112 (Universal Emergency) ya 1078 (NDRF) dial karein.\n"
+            "2. Apne exact GPS location aur kitne log fase hain wo bataein.\n"
+            "3. Paani badh raha ho to turant building ki chhat (rooftop) par chale jayein.\n"
+            "4. Bijli ke taaron aur transformer se door rahein.\n"
+            "5. AapdaSetu ke 'Rescue Help' page (rescue.html) par emergency ticket raise karein."
+        ),
+        "general": (
+            "AapdaSetu Safety Assistant: Main flood safety, evacuation routes, rescue team dispatch, river monitoring aur emergency kit guidance provide karta hoon.\n\n"
+            "Aap mujhse pooch sakte hain:\n"
+            "• 'Khana kahan milega?'\n"
+            "• 'Peene ka paani kaise saaf karein?'\n"
+            "• 'Rescue ke liye boat kaise bulayein?'\n"
+            "• 'Emergency helpline numbers kya hain?'\n"
+            "• 'Saanp kaat le to kya karein?'\n\n"
+            "Emergency situation me turant 112 par call karein."
+        )
+    }
+
+    replies_hindi = {
+        "greeting": (
+            "नमस्ते! 🙏 मैं आपदासेतु AI आपदा सहायक हूँ।\n"
+            "मैं निम्नलिखित महत्वपूर्ण विषयों पर आपकी तत्काल सहायता कर सकता हूँ:\n"
+            "• 🍲 निःशुल्क भोजन, पेयजल व सूखा राशन शिविर\n"
+            "• 💧 बाढ़ के पानी का घरेलू शुद्धिकरण (4 चरण)\n"
+            "• 🚑 रेस्क्यू बोट व राहत दल (112 / NDRF 1078)\n"
+            "• 🚗 बाढ़ में वाहन न चलाने की सुरक्षा गाइड\n"
+            "• 🏥 सर्पदंश (Snake bite) व घाव का प्राथमिक उपचार\n"
+            "• 🏕️ निकटतम प्रमाणित सुरक्षित राहत शिविर\n"
+            "• 👨‍👩‍👧 परिवार सुरक्षा मंडल और स्थिति ट्रैकिंग\n\n"
+            "आप मुझसे कोई भी आपदा व बाढ़ सुरक्षा सम्बन्धी प्रश्न पूछ सकते हैं।"
+        ),
+        "food": (
+            "🍲 बाढ़ में भोजन और राशन सहायता निर्देश:\n"
+            "1. सभी 22 प्रमाणित राहत शिविरों (Safe Shelters) में सरकार व NDRF द्वारा निःशुल्क पका हुआ भोजन, सूखा राशन, बच्चों का दूध और शुद्ध पेयजल उपलब्ध कराया जा रहा है।\n"
+            "2. आपदासेतु के 'Safe Shelters' पेज (shelters.html) पर जाकर अपने जिले का निकटतम शिविर देखें।\n"
+            "3. यदि आप छत पर फंसे हैं और राशन समाप्त हो चुका है, तो तुरंत 112 या जिला नियंत्रण कक्ष 1077 पर कॉल करके फूड पैकेट एयरड्रॉप का अनुरोध करें।\n"
+            "4. चेतावनी: बाढ़ के गंदे पानी के संपर्क में आया कोई भी भोजन न खाएं — यह जानलेवा संक्रमण फैला सकता है।"
+        ),
+        "water": (
+            "💧 बाढ़ में पेयजल शुद्धिकरण (जीवनरक्षक 4 उपाय):\n"
+            "1. पानी को खौलाना (Boiling): पानी को तेज आंच पर कम से कम 1 से 2 मिनट तक पूरी तरह उबालें। यह 99.9% रोगाणुओं को नष्ट करता है।\n"
+            "2. क्लोरीन/हैलोजन गोली: यदि उबालना संभव न हो, तो प्रति 1 लीटर पानी में 1 हैलोजन/क्लोरीन टैबलेट डालें और 30 मिनट तक प्रतीक्षा करें।\n"
+            "3. फिटकरी (Alum): गंदे पानी में फिटकरी घुमाकर मिट्टी नीचे बैठाएं, फिर छानकर उबालें।\n"
+            "4. चेतावनी: बाढ़ के पानी या बाढ़ में डूबे नलों का पानी कभी भी कच्चा न पिएं — इससे हैजा व डायरिया हो सकता है।"
+        ),
+        "rescue": (
+            "🚑 रेस्क्यू और बचाव प्रक्रिया (बचाव दल बुलाने के चरण):\n"
+            "1. ऑनलाइन टिकट: आपदासेतु के 'Rescue Help' पेज (rescue.html) पर अपना सटीक स्थान, फंसे लोगों की संख्या और प्राथमिकता दर्ज कर टिकट बनाएं।\n"
+            "2. फोन से संपर्क: तुरंत 112 (राष्ट्रीय आपातकाल) या 1078 (NDRF मुख्यालय) पर कॉल करें।\n"
+            "3. सिग्नल देना: यदि पानी ऊपर आ रहा है, तो छत पर जाएं। चमकदार लाल/सफेद कपड़ा लहराएं या टॉर्च से सिग्नल दें।\n"
+            "4. महत्वपूर्ण: अपने साथ केवल जीवनरक्षक दवाएं, पानी, पहचान पत्र और मोबाइल/पावरबैंक रखें।"
+        ),
+        "helpline": (
+            "🚨 24x7 राष्ट्रीय व राज्य आपातकालीन हेल्पलाइन नंबर:\n"
+            "• 🚨 राष्ट्रीय आपातकालीन सहायता: 112\n"
+            "• 🛡️ NDRF मुख्यालय (राहत व बचाव दल): 1078\n"
+            "• 🏛️ राज्य आपदा नियंत्रण कक्ष: 1070\n"
+            "• 📍 जिला आपदा प्रबंधन प्राधिकरण (DDMA): 1077\n"
+            "• 🚑 एम्बुलेंस सेवा: 108\n"
+            "• 🚒 अग्निशमन व बाढ़ बचाव सेवा: 101\n"
+            "• 👩 महिला व बाल सुरक्षा हेल्पलाइन: 1091"
+        ),
+        "medical": (
+            "🏥 प्राथमिक चिकित्सा और स्वास्थ्य सुरक्षा नियम:\n"
+            "1. सर्पदंश (सांप का काटना): शांत रहें, दौड़े नहीं। काटे गए स्थान पर चीरा न लगाएं और जहर चूसने का प्रयास न करें। उस अंग को स्थिर रखें और तुरंत नजदीकी अस्पताल जाकर एंटी-वेनम (ASV) लगवाएं।\n"
+            "2. घाव या चोट: बाढ़ के पानी से घाव को तुरंत साफ पानी और डेटॉल/बीटाडीन से धोएं। 48 घंटे के भीतर टिटनेस का टीका अवश्य लगवाएं।\n"
+            "3. दस्त व बुखार: लगातार ओआरएस (ORS) या नमक-चीनी का घोल पिएं ताकि डिहाइड्रेशन न हो।\n"
+            "4. डॉक्टर सहायता: आपदासेतु 'Relief Fund' पेज से मेडिकल सहायता प्राप्त कर सकते हैं।"
+        ),
+        "vehicle": (
+            "🚗 बाढ़ में वाहन सुरक्षा ('मुड़ जाएं, डूबें नहीं'):\n"
+            "1. 6 इंच पानी: बहता हुआ 6 इंच पानी किसी भी वयस्क को गिराने के लिए काफी है।\n"
+            "2. 12 इंच (1 फीट) पानी: छोटी कारों को तैरा देता है और इंजन बंद कर देता है।\n"
+            "3. 24 इंच (2 फीट) पानी: बड़ी एसयूवी और ट्रकों को भी बहा ले जाता है।\n"
+            "4. खतरा: कभी भी जलमग्न पुल या डूबी हुई सड़क पर वाहन न ले जाएं।\n"
+            "5. सुरक्षित मार्ग: आपदासेतु के 'Safe Routes' पेज (safe-route.html) से सुरक्षित बाईपास मार्ग देखें।"
+        ),
+        "family": (
+            "👨‍👩‍👧 परिवार सुरक्षा मंडल (Family Safety Circle):\n"
+            "1. आपदासेतु के 'Family Safety' पेज (family.html) पर जाकर परिवार के सदस्यों का नाम, फोन व स्थान दर्ज करें।\n"
+            "2. 'Mark I Am Safe' बटन दबाकर अपनी सुरक्षा स्थिति तुरंत दर्ज करें।\n"
+            "3. प्रत्येक सदस्य की स्थिति 'सुरक्षित', 'राहत शिविर में' या 'मदद चाहिए' में अपडेट की जा सकती है।\n"
+            "4. यह डेटा सीधे केंद्रीय आपदा नियंत्रण कक्ष (admin.html) में भी सिंक रहता है।"
+        ),
+        "shelter": (
+            "🏕️ प्रमाणित सुरक्षित राहत शिविर (Safe Shelters):\n"
+            "1. आपदासेतु पर 22 सुरक्षित राहत शिविर दर्ज हैं जो बाढ़ प्रभावित क्षेत्रों से सुरक्षित ऊंचाई पर स्थित हैं।\n"
+            "2. शिविरों में सुविधाएं: बिस्तर, भोजन, शुद्ध पेयजल, प्राथमिक चिकित्सा और बिजली बैकअप।\n"
+            "3. 'Safe Shelters' पेज (shelters.html) पर जाकर अपने जिले के नजदीकी शिविर की स्थिति और रास्ता देखें।\n"
+            "4. हेल्पलाइन 1077 पर कॉल करके शिविर तक वाहन की मांग कर सकते हैं।"
+        ),
+        "dam": (
+            "🌊 नदी व बांध गेट चेतावनी (Rivers & Dams Telemetry):\n"
+            "1. नदियों के जलस्तर और बांध के गेट खुलने की लाइव जानकारी 'Rivers & Dams' पेज (monitoring.html) पर देखें।\n"
+            "2. गेट खुलने पर निचले इलाकों में 2 से 4 घंटे के भीतर जलस्तर तेजी से बढ़ता है।\n"
+            "3. नदी तटों से तुरंत सुरक्षित दूरी और ऊंचाई पर चले जाएं।"
+        ),
+        "flash_flood": (
+            "⚠️ अचानक आने वाली बाढ़ (फ्लैश फ्लड) से बचाव के नियम:\n"
+            "1. फ्लैश फ्लड बिना किसी पूर्व चेतावनी के मात्र 15 से 30 मिनट में आ सकती है।\n"
+            "2. नदी, नालों, पुलों और निचले इलाकों से तुरंत दूर भागें और ऊंची पहाड़ी या पक्की बहुमंजिला इमारत पर जाएं।\n"
+            "3. पानी आने का इंतजार न करें, सामान के चक्कर में जान जोखिम में न डालें।\n"
+            "4. तुरंत 112 पर कॉल करें।"
+        ),
+        "kit": (
+            "🎒 आपातकालीन आपदा किट (Emergency Go-Bag):\n"
+            "1. 3 दिन का सूखा भोजन और प्रति व्यक्ति 3 लीटर सीलबंद पीने का पानी।\n"
+            "2. नियमित दवाएं, ओआरएस पैकेट और प्राथमिक चिकित्सा किट।\n"
+            "3. वाटरप्रूफ पाउच में आधार कार्ड, बैंक दस्तावेज, बीमा पत्र व नकदी।\n"
+            "4. टॉर्च, पावरबैंक, अतिरिक्त सेल और सीटी (बचाव संकेत के लिए)।\n"
+            "5. एक जोड़ी सूखे कपड़े और बरसाती।"
+        ),
+        "weather": (
+            "🌦️ मौसम पूर्वानुमान व अलर्ट:\n"
+            "1. अपने जिले का लाइव मौसम और बारिश का स्तर देखने के लिए 'Weather' पेज (weather.html) देखें।\n"
+            "2. रेड अलर्ट (Red Alert): अत्यधिक भारी बारिश — घर में सुरक्षित रहें।\n"
+            "3. ऑरेंज अलर्ट (Orange Alert): भारी बारिश व बाढ़ का खतरा — तैयार रहें।"
+        ),
+        "flood": (
+            "🌊 बाढ़ सुरक्षा नियम:\n"
+            "1. मुख्य बिजली स्विच और एलपीजी गैस कनेक्शन बंद करें।\n"
+            "2. बच्चों, बुजुर्गों और दवाओं को सुरक्षित ऊपरी मंजिल पर ले जाएं।\n"
+            "3. पानी उबालकर पिएं। बहते पानी में न चलें।\n"
+            "4. आपातकाल में 112 या 1078 डायल करें।"
+        ),
+        "emergency": (
+            "🚨 गंभीर आपातकाल में तत्काल कदम:\n"
+            "1. तुरंत 112 या 1078 (NDRF) पर कॉल करें।\n"
+            "2. अपनी सटीक जीपीएस लोकेशन बताएं।\n"
+            "3. पानी बढ़ रहा हो तो छत पर जाएं और बिजली के तारों से दूर रहें।\n"
+            "4. आपदासेतु 'Rescue Help' पेज से टिकट बनाएं।"
+        ),
+        "general": (
+            "आपदासेतु आपदा सहायक: मैं बाढ़ सुरक्षा, निकासी मार्ग, राहत दल, पेयजल शुद्धिकरण और शिविरों की जानकारी देता हूँ।\n"
+            "जीवन संकट में तुरंत 112 या NDRF 1078 पर कॉल करें।"
+        )
+    }
+
+    replies_english = {
+        "greeting": (
+            "Namaste! 🙏 I am the AapdaSetu AI Emergency Copilot.\n"
+            "I can assist you with critical disaster guidance on:\n"
+            "• 🍲 Free Food & Relief Supplies (Verified Shelters)\n"
+            "• 💧 4-step Safe Water Purification Protocol\n"
+            "• 🚑 Emergency Rescue Dispatch & Boat Tickets (112 / NDRF 1078)\n"
+            "• 🚗 Flood Driving Hazard Rules (Turn Around, Don't Drown)\n"
+            "• 🏥 Snake Bite & Flood Wound First Aid\n"
+            "• 🏕️ Verified Safe Disaster Shelters Directory\n"
+            "• 👨‍👩‍👧 Family Circle Protection & Check-ins\n\n"
+            "Feel free to ask any disaster or flood safety question below."
+        ),
+        "food": (
+            "🍲 FLOOD FOOD & RELIEF SUPPLIES:\n"
+            "1. Free hot packaged meals, dry ration kits, baby formula, and clean water are being distributed across all 22 verified Safe Shelters.\n"
+            "2. Visit AapdaSetu's 'Safe Shelters' page (shelters.html) to locate the nearest camp in your district.\n"
+            "3. If trapped on a rooftop and food has run out, call 112 or District Control Room 1077 for emergency food packet airdrops.\n"
+            "4. WARNING: Never consume food that has touched flood water — it poses a severe bacterial contamination risk."
+        ),
+        "water": (
+            "💧 DRINKING WATER PURIFICATION IN FLOODS (4 Vital Rules):\n"
+            "1. ROLLING BOIL: Boil water vigorously for at least 1 to 2 minutes. This kills 99.9% of bacteria, parasites, and viruses.\n"
+            "2. CHLORINE / HALOGEN TABLET: If boiling is impossible, add 1 tablet (approx 0.5g) per 1 liter of clear water and wait 30 minutes.\n"
+            "3. ALUM (Fitkari): Swirl alum in turbid water to settle mud, then strain and boil the clear water.\n"
+            "4. CAUTION: Never drink untreated tap or flood water — risk of Cholera, Diarrhea, and Typhoid."
+        ),
+        "rescue": (
+            "🚑 RESCUE & EVACUATION PROTOCOL:\n"
+            "1. ONLINE TICKET: Open AapdaSetu's 'Rescue Help' page (rescue.html) to submit a ticket with your pickup location, number of people, and priority level.\n"
+            "2. IMMEDIATE PHONE DISPATCH: Call 112 (Universal Emergency) or 1078 (NDRF HQ) immediately.\n"
+            "3. SIGNALLING: If water is rising, move to the rooftop. Wave a bright cloth or flash a torch using the SOS signal (3 short, 3 long, 3 short flashes).\n"
+            "4. CRITICAL: Take only essential prescription medicines, drinking water, identification papers, and your phone/powerbank."
+        ),
+        "helpline": (
+            "🚨 24x7 OFFICIAL DISASTER HELPLINES:\n"
+            "• 🚨 Universal Emergency Helpline: 112\n"
+            "• 🛡️ NDRF Headquarters (National Rescue): 1078\n"
+            "• 🏛️ State Emergency Operations Center (SEOC): 1070\n"
+            "• 📍 District Disaster Management (DDMA): 1077\n"
+            "• 🚑 Medical Ambulance Services: 108\n"
+            "• 🚒 Fire & Flood Rescue Services: 101\n"
+            "• 👩 Women & Child Distress Helpline: 1091"
+        ),
+        "medical": (
+            "🏥 FIRST AID & FLOOD HEALTH PROTOCOLS:\n"
+            "1. SNAKE BITE: Stay calm, do not run (slowing venom circulation). Do NOT cut the wound and do NOT attempt to suck venom! Keep the limb below heart level and rush to the nearest district hospital for Polyvalent Anti-Snake Venom (ASV).\n"
+            "2. WOUNDS & CUTS: Wash thoroughly with clean water, apply Betadine antiseptic, and receive a Tetanus toxoid injection within 48 hours to prevent Leptospirosis.\n"
+            "3. DIARRHEA & FEVER: Drink Oral Rehydration Salts (ORS) or clean salt-sugar-lemon solution continuously.\n"
+            "4. MEDICAL VOLUNTEERS: Connect with doctors via AapdaSetu's 'Relief Fund' page (donation.html#volunteer)."
+        ),
+        "vehicle": (
+            "🚗 VEHICLE SAFETY HAZARDS ('Turn Around, Don't Drown'):\n"
+            "1. 6 INCHES OF WATER: Knocks down an adult.\n"
+            "2. 12 INCHES (1 FOOT): Floats small vehicles and stalls engines.\n"
+            "3. 24 INCHES (2 FEET): Sweeps away heavy SUVs and trucks.\n"
+            "4. DANGER: Never attempt to drive through submerged roads or bridges — roadbeds may be washed out underneath.\n"
+            "5. SAFE ROUTES: Use AapdaSetu's 'Safe Routes' page (safe-route.html) for verified bypass routes."
+        ),
+        "family": (
+            "👨‍👩‍👧 FAMILY SAFETY CIRCLE GUIDELINES:\n"
+            "1. Open AapdaSetu's 'Family Safety' page (family.html) to add family members with their names, phone numbers, and cities.\n"
+            "2. Tap 'Mark I Am Safe' to broadcast your status with an exact timestamp.\n"
+            "3. Switch status between 'Safe', 'In Relief Camp', or 'Needs Help'.\n"
+            "4. Data synchronizes live with the EOC Admin Command Center (admin.html#family) for priority rescue coordination."
+        ),
+        "shelter": (
+            "🏕️ VERIFIED SAFE RELIEF SHELTERS:\n"
+            "1. AapdaSetu maintains 22 Verified Safe Shelters located in flood-safe high-elevation zones.\n"
+            "2. Shelters provide beds, hot meals, drinking water, basic medical supplies, and emergency electricity.\n"
+            "3. Visit 'Safe Shelters' (shelters.html) to locate the nearest camp in your district."
+        ),
+        "dam": (
+            "🌊 RIVERS & DAM TELEMETRY:\n"
+            "1. Real-time river gauges and dam gate statuses (Tehri, Bhakra, Narmada, Ganga, Yamuna) are available on 'Rivers & Dams' (monitoring.html).\n"
+            "2. When dam gates open, downstream water levels rise rapidly within 2 to 4 hours. Evacuate riverbanks immediately."
+        ),
+        "flash_flood": (
+            "⚠️ FLASH FLOOD SURVIVAL PROTOCOL:\n"
+            "1. Flash floods arrive within 15 to 30 minutes with zero warning.\n"
+            "2. Immediately abandon low-lying stream beds, riverbanks, and ravines; climb to higher ground immediately.\n"
+            "3. Disconnect main electrical breakers and gas cylinders. Call 112 immediately."
+        ),
+        "kit": (
+            "🎒 EMERGENCY DISASTER GO-BAG CHECKLIST:\n"
+            "1. 3 days of non-perishable food and 3 liters of sealed water per person.\n"
+            "2. Essential prescription medicines, antiseptic, and ORS packets.\n"
+            "3. Waterproof pouch containing identity documents (Aadhaar), bank passbooks, and cash.\n"
+            "4. Torch, powerbank, extra batteries, and an emergency whistle for signalling rescuers."
+        ),
+        "weather": (
+            "🌦️ WEATHER FORECAST & RADAR:\n"
+            "1. Check live district-level rainfall, temperature, and soil moisture on 'Weather' (weather.html).\n"
+            "2. Red Alert: Extreme heavy rainfall — do not step outside.\n"
+            "3. Orange Alert: Heavy rain and flash flood risk — stay vigilant."
+        ),
+        "flood": (
+            "🌊 FLOOD SAFETY RULES:\n"
+            "1. Shut off main power breakers and LPG gas cylinders.\n"
+            "2. Move children, elderly family members, and essential medicines to upper floors.\n"
+            "3. Drink only boiled water. Never walk in floodwaters.\n"
+            "4. Call 112 or NDRF 1078 in case of emergency."
+        ),
+        "emergency": (
+            "🚨 CRITICAL EMERGENCY IMMEDIATE ACTIONS:\n"
+            "1. Call 112 (Universal Emergency) or 1078 (NDRF) immediately.\n"
+            "2. Share your exact GPS location and number of trapped individuals.\n"
+            "3. Move to the highest accessible floor or roof.\n"
+            "4. Submit a ticket on AapdaSetu 'Rescue Help' (rescue.html)."
+        ),
+        "general": (
+            "I am the AapdaSetu Disaster Assistant. I provide verified guidelines on flood safety, evacuation routes, water purification, and rescue assistance.\n\n"
+            "You can ask me:\n"
+            "• 'Where can I get food and relief supplies?'\n"
+            "• 'How do I purify drinking water during floods?'\n"
+            "• 'How do I request a rescue boat or 4x4 vehicle?'\n"
+            "• 'What are the 24x7 emergency helpline numbers?'\n"
+            "• 'First aid for snake bites in flood zones?'\n\n"
+            "For life-threatening emergencies, dial 112 immediately."
+        )
+    }
+
+    if language in {"hindi", "hi"}:
+        response_text = replies_hindi.get(kind, replies_hindi["general"])
+    elif language in {"english", "en"}:
+        response_text = replies_english.get(kind, replies_english["general"])
+    else:
+        response_text = replies_hinglish.get(kind, replies_hinglish["general"])
+
+    # Optionally append live TinyFish search ground intelligence if query is specific and results exist
+    tf_sources = []
+    if kind not in {"greeting"} and TINYFISH_API_KEY:
+        try:
+            tf_results = query_tinyfish_search(message, limit=2)
+            if tf_results:
+                snippets = [r.get("snippet") for r in tf_results if r.get("snippet") and len(r.get("snippet", "")) > 30]
+                if snippets:
+                    clean_snip = snippets[0].replace("\n", " ").strip()
+                    if len(clean_snip) > 160:
+                        clean_snip = clean_snip[:160] + "..."
+                    response_text += f"\n\n🌐 Live Ground Intelligence (TinyFish AI):\n• {clean_snip}"
+                tf_sources = [r.get("title") for r in tf_results if r.get("title")]
+        except Exception:
+            pass
+
     key_masked = f"{TINYFISH_API_KEY[:14]}...{TINYFISH_API_KEY[-4:]}" if len(TINYFISH_API_KEY) >= 18 else "AUTHENTICATED"
 
-    # 1. Attempt Grounded Intelligence via TinyFish Search API
-    tf_results = query_tinyfish_search(data.message)
-    if tf_results:
-        snippets = [r.get("snippet") or r.get("title") for r in tf_results if r.get("snippet") or r.get("title")]
-        source_titles = [r.get("title") for r in tf_results if r.get("title")]
-
-        bullet_points = "\n• ".join(snippets[:2])
-        if language in {"hindi", "hi"}:
-            reply_text = (
-                f"🤖 [TinyFish AI Live Intelligence]:\n"
-                f"• {bullet_points}\n\n"
-                f"🚨 आधिकारिक आपातकालीन निर्देश:\n"
-                f"1. गंभीर स्थिति में तुरंत 112 या 1078 (NDRF) पर कॉल करें।\n"
-                f"2. बहते बाढ़ के पानी में वाहन न चलाएं और सुरक्षित ऊंचाई पर रहें।"
-            )
-        elif language in {"english", "en"}:
-            reply_text = (
-                f"🤖 [Powered by TinyFish AI Intelligence]:\n"
-                f"• {bullet_points}\n\n"
-                f"🚨 Immediate Emergency Guidelines:\n"
-                f"1. For life-threatening distress, dial 112 or NDRF helpline 1078 immediately.\n"
-                f"2. Never drive or walk through moving flood water. Evacuate to higher elevation."
-            )
-        else:  # Hinglish / Default
-            reply_text = (
-                f"🤖 [TinyFish AI Live Guidance]:\n"
-                f"• {bullet_points}\n\n"
-                f"🚨 Emergency Action Steps:\n"
-                f"1. Critical emergency me turant 112 ya 1078 (NDRF) par call karein.\n"
-                f"2. Moving flood water me drive ya walk na karein. Safe shelters page se relief camp check karein."
-            )
-
-        return {
-            "reply": reply_text,
-            "powered_by": "TinyFish AI Infrastructure",
-            "api_key_masked": key_masked,
-            "tinyfish_verified": True,
-            "sources": source_titles[:2],
-            "type": "tinyfish_grounded",
-            "language": language
-        }
-
-    if language in {"english", "en"}:
-        replies = {
-            "flash_flood": "⚠️ Flash floods can arrive very quickly. Move immediately to higher ground away from rivers, streams, drains and low-lying areas. Do not try to cross flood water.",
-            "emergency": "🚨 If this is an emergency, call 112 immediately. Move to a safe or higher location and stay away from flood water.",
-            "flood": "🌊 During a flood, stay away from low-lying areas and fast-flowing water. Avoid electrical poles and damaged buildings and follow official alerts.",
-            "vehicle": "🚗 Driving through flood water can be dangerous. If water is rising, leave the vehicle and move to safe higher ground.",
-            "family": "👨‍👩‍👧 Keep emergency contacts, a family meeting point and important documents ready. Every member should know the evacuation route and emergency plan.",
-            "weather": "🌦️ Use AapdaSetu Weather Forecast to check available weather information for your state and district. During heavy rain, prioritize official warnings.",
-            "rescue": "🚑 Use the AapdaSetu Rescue section to submit a rescue request with your location, phone number and priority. For life-threatening emergencies, call 112 immediately.",
-            "general": "🤖 I am the AapdaSetu Disaster Assistant. Ask me about floods, flash floods, weather, rescue, emergencies or family safety."
-        }
-    elif language in {"hindi", "hi"}:
-        replies = {
-            "flash_flood": "⚠️ अचानक आने वाली बाढ़ बहुत तेजी से आ सकती है। नदी, नाले, ड्रेन और निचले इलाकों से तुरंत ऊंची और सुरक्षित जगह पर जाएं। बाढ़ के पानी को पार करने की कोशिश न करें।",
-            "emergency": "🚨 अगर यह आपातकाल है तो तुरंत 112 पर कॉल करें। सुरक्षित या ऊंची जगह पर जाएं और बाढ़ के पानी से दूर रहें।",
-            "flood": "🌊 बाढ़ के समय निचले इलाकों और तेज बहते पानी से दूर रहें। बिजली के खंभों और क्षतिग्रस्त इमारतों से दूर रहें और आधिकारिक चेतावनियों का पालन करें।",
-            "vehicle": "🚗 बाढ़ के पानी में वाहन चलाना खतरनाक हो सकता है। पानी बढ़ रहा हो तो वाहन छोड़कर सुरक्षित ऊंची जगह पर जाएं।",
-            "family": "👨‍👩‍👧 आपातकालीन संपर्क, परिवार का मिलन स्थल और जरूरी दस्तावेज तैयार रखें। सभी सदस्यों को निकासी मार्ग और आपातकालीन योजना पता होनी चाहिए।",
-            "weather": "🌦️ AapdaSetu Weather Forecast में राज्य और जिला चुनकर उपलब्ध मौसम जानकारी देखें। भारी बारिश में आधिकारिक चेतावनियों को प्राथमिकता दें।",
-            "rescue": "🚑 AapdaSetu Rescue सेक्शन में स्थान, फोन नंबर और प्राथमिकता देकर बचाव अनुरोध भेजें। जान को खतरा होने पर तुरंत 112 पर कॉल करें।",
-            "general": "🤖 मैं AapdaSetu Disaster Assistant हूं। आप बाढ़, अचानक बाढ़, मौसम, बचाव, आपातकाल या परिवार की सुरक्षा के बारे में पूछ सकते हैं।"
-        }
-    elif language in {"bengali", "bn"}:
-        replies = {
-            "flash_flood": "⚠️ আকস্মিক বন্যা খুব দ্রুত আসতে পারে। নদী, নালা ও নিচু এলাকা থেকে অবিলম্বে উঁচু ও নিরাপদ স্থানে সরে যান। বন্যার জল পার হওয়ার চেষ্টা করবেন না।",
-            "emergency": "🚨 এটি জরুরি পরিস্থিতি হলে অবিলম্বে ১১২ নম্বরে ফোন করুন। নিরাপদ স্থানে যান এবং বন্যার জল থেকে দূরে থাকুন।",
-            "flood": "🌊 বন্যার সময় নিচু এলাকা ও তীব্র স্রোত থেকে দূরে থাকুন। ক্ষতিগ্রস্ত ভবন ও বিদ্যুতের খুঁটি এড়িয়ে চলুন।",
-            "vehicle": "🚗 বন্যার জলে গাড়ি চালানো বিপজ্জনক। জল বাড়তে থাকলে গাড়ি ছেড়ে নিরাপদ আশ্রয়ে যান।",
-            "family": "👨‍👩‍👧 জরুরি যোগাযোগ নম্বর ও প্রয়োজনীয় কাগজপত্র প্রস্তুত রাখুন। সবাইকে নিরাপদ স্থানান্তর পথ জানা থাকতে হবে।",
-            "weather": "🌦️ AapdaSetu আবহাওয়া পূর্বাভাসে আপনার জেলা নির্বাচন করে তথ্য দেখুন। ভারী বৃষ্টিতে সতর্কতা মেনে চলুন।",
-            "rescue": "🚑 AapdaSetu রেসকিউ বিভাগে জরুরি উদ্ধার অনুরোধ জমা দিন। জীবনের ঝুঁকি থাকলে অবিলম্বে ১১২ কল করুন।",
-            "general": "🤖 আমি AapdaSetu দুর্যোগ সহকারী। বন্যা, আবহাওয়া, জরুরি উদ্ধার ও নিরাপত্তা নিয়ে আমাকে প্রশ্ন করতে পারেন।"
-        }
-    elif language in {"marathi", "mr"}:
-        replies = {
-            "flash_flood": "⚠️ अचानक येणारा पूर अत्यंत वेगाने येऊ शकतो. नदीकाठ आणि सखल भागातून त्वरित उंच व सुरक्षित ठिकाणी जा. पुराचे पाणी ओलांडण्याचा प्रयत्न करू नका.",
-            "emergency": "🚨 आणीबाणी असल्यास त्वरित ११२ वर कॉल करा. सुरक्षित ठिकाणी जा आणि पुराच्या पाण्यापासून दूर राहा.",
-            "flood": "🌊 पुराच्या वेळी सखल भाग आणि वेगाने वाहणाऱ्या पाण्यापासून दूर राहा. वीज खांब आणि धोकादायक इमारती टाळा.",
-            "vehicle": "🚗 पुराच्या पाण्यात वाहन चालवणे धोकादायक ठरू शकते. पाणी वाढत असल्यास वाहन सोडून सुरक्षित स्थळी जा.",
-            "family": "👨‍👩‍👧 आपत्कालीन संपर्क आणि महत्त्वाची कागदपत्रे तयार ठेवा. कुटुंबातील सर्वांना सुरक्षित मार्ग माहीत असावा.",
-            "weather": "🌦️ AapdaSetu हवामान विभागात जिल्हा निवडून थेट माहिती तपासा. मुसळधार पावसात शासकीय सूचना पाळा.",
-            "rescue": "🚑 AapdaSetu बचाव विभागात जाऊन स्थान व संपर्क देऊन मदतीची मागणी करा. जीवितास धोका असल्यास ११२ वर कॉल करा.",
-            "general": "🤖 मी AapdaSetu आपत्ती निवारण सहाय्यक आहे. आपण मला पूर, हवामान, बचाव कार्य किंवा सुरक्षेबाबत विचारू शकता."
-        }
-    elif language in {"telugu", "te"}:
-        replies = {
-            "flash_flood": "⚠️ ఆకస్మిక వరదలు చాలా వేగంగా రావచ్చు. నదులు, వాగులు, లోతట్టు ప్రాంతాల నుండి వెంటనే ఎత్తైన సురక్షిత ప్రాంతాలకు వెళ్లండి. వరద నీటిని దాటడానికి ప్రయత్నించవద్దు.",
-            "emergency": "🚨 ఇది అత్యవసర పరిస్థితి అయితే వెంటనే 112 కి కాల్ చేయండి. సురక్షిత ప్రాంతానికి వెళ్లి వరద నీటికి దూరంగా ఉండండి.",
-            "flood": "🌊 వరదల సమయంలో లోతట్టు ప్రాంతాలు, వేగంగా ప్రవహించే నీటికి దూరంగా ఉండండి. విద్యుత్ స్తంభాలు, దెబ్బతిన్న భవనాలకు దూరంగా ఉండండి.",
-            "vehicle": "🚗 వరద నీటిలో వాహనం నడపడం ప్రమాదకరం. నీటి మట్టం పెరుగుతుంటే వాహనాన్ని వదిలి సురక్షిత ప్రదేశానికి వెళ్లండి.",
-            "family": "👨‍👩‍👧 అత్యవసర కాంటాక్ట్‌లు, ముఖ్యమైన పత్రాలను సిద్ధంగా ఉంచుకోండి. ప్రతి ఒక్కరికీ తరలింపు మార్గం తెలిసి ఉండాలి.",
-            "weather": "🌦️ AapdaSetu వాతావరణ విభాగంలో మీ జిల్లాను ఎంచుకుని సమాచారాన్ని తనిఖీ చేయండి. భారీ వర్షాలలో హెచ్చరికలను పాటించండి.",
-            "rescue": "🚑 రక్షణ సహాయం కోసం AapdaSetu రెస్క్యూ విభాగంలో లొకేషన్ పంపి నమోదు చేయండి. ప్రాణాపాయం ఉంటే 112 కి కాల్ చేయండి.",
-            "general": "🤖 నేను AapdaSetu విపత్తు సహాయకుడిని. వరదలు, వాతావరణం, రక్షణ, కుటుంబ భద్రత గురించి నన్ను అడగవచ్చు."
-        }
-    elif language in {"tamil", "ta"}:
-        replies = {
-            "flash_flood": "⚠️ திடீர் வெள்ளம் மிக விரைவாக வரக்கூடும். ஆறுகள் மற்றும் தாழ்வான பகுதிகளை விட்டு உடனே மேடான பாதுகாப்பான இடங்களுக்குச் செல்லுங்கள். வெள்ள நீரை கடக்க முயற்சிக்காதீர்கள்.",
-            "emergency": "🚨 அவசரநிலை என்றால் உடனே 112 ஐ அழைக்கவும். பாதுகாப்பான இடத்திற்குச் சென்று வெள்ள நீரில் இருந்து விலகி இருங்கள்.",
-            "flood": "🌊 வெள்ளப் பெருக்கு ஏற்படும் போது தாழ்வான பகுதிகள் மற்றும் வேகமாக ஓடும் நீரைத் தவிர்க்கவும். மின் கம்பங்களை விட்டு விலகி இருங்கள்.",
-            "vehicle": "🚗 வெள்ள நீரில் வாகனம் ஓட்டுவது ஆபத்தானது. நீர் மட்டம் உயர்ந்தால் வாகனத்தை விட்டுவிட்டு பாதுகாப்பான இடத்திற்குச் செல்லுங்கள்.",
-            "family": "👨‍👩‍👧 அவசர தொடர்பு எண்கள் மற்றும் முக்கிய ஆவணங்களை தயாராக வைத்திருங்கள். வெளியேறும் பாதையை அனைவரும் அறிந்திருக்க வேண்டும்.",
-            "weather": "🌦️ AapdaSetu வானிலை பிரிவில் மாவட்டத்தைத் தேர்ந்தெடுத்து தகவல்களை அறியலாம். கனமழையின் போது அரசு எச்சரிக்கையைப் பின்பற்றுங்கள்.",
-            "rescue": "🚑 AapdaSetu மீட்புப் பிரிவில் உங்கள் இருப்பிடத்தைப் பதிவிட்டு உதவி கோருங்கள். உயிருக்கு ஆபத்தெனில் உடனே 112 ஐ அழைக்கவும்.",
-            "general": "🤖 நான் AapdaSetu பேரிடர் உதவியாளர். வெள்ளம், வானிலை, அவசர மீட்பு மற்றும் பாதுகாப்பு பற்றி என்னிடம் கேட்கலாம்."
-        }
-    elif language in {"gujarati", "gu"}:
-        replies = {
-            "flash_flood": "⚠️ અચાનક આવતું પૂર ખૂબ ઝડપથી આવી શકે છે. નદીઓ અને નીચાણવાળા વિસ્તારોમાંથી તાત્કાલિક ઊંચા સુરક્ષિત સ્થળોએ ખસી જાઓ. પૂરનું પાણી ઓળંગવાનો પ્રયાસ કરશો નહીં.",
-            "emergency": "🚨 કટોકટી હોય તો તરત જ ૧૧૨ પર કૉલ કરો. સુરક્ષિત સ્થળે જાઓ અને પૂરના પાણીથી દૂર રહો.",
-            "flood": "🌊 પૂરના સમયે નીચાણવાળા વિસ્તારો અને ઝડપથી વહેતા પાણીથી દૂર રહો. વીજળીના થાંભલાઓથી દૂર રહો.",
-            "vehicle": "🚗 પૂરના પાણીમાં વાહન ચલાવવું જોખમી બની શકે છે. પાણી વધતું હોય તો વાહન છોડી સુરક્ષિત સ્થળે જાઓ.",
-            "family": "👨‍👩‍👧 ઇમરજન્સી સંપર્કો અને મહત્વપૂર્ણ દસ્તાવેજો તૈયાર રાખો. પરિવારના દરેક સભ્યને સલામત માર્ગ ખબર હોવી જોઈએ.",
-            "weather": "🌦️ AapdaSetu હવામાન વિભાગમાં જિલ્લો પસંદ કરીને માહિતી મેળવો. ભારે વરસાદમાં સત્તાવાર ચેતવણીઓ અનુસરો.",
-            "rescue": "🚑 AapdaSetu બચાવ વિભાગમાં જઈને સ્થાન અને માહિતી મોકલો. જીવનું જોખમ હોય તો ૧૧૨ પર તરત જ કૉલ કરો.",
-            "general": "🤖 હું AapdaSetu આપત્તિ સહાયક છું. તમે મને પૂર, હવામાન, બચાવ કાર્ય કે સુરક્ષા વિશે પૂછી શકો છો."
-        }
-    else:
-        replies = {
-            "flash_flood": "⚠️ Flash flood bahut rapidly aa sakta hai. Nadi, stream, drain aur low-lying area se immediately higher ground ki taraf move karein. Flood water cross karne ki koshish na karein.",
-            "emergency": "🚨 Agar emergency hai to turant 112 par call karein. Safe location ya higher ground par chale jayein. Flood water se door rahein.",
-            "flood": "🌊 Flood ke time low-lying areas aur fast-flowing water se door rahein. Bijli ke poles aur damaged buildings ke paas na jayein. Official alerts follow karein.",
-            "vehicle": "🚗 Flood water me vehicle drive karna dangerous ho sakta hai. Water level badh raha ho to vehicle chhodkar safe higher ground ki taraf move karein.",
-            "family": "👨‍👩‍👧 Family ke liye emergency contacts, safe meeting point aur important documents ready rakhein. Har member ko emergency plan aur evacuation route pata hona chahiye.",
-            "weather": "🌦️ Aap AapdaSetu ke Weather Forecast section me state aur district select karke available weather information check kar sakte hain. Heavy rainfall ke time official warnings ko priority dein.",
-            "rescue": "🚑 Rescue help ke liye AapdaSetu ke Rescue section me service select karke apni location, phone number aur priority submit karein. Life-threatening emergency me 112 ko immediately call karein.",
-            "general": "🤖 Main AapdaSetu Disaster Assistant hoon. Aap mujhse flood, flash flood, weather, rescue, emergency ya family safety ke baare me pooch sakte hain."
-        }
-
-    if any(word in message for word in ["flash flood", "flashflood", "achanak baadh", "sudden flood", "अचानक बाढ़"]):
-        kind = "flash_flood"
-    elif any(word in message for word in ["emergency", "help", "bachao", "madad", "danger", "112", "आपातकाल"]):
-        kind = "emergency"
-    elif any(word in message for word in ["flood", "baadh", "badh", "paani bhar", "water level", "बाढ़"]):
-        kind = "flood"
-    elif any(word in message for word in ["drive", "car", "bike", "vehicle", "gaadi", "वाहन"]):
-        kind = "vehicle"
-    elif any(word in message for word in ["family", "parivar", "bachche", "children", "परिवार"]):
-        kind = "family"
-    elif any(word in message for word in ["weather", "mausam", "rain", "rainfall", "baarish", "temperature", "मौसम", "बारिश"]):
-        kind = "weather"
-    elif any(word in message for word in ["rescue", "ambulance", "rescue boat", "rescue vehicle", "बचाव"]):
-        kind = "rescue"
-    else:
-        kind = "general"
-
-    return {"reply": replies[kind], "type": kind, "language": language if language in {"english", "en", "hindi", "hi", "hinglish"} else "hinglish"}
+    return {
+        "reply": response_text,
+        "powered_by": "AapdaSetu Emergency Intelligence Engine",
+        "api_key_masked": key_masked,
+        "type": kind,
+        "language": language,
+        "sources": tf_sources[:2]
+    }
 
 
 # =========================================================
