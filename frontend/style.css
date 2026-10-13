@@ -2248,7 +2248,10 @@ path.pulse-danger-pin {
   #monitoringMap,
   #globalMap,
   #floodMap,
-  #riskMap {
+  #riskMap,
+  #homeMap,
+  #liveFleetMap,
+  #adminMap {
     height: 380px !important;
     min-height: 340px !important;
     border-radius: 12px !important;

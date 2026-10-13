@@ -3,8 +3,15 @@
  * Centralized API handler, Geolocation, Prediction & Shared Navigation
  */
 
-let API_BASE = (window.API_BASE) ? window.API_BASE : "http://127.0.0.1:8000";
+let API_BASE = (window.API_BASE) ? window.API_BASE : (window.location.origin && window.location.origin.startsWith("http") && !window.location.origin.includes("vercel.app") ? window.location.origin : "http://127.0.0.1:8000");
 (async function verifyApiBase() {
+  if (window.API_BASE) return;
+  if (window.location.origin && window.location.origin.startsWith("http") && !window.location.origin.includes("vercel.app")) {
+    try {
+      const rOrig = await fetch(`${window.location.origin}/health`, { signal: AbortSignal.timeout(600) });
+      if (rOrig.ok) { API_BASE = window.location.origin; return; }
+    } catch {}
+  }
   try {
     const r8 = await fetch("http://127.0.0.1:8000/health", { signal: AbortSignal.timeout(600) });
     if (r8.ok) { API_BASE = "http://127.0.0.1:8000"; return; }
@@ -453,11 +460,48 @@ document.addEventListener("DOMContentLoaded", () => {
     menuBtn.addEventListener("click", toggleMobileNav);
   }
 
-  // Initialize Auth Header, Login Modal, and Dam Broadcast Banner
+  // Initialize Auth Header, Login Modal, Dam Alerts, and Mobile Bottom Nav
   initAuthUI();
   initLoginModal();
   checkActiveDamAlerts();
+  initMobileBottomBar();
 });
+
+/**
+ * Mobile Bottom Quick-Action Bar
+ */
+function initMobileBottomBar() {
+  if (window.location.pathname.includes("report.html")) return;
+  if (document.querySelector(".mobile-bottom-bar")) return;
+
+  const currentPath = (window.location.pathname.split("/").pop() || "index.html").toLowerCase();
+  const bottomBar = document.createElement("nav");
+  bottomBar.className = "mobile-bottom-bar";
+  bottomBar.setAttribute("aria-label", "Mobile Quick Navigation");
+  bottomBar.innerHTML = `
+    <a href="index.html" class="mobile-bar-item ${(!currentPath || currentPath === 'index.html' || currentPath === '') ? 'active' : ''}">
+      <span class="icon">🏠</span>
+      <span>Home</span>
+    </a>
+    <a href="alerts.html" class="mobile-bar-item ${currentPath.includes('alerts') ? 'active' : ''}">
+      <span class="icon">🔔</span>
+      <span>Alerts</span>
+    </a>
+    <a href="emergency.html" class="mobile-bar-item ${currentPath.includes('emergency') ? 'active' : ''}" style="color:#ef4444 !important;font-weight:800;">
+      <span class="icon" style="font-size:1.4rem;">🚨</span>
+      <span style="color:#ef4444;">SOS</span>
+    </a>
+    <a href="rescue.html" class="mobile-bar-item ${currentPath.includes('rescue') ? 'active' : ''}">
+      <span class="icon">🚑</span>
+      <span>Rescue</span>
+    </a>
+    <a href="shelters.html" class="mobile-bar-item ${currentPath.includes('shelters') ? 'active' : ''}">
+      <span class="icon">🏕️</span>
+      <span>Shelters</span>
+    </a>
+  `;
+  document.body.appendChild(bottomBar);
+}
 
 /* ================= AUTHENTICATION SYSTEM ================= */
 function getCurrentUser() {
