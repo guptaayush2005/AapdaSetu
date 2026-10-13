@@ -93,3 +93,45 @@ def predict(data: FloodInput):
         "flood_risk": risk,
         "risk_probability": round(probability, 2)
     }
+
+
+if __name__ == "__main__":
+    import uvicorn
+    import sys
+    import os
+    import urllib.request
+    import webbrowser
+
+    # Prefer launching the full AapdaSetu platform backend
+    project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    if project_root not in sys.path:
+        sys.path.insert(0, project_root)
+
+    # Check if backend is already running
+    try:
+        with urllib.request.urlopen("http://127.0.0.1:8000/health", timeout=1) as resp:
+            if resp.status == 200:
+                print("==================================================================")
+                print(" AapdaSetu backend is ALREADY running at http://127.0.0.1:8000")
+                print(" Opening Frontend Dashboard: http://127.0.0.1:8000/frontend/index.html")
+                print("==================================================================")
+                try:
+                    webbrowser.open("http://127.0.0.1:8000/frontend/index.html")
+                except Exception:
+                    pass
+                sys.exit(0)
+    except Exception:
+        pass
+
+    try:
+        from backend.main import app as full_app
+        print("Starting full AapdaSetu backend server at http://127.0.0.1:8000 ...")
+        print("Frontend dashboard accessible at http://127.0.0.1:8000/frontend/index.html")
+        uvicorn.run(full_app, host="127.0.0.1", port=8000)
+    except Exception as err:
+        print(f"Starting fallback app server: {err}")
+        try:
+            uvicorn.run(app, host="127.0.0.1", port=8000)
+        except Exception as err2:
+            print(f"Could not bind to port 8000: {err2}. Trying port 8001...")
+            uvicorn.run(app, host="127.0.0.1", port=8001)

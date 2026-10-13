@@ -2145,12 +2145,29 @@ path.pulse-danger-pin {
     margin-top: 6px !important;
   }
 
-  /* Form Rows */
+  /* Form & Layout Grids collapse cleanly on mobile & tablet */
   .form-grid-row,
+  .chat-layout-grid,
+  .fleet-radar-grid,
+  .lineage-grid,
   div[style*="grid-template-columns:1fr 1fr"],
-  div[style*="grid-template-columns: 1fr 1fr"] {
+  div[style*="grid-template-columns: 1fr 1fr"],
+  div[style*="grid-template-columns:1fr 1fr 1fr"],
+  div[style*="grid-template-columns: 1fr 1fr 1fr"],
+  div[style*="grid-template-columns:repeat(3"],
+  div[style*="grid-template-columns: repeat(3"],
+  div[style*="grid-template-columns:repeat(4"],
+  div[style*="grid-template-columns: repeat(4"],
+  div[style*="grid-template-columns:1.65fr 1fr"],
+  div[style*="grid-template-columns: 1.65fr 1fr"],
+  div[style*="grid-template-columns:310px 1fr"],
+  div[style*="grid-template-columns: 310px 1fr"] {
     grid-template-columns: 1fr !important;
     gap: 12px !important;
+  }
+
+  .chat-sidebar {
+    width: 100% !important;
   }
 
   /* 1-Click Danger SOS Card & Modal */
@@ -2163,24 +2180,59 @@ path.pulse-danger-pin {
     font-size: 0.96rem !important;
   }
 
-  .danger-modal-box {
+  /* Universal Responsive Modals */
+  .modal-box,
+  .modal-card,
+  .auth-modal-card,
+  .danger-modal-box,
+  .sos-modal-content,
+  div[style*="max-width:650px"],
+  div[style*="max-width: 650px"],
+  div[style*="max-width:700px"],
+  div[style*="max-width: 700px"],
+  div[style*="max-width:600px"],
+  div[style*="max-width: 600px"],
+  div[style*="max-width:550px"],
+  div[style*="max-width: 550px"] {
     width: 95vw !important;
     max-width: 95vw !important;
-    padding: 18px 14px !important;
-    margin: 10px !important;
+    padding: 16px 14px !important;
+    margin: 10px auto !important;
     max-height: 90vh !important;
     overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    box-sizing: border-box !important;
   }
 
-  /* Tables horizontal scrolling */
+  /* Responsive Form Inputs */
+  input.form-input,
+  select.form-select,
+  textarea.form-textarea {
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Tables horizontal scrolling & responsive cards */
   table,
   .telemetry-table,
-  .shelter-table {
+  .shelter-table,
+  .admin-table,
+  .table-responsive,
+  .table-wrap,
+  div[style*="overflow-x:auto"],
+  div[style*="overflow-x: auto"] {
     display: block !important;
     width: 100% !important;
     overflow-x: auto !important;
     -webkit-overflow-scrolling: touch !important;
-    white-space: nowrap !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Action buttons flex wrap */
+  div[style*="display:flex;justify-content:flex-end"],
+  div[style*="display: flex; justify-content: flex-end"] {
+    flex-wrap: wrap !important;
+    gap: 8px !important;
   }
 
   /* Footer on Mobile */

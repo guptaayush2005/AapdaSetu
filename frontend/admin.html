@@ -5,10 +5,230 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AapdaSetu | Disaster Management Admin Control Center</title>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com; style-src 'self' 'unsafe-inline' https://unpkg.com https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://server.arcgisonline.com https://tile.openstreetmap.de https://*.tile.openstreetmap.org https://*.openstreetmap.org https://api.qrserver.com https://worldview.earthdata.nasa.gov; connect-src 'self' http://127.0.0.1:8000 http://localhost:8000 https://api.search.tinyfish.ai https://api.open-meteo.com https://geocoding-api.open-meteo.com https://air-quality-api.open-meteo.com https://api.web3forms.com https://formsubmit.co; object-src 'none'; base-uri 'self';">
+  <script src="signature-interceptor.js"></script>
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="anonymous">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="anonymous"></script>
   <link rel="icon"
     href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛡️</text></svg>">
   <style>
+    /* ================= LIVE GPS FLEET RADAR STYLES ================= */
+    .fleet-radar-grid {
+      display: grid;
+      grid-template-columns: 1.65fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 1024px) {
+      .fleet-radar-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .fleet-gps-pin {
+      position: relative;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .fleet-gps-pin .pin-core {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 2.5px solid #2563eb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      position: relative;
+      z-index: 5;
+      transition: transform 0.2s ease;
+    }
+    .fleet-gps-pin:hover .pin-core {
+      transform: scale(1.15);
+    }
+    .fleet-gps-pin.veh-ambulance .pin-core {
+      border-color: #dc2626;
+      background: #fef2f2;
+    }
+    .fleet-gps-pin.veh-boat .pin-core {
+      border-color: #0284c7;
+      background: #f0f9ff;
+    }
+    .fleet-gps-pin.veh-bus .pin-core {
+      border-color: #7c3aed;
+      background: #faf5ff;
+    }
+    .fleet-gps-pin.veh-suv .pin-core {
+      border-color: #ea580c;
+      background: #fff7ed;
+    }
+    .fleet-gps-pin .pin-icon {
+      font-size: 18px;
+    }
+    .fleet-gps-pin .pin-callsign-pill {
+      position: absolute;
+      bottom: -22px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15, 23, 42, 0.9);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+      white-space: nowrap;
+      pointer-events: none;
+      display: flex;
+      gap: 4px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      z-index: 6;
+    }
+    .fleet-gps-pin .pin-speed {
+      color: #38bdf8;
+    }
+    .pin-beacon {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .fleet-gps-pin.critical-pulse-siren .pin-beacon {
+      background: rgba(220, 38, 38, 0.4);
+      animation: sirenWave 1.4s ease-out infinite;
+    }
+    .fleet-gps-pin.siren-pulse .pin-beacon {
+      background: rgba(234, 88, 12, 0.35);
+      animation: sirenWave 1.8s ease-out infinite;
+    }
+    .fleet-gps-pin.standard-pulse .pin-beacon {
+      background: rgba(37, 99, 235, 0.25);
+      animation: sirenWave 2.2s ease-out infinite;
+    }
+    @keyframes sirenWave {
+      0% { transform: translate(-50%, -50%) scale(0.6); opacity: 0.9; }
+      100% { transform: translate(-50%, -50%) scale(2.2); opacity: 0; }
+    }
+    @keyframes pulseLiveDot {
+      0% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.3; transform: scale(0.8); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+    .base-badge-marker {
+      background: #ffffff;
+      border: 1.5px solid #0f172a;
+      border-radius: 20px;
+      padding: 3px 8px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.25);
+      white-space: nowrap;
+    }
+    .base-badge-marker.base-hospital {
+      border-color: #dc2626;
+      background: #fef2f2;
+      color: #991b1b;
+    }
+    .base-badge-marker.base-shelter {
+      border-color: #059669;
+      background: #ecfdf5;
+      color: #065f46;
+    }
+    .fleet-popup-card {
+      font-family: 'Inter', system-ui, sans-serif;
+      padding: 6px;
+      min-width: 260px;
+      max-width: 320px;
+    }
+    .fleet-popup-card .popup-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 8px;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 6px;
+    }
+    .fleet-popup-card .popup-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .popup-telemetry-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+    .telemetry-pill {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 4px 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .telemetry-pill .t-label {
+      font-size: 10px;
+      color: #64748b;
+      font-weight: 600;
+    }
+    .telemetry-pill .t-val {
+      font-size: 11px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .popup-info-row {
+      font-size: 12px;
+      color: #334155;
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+    .popup-actions-row {
+      display: flex;
+      gap: 6px;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 8px;
+      flex-wrap: wrap;
+    }
+    .vehicle-tracking-card {
+      background: #ffffff;
+      border: 1.5px solid var(--border-light);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      transition: all var(--transition-fast);
+      cursor: pointer;
+    }
+    .vehicle-tracking-card:hover {
+      border-color: #93c5fd;
+      box-shadow: 0 4px 12px rgba(37,99,235,0.12);
+      transform: translateY(-2px);
+    }
+    .vehicle-tracking-card.card-selected {
+      border-color: #2563eb;
+      background: #f8fafc;
+      box-shadow: 0 0 0 2px rgba(37,99,235,0.25);
+    }
+    .animated-route-polyline {
+      stroke-dashoffset: 0;
+      animation: dashMove 1.5s linear infinite;
+    }
+    @keyframes dashMove {
+      to {
+        stroke-dashoffset: -24;
+      }
+    }
+
     .admin-key-panel {
       background: linear-gradient(135deg, #1e293b, #0f172a);
       color: #fff;
@@ -514,6 +734,14 @@
           <span class="stat-label">Registered Families</span>
         </div>
       </div>
+
+      <div class="stat-card" style="cursor:pointer;border-left:4px solid #2563eb;" onclick="switchAdminSection('secLiveVehicleTracking', true)">
+        <div class="stat-icon" style="background:#eff6ff;color:#2563eb;">🛰️</div>
+        <div class="stat-content">
+          <span class="stat-val" id="kpiTrackingFleetCount">8</span>
+          <span class="stat-label">Live GPS Fleet (Ambulance & Cabs)</span>
+        </div>
+      </div>
     </div>
 
     <!-- Master Command Center Navigation Bar -->
@@ -529,6 +757,10 @@
       <button class="cmd-tab-btn" id="cmdTabVehicle" onclick="switchAdminSection('secVehicleBookings')">
         <span>🚗 Private Vehicle Bookings</span>
         <span class="cmd-badge green" id="cmdPendingVehiclesBadge">0</span>
+      </button>
+      <button class="cmd-tab-btn" id="cmdTabTracking" onclick="switchAdminSection('secLiveVehicleTracking')">
+        <span>🛰️ Live Vehicle & Ambulance GPS Tracking</span>
+        <span class="cmd-badge green" id="cmdTrackingLiveBadge">LIVE</span>
       </button>
       <button class="cmd-tab-btn" id="cmdTabDoctor" onclick="switchAdminSection('secDoctorVolunteers')">
         <span>🩺 Medical Seva Approvals</span>
@@ -649,6 +881,9 @@
             </p>
           </div>
           <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <button onclick="switchAdminSection('secLiveVehicleTracking', true)" class="btn-primary" style="padding:8px 16px;font-size:0.82rem;font-weight:700;display:flex;align-items:center;gap:6px;background:linear-gradient(135deg,#0284c7,#2563eb);">
+              <span>🛰️ Open Live GPS Radar Tracking</span>
+            </button>
             <button onclick="loadVehicleBookings()" class="btn-outline" style="padding:8px 16px;font-size:0.82rem;font-weight:700;">
               🔄 Refresh Bookings
             </button>
@@ -683,6 +918,149 @@
         </div>
       </section>
     </div>
+
+    <!-- ================= SECTION: LIVE FLEET & GPS VEHICLE TRACKING (AMBULANCES & PRIVATE CABS) ================= -->
+    <div id="secLiveVehicleTracking" class="admin-section-panel">
+      <section class="admin-card">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;flex-wrap:wrap;gap:12px;">
+          <div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <h2 style="font-size:1.3rem;color:var(--navy);margin:0;font-family:'Outfit',sans-serif;">
+                🛰️ Live GPS Fleet Tracking (Ambulances, Rescue Boats & Private Evacuation Cabs)
+              </h2>
+              <span id="liveGpsStatusBadge" class="badge-status accepted" style="font-size:0.75rem;background:#dcfce7;color:#166534;display:inline-flex;align-items:center;gap:4px;">
+                <span class="live-dot" style="width:8px;height:8px;border-radius:50%;background:#16a34a;display:inline-block;animation:pulseLiveDot 1.5s infinite;"></span>
+                LIVE RADAR ACTIVE
+              </span>
+            </div>
+            <p style="font-size:0.85rem;color:var(--text-muted);margin:4px 0 0;">
+              Real-time GPS tracking radar monitoring deployed ambulances, private 4x4 evacuation vehicles, motor rescue boats, and disaster minibuses. Inspect live coordinates, speed, battery, ETA, and assigned mission.
+            </p>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <button id="btnToggleGpsSimulation" onclick="toggleGpsSimulation()" class="btn-outline" style="padding:8px 14px;font-size:0.82rem;font-weight:700;display:inline-flex;align-items:center;gap:6px;">
+              <span id="simulationIcon">⏸️</span> <span id="simulationText">Auto-Simulation: ON</span>
+            </button>
+            <button onclick="simulateDriverGpsPing()" class="btn-outline" style="padding:8px 14px;font-size:0.82rem;font-weight:700;display:inline-flex;align-items:center;gap:6px;">
+              ⚡ Ping Fleet
+            </button>
+            <button onclick="openManualVehicleModal()" class="btn-primary" style="padding:8px 16px;font-size:0.82rem;font-weight:700;display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#0284c7,#2563eb);">
+              ➕ Dispatch / Add Vehicle
+            </button>
+            <button onclick="loadFleetTrackingData()" class="btn-outline" style="padding:8px 14px;font-size:0.82rem;font-weight:700;">
+              🔄 Refresh
+            </button>
+          </div>
+        </div>
+
+        <!-- Fleet Mini KPI Strip -->
+        <div class="fleet-kpi-bar" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(130px, 1fr));gap:10px;margin-bottom:16px;">
+          <div class="telemetry-stat-card" style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:10px 14px;">
+            <span style="font-size:0.75rem;color:#1e40af;font-weight:700;text-transform:uppercase;display:block;">Total Fleet</span>
+            <span id="kpiFleetTotal" style="font-size:1.35rem;font-weight:800;color:#1e3a8a;">8</span>
+          </div>
+          <div class="telemetry-stat-card" style="background:#fee2e2;border:1px solid #fecaca;border-radius:8px;padding:10px 14px;">
+            <span style="font-size:0.75rem;color:#991b1b;font-weight:700;text-transform:uppercase;display:block;">🚑 Ambulances</span>
+            <span id="kpiFleetAmbulances" style="font-size:1.35rem;font-weight:800;color:#7f1d1d;">3</span>
+          </div>
+          <div class="telemetry-stat-card" style="background:#fef3c7;border:1px solid #fde68a;border-radius:8px;padding:10px 14px;">
+            <span style="font-size:0.75rem;color:#92400e;font-weight:700;text-transform:uppercase;display:block;">🚙 4x4 Cabs / SUVs</span>
+            <span id="kpiFleetSuvs" style="font-size:1.35rem;font-weight:800;color:#78350f;">2</span>
+          </div>
+          <div class="telemetry-stat-card" style="background:#e0f2fe;border:1px solid #bae6fd;border-radius:8px;padding:10px 14px;">
+            <span style="font-size:0.75rem;color:#0369a1;font-weight:700;text-transform:uppercase;display:block;">🚤 Rescue Boats</span>
+            <span id="kpiFleetBoats" style="font-size:1.35rem;font-weight:800;color:#075985;">2</span>
+          </div>
+          <div class="telemetry-stat-card" style="background:#f3e8ff;border:1px solid #e9d5ff;border-radius:8px;padding:10px 14px;">
+            <span style="font-size:0.75rem;color:#6b21a8;font-weight:700;text-transform:uppercase;display:block;">🚐 Minibuses</span>
+            <span id="kpiFleetBuses" style="font-size:1.35rem;font-weight:800;color:#581c87;">1</span>
+          </div>
+          <div class="telemetry-stat-card" style="background:#dcfce7;border:1px solid #bbf7d0;border-radius:8px;padding:10px 14px;">
+            <span style="font-size:0.75rem;color:#166534;font-weight:700;text-transform:uppercase;display:block;">🚨 Active / En Route</span>
+            <span id="kpiFleetActive" style="font-size:1.35rem;font-weight:800;color:#14532d;">6</span>
+          </div>
+        </div>
+
+        <!-- Filter & Search Toolbar -->
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:12px;background:#f8fafc;padding:12px 16px;border-radius:var(--radius-md);border:1px solid var(--border-light);">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button id="trackTypeAll" class="filter-tab-btn active" onclick="filterFleetByType('ALL')">
+              <span>All Types</span> (<span id="cntAllFleet">8</span>)
+            </button>
+            <button id="trackTypeAmb" class="filter-tab-btn" onclick="filterFleetByType('AMBULANCE')">
+              <span>🚑 Ambulances</span> (<span id="cntAmbFleet">3</span>)
+            </button>
+            <button id="trackTypeSuv" class="filter-tab-btn" onclick="filterFleetByType('SUV_4X4')">
+              <span>🚙 4x4 SUVs / Cabs</span> (<span id="cntSuvFleet">2</span>)
+            </button>
+            <button id="trackTypeBoat" class="filter-tab-btn" onclick="filterFleetByType('BOAT')">
+              <span>🚤 Rescue Boats</span> (<span id="cntBoatFleet">2</span>)
+            </button>
+            <button id="trackTypeBus" class="filter-tab-btn" onclick="filterFleetByType('MINIBUS')">
+              <span>🚐 Minibuses</span> (<span id="cntBusFleet">1</span>)
+            </button>
+          </div>
+
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;flex:1;justify-content:flex-end;min-width:280px;">
+            <select id="trackStatusFilter" onchange="filterFleetByStatus(this.value)" class="form-select" style="padding:7px 12px;font-size:0.82rem;width:auto;min-width:140px;">
+              <option value="ALL">All Mission Statuses</option>
+              <option value="EN_ROUTE">🚨 En Route / Dispatched</option>
+              <option value="PATIENT_ONBOARD">🏥 Patient / Citizen Onboard</option>
+              <option value="IDLE_STANDBY">✅ Standby / Available</option>
+            </select>
+            <div style="position:relative;flex:1;max-width:280px;">
+              <input type="text" id="trackSearchInput" oninput="handleFleetSearch(this.value)" placeholder="Search plate, driver, area..." class="form-input" style="padding:7px 10px 7px 32px;font-size:0.82rem;width:100%;">
+              <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:0.85rem;color:#94a3b8;">🔍</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Radar Map & Fleet Telemetry Split Layout -->
+        <div class="fleet-radar-grid">
+          <!-- Left: Radar Map View -->
+          <div class="fleet-map-container" style="position:relative;border-radius:var(--radius-lg);overflow:hidden;border:1px solid #cbd5e1;box-shadow:var(--shadow-sm);">
+            <div id="liveFleetMap" style="width:100%;height:580px;background:#0f172a;"></div>
+
+            <!-- Floating Radar Overlay Info Badges -->
+            <div class="radar-floating-hud" style="position:absolute;top:12px;left:12px;z-index:900;background:rgba(15,23,42,0.85);backdrop-filter:blur(8px);color:#fff;padding:8px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);font-size:0.75rem;display:flex;align-items:center;gap:12px;pointer-events:none;">
+              <div style="display:flex;align-items:center;gap:6px;">
+                <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#22c55e;box-shadow:0 0 8px #22c55e;"></span>
+                <strong>GPS SATELLITE RADAR</strong>
+              </div>
+              <span style="color:#94a3b8;">|</span>
+              <div>Tracking: <strong id="hudTrackedCount" style="color:#38bdf8;">8</strong> Units</div>
+              <span style="color:#94a3b8;">|</span>
+              <div style="color:#e2e8f0;">Area: <strong>Varanasi River Basin</strong></div>
+            </div>
+
+            <!-- Map Controls Float Bottom -->
+            <div style="position:absolute;bottom:14px;left:14px;z-index:900;display:flex;gap:8px;">
+              <button onclick="recenterFleetMap()" class="btn-outline" style="background:rgba(255,255,255,0.95);backdrop-filter:blur(4px);padding:6px 12px;font-size:0.75rem;font-weight:700;box-shadow:var(--shadow-sm);border-color:#cbd5e1;">
+                🎯 Fit All Fleet
+              </button>
+              <button onclick="toggleMapFullscreen()" class="btn-outline" style="background:rgba(255,255,255,0.95);backdrop-filter:blur(4px);padding:6px 12px;font-size:0.75rem;font-weight:700;box-shadow:var(--shadow-sm);border-color:#cbd5e1;">
+                ⛶ Fullscreen
+              </button>
+            </div>
+          </div>
+
+          <!-- Right: Live Vehicle Cards Feed -->
+          <div class="fleet-cards-panel">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border-light);">
+              <h3 style="font-size:1rem;color:var(--navy);margin:0;font-family:'Outfit',sans-serif;">
+                📋 Live Vehicle Telemetry Feed (<span id="feedVehiclesCount">8</span>)
+              </h3>
+              <span style="font-size:0.72rem;color:var(--text-muted);">Auto-updating</span>
+            </div>
+
+            <div id="fleetCardsContainer" style="display:flex;flex-direction:column;gap:12px;max-height:580px;overflow-y:auto;padding-right:4px;">
+              <!-- Dynamic Vehicle Cards Rendered Here -->
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
 
     <!-- ================= SECTION: DOCTOR & INTERN MEDICAL SEVA APPROVALS ================= -->
     <div id="secDoctorVolunteers" class="admin-section-panel">
@@ -1101,6 +1479,7 @@
       }
 
       const tabMap = {
+        "secLiveVehicleTracking": "cmdTabTracking",
         "secCitizenReports": "cmdTabCitizen",
         "secRescueRequests": "cmdTabRescue",
         "secVehicleBookings": "cmdTabVehicle",
@@ -1115,7 +1494,15 @@
         document.getElementById(activeBtnId)?.classList.add("active");
       }
 
-      if (sectionId === "secFamilyRegistry") {
+      if (sectionId === "secLiveVehicleTracking") {
+        setTimeout(() => {
+          if (liveFleetMap) {
+            liveFleetMap.invalidateSize();
+          } else {
+            initLiveFleetMap();
+          }
+        }, 150);
+      } else if (sectionId === "secFamilyRegistry") {
         loadAdminFamilyMembers();
       }
     }
@@ -1128,10 +1515,14 @@
       loadVehicleBookings();
       loadDoctorVolunteers();
       loadAdminFamilyMembers();
+      initLiveFleetMap();
+      loadFleetTrackingData();
 
       // Check if hash points to a specific tab
       const hash = window.location.hash.toLowerCase();
-      if (hash.includes("rescue")) {
+      if (hash.includes("track") || hash.includes("fleet") || hash.includes("gps") || hash.includes("ambulance")) {
+        switchAdminSection("secLiveVehicleTracking");
+      } else if (hash.includes("rescue")) {
         switchAdminSection("secRescueRequests");
       } else if (hash.includes("vehicle") || hash.includes("cab")) {
         switchAdminSection("secVehicleBookings");
@@ -3215,7 +3606,1131 @@ ${letterText}
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
     }
+
+    /* =========================================================================
+       LIVE FLEET & GPS VEHICLE TRACKING ENGINE (AMBULANCES, BOATS & PRIVATE CABS)
+       ========================================================================= */
+
+    let liveFleetMap = null;
+    let fleetMarkersMap = new Map();
+    let fleetPolylinesMap = new Map();
+    let allTrackedVehicles = [];
+    let currentTrackingTypeFilter = "ALL";
+    let currentTrackingStatusFilter = "ALL";
+    let trackingSearchQuery = "";
+    let gpsSimulationInterval = null;
+    let isGpsSimulationActive = true;
+    let selectedTrackingVehicleId = null;
+
+    // Safe Relocation Centers / Hospitals to display as reference anchors on Radar
+    const FLEET_REFERENCE_BASES = [
+      { name: "BHU Trauma Center (Level-1 Super-Specialty)", lat: 25.2785, lng: 82.9995, type: "HOSPITAL", icon: "🏥" },
+      { name: "Pt. Deen Dayal Upadhyay Hospital (Pandeypur)", lat: 25.3340, lng: 83.0070, type: "HOSPITAL", icon: "🏥" },
+      { name: "Sigra Stadium Central Relief Camp", lat: 25.3180, lng: 82.9840, type: "SHELTER", icon: "🏕️" },
+      { name: "Assi Ghat NDRF Disaster Relief Base", lat: 25.2890, lng: 83.0060, type: "SHELTER", icon: "⚓" },
+      { name: "Cantonment Disaster Transit Hub", lat: 25.3315, lng: 82.9732, type: "TRANSIT", icon: "🏢" }
+    ];
+
+    // Active High-Risk Waterlogged Inundation Zones to avoid
+    const FLEET_HAZARD_ZONES = [
+      { name: "Assi-Ganga Sangam Waterlogged Sump", lat: 25.2920, lng: 83.0040, radiusM: 380, risk: "CRITICAL" },
+      { name: "Varuna Embankment Lowland Breach Zone", lat: 25.3360, lng: 82.9930, radiusM: 450, risk: "HIGH" },
+      { name: "Dashashwamedh Submerged Alleyways", lat: 25.3080, lng: 83.0100, radiusM: 300, risk: "MODERATE" }
+    ];
+
+    // Default Fallback Fleet Data
+    const DEFAULT_FLEET_FALLBACK = [
+      {
+        vehicle_id: "AMB-UP-65-108",
+        callsign: "Kashi Trauma ALS Ambulance #1",
+        vehicle_type: "AMBULANCE",
+        plate_no: "UP-65-AM-0108",
+        driver_name: "Ramesh Yadav",
+        driver_phone: "+91 98391 20108",
+        status: "PATIENT_ONBOARD",
+        urgency: "CRITICAL",
+        lat: 25.3128,
+        lng: 82.9865,
+        speed_kmh: 46.5,
+        heading_deg: 195.0,
+        current_address: "Rath Yatra Crossing -> Sigra Chauraha, Varanasi",
+        target_destination: "BHU Trauma Center Emergency Dept",
+        target_lat: 25.2785,
+        target_lng: 82.9995,
+        eta_minutes: 7,
+        battery_fuel_pct: 84,
+        route_waypoints: [
+          [25.3250, 82.9810],
+          [25.3180, 82.9840],
+          [25.3128, 82.9865],
+          [25.2980, 82.9910],
+          [25.2850, 82.9960],
+          [25.2785, 82.9995]
+        ],
+        assigned_incident: "Critically stranded cardiac patient at Sigra Ward 8",
+        last_ping: "Just now"
+      },
+      {
+        vehicle_id: "AMB-NDRF-04",
+        callsign: "NDRF Advanced Life Support Unit 04",
+        vehicle_type: "AMBULANCE",
+        plate_no: "DL-1C-EM-9904",
+        driver_name: "Suresh Verma",
+        driver_phone: "+91 94152 33404",
+        status: "EN_ROUTE_PICKUP",
+        urgency: "HIGH",
+        lat: 25.3482,
+        lng: 82.9984,
+        speed_kmh: 38.0,
+        heading_deg: 160.0,
+        current_address: "Near Pandeypur Flyover, Varanasi",
+        target_destination: "Pt. Deen Dayal Upadhyay Hospital, Pandeypur",
+        target_lat: 25.3340,
+        target_lng: 83.0070,
+        eta_minutes: 11,
+        battery_fuel_pct: 92,
+        route_waypoints: [
+          [25.3620, 82.9920],
+          [25.3482, 82.9984],
+          [25.3390, 83.0030],
+          [25.3340, 83.0070]
+        ],
+        assigned_incident: "Elderly flood evacuation transport from Orderly Bazar",
+        last_ping: "Just now"
+      },
+      {
+        vehicle_id: "AMB-PVT-102",
+        callsign: "Kashi Seva Private Ambulance",
+        vehicle_type: "AMBULANCE",
+        plate_no: "UP-65-BT-1102",
+        driver_name: "Manoj Tiwari",
+        driver_phone: "+91 97920 44102",
+        status: "IDLE_STANDBY",
+        urgency: "NORMAL",
+        lat: 25.3315,
+        lng: 82.9732,
+        speed_kmh: 0.0,
+        heading_deg: 0.0,
+        current_address: "Cantonment Station Disaster Transit Post",
+        target_destination: "Standby Staging Base (Ready for Deployment)",
+        target_lat: 25.3315,
+        target_lng: 82.9732,
+        eta_minutes: 0,
+        battery_fuel_pct: 98,
+        route_waypoints: [
+          [25.3315, 82.9732]
+        ],
+        assigned_incident: "Pre-positioned for Cantt Evacuation Hub",
+        last_ping: "1 min ago"
+      },
+      {
+        vehicle_id: "THAR-4X4-NDRF-09",
+        callsign: "Mahindra Thar 4x4 Heavy Relief Unit",
+        vehicle_type: "SUV_4X4",
+        plate_no: "UP-65-TR-4409",
+        driver_name: "Vikram Singh",
+        driver_phone: "+91 98891 77409",
+        status: "EN_ROUTE_DROP",
+        urgency: "HIGH",
+        lat: 25.3090,
+        lng: 83.0075,
+        speed_kmh: 28.5,
+        heading_deg: 280.0,
+        current_address: "Godowlia Chowk moving towards Luxa Road",
+        target_destination: "Sigra Indoor Stadium Relief Camp",
+        target_lat: 25.3180,
+        target_lng: 82.9840,
+        eta_minutes: 9,
+        battery_fuel_pct: 74,
+        route_waypoints: [
+          [25.3050, 83.0110],
+          [25.3090, 83.0075],
+          [25.3130, 82.9960],
+          [25.3180, 82.9840]
+        ],
+        assigned_incident: "Navigating 3 feet waterlogged alley to safely evacuate family",
+        last_ping: "Just now"
+      },
+      {
+        vehicle_id: "SCORPIO-PVT-88",
+        callsign: "Private Scorpio 4WD High-Ground Cab",
+        vehicle_type: "SUV_4X4",
+        plate_no: "UP-65-BX-7788",
+        driver_name: "Anil Maurya",
+        driver_phone: "+91 99360 88788",
+        status: "DISPATCHED",
+        urgency: "HIGH",
+        lat: 25.2915,
+        lng: 83.0020,
+        speed_kmh: 32.0,
+        heading_deg: 330.0,
+        current_address: "Assi Sangam Ghat Ring Road",
+        target_destination: "Assi Ghat Flood Sump - Pickup 4 Stranded Citizens",
+        target_lat: 25.2890,
+        target_lng: 83.0060,
+        eta_minutes: 5,
+        battery_fuel_pct: 81,
+        route_waypoints: [
+          [25.2970, 82.9980],
+          [25.2915, 83.0020],
+          [25.2890, 83.0060]
+        ],
+        assigned_incident: "Booking ID: PVT-CAB-912A (Evacuation to Durgakund High Ground)",
+        last_ping: "Just now"
+      },
+      {
+        vehicle_id: "BOAT-VNS-GNG-03",
+        callsign: "Assi Ghat High-Power Rescue Motor Boat #3",
+        vehicle_type: "BOAT",
+        plate_no: "NDRF-BOAT-03",
+        driver_name: "Capt. Rajesh Sahani",
+        driver_phone: "+91 94500 12003",
+        status: "PATIENT_ONBOARD",
+        urgency: "CRITICAL",
+        lat: 25.3105,
+        lng: 83.0135,
+        speed_kmh: 18.2,
+        heading_deg: 210.0,
+        current_address: "Ganga Riverfront near Manikarnika - Dashashwamedh",
+        target_destination: "Assi Ghat NDRF Relief Jetty & Medical Base",
+        target_lat: 25.2890,
+        target_lng: 83.0060,
+        eta_minutes: 14,
+        battery_fuel_pct: 89,
+        route_waypoints: [
+          [25.3280, 83.0210],
+          [25.3190, 83.0170],
+          [25.3105, 83.0135],
+          [25.2980, 83.0090],
+          [25.2890, 83.0060]
+        ],
+        assigned_incident: "Carrying 6 flood-rescued villagers + 1 injured infant",
+        last_ping: "Just now"
+      },
+      {
+        vehicle_id: "BOAT-VARUNA-01",
+        callsign: "Varuna River Inundation Patrol Boat #1",
+        vehicle_type: "BOAT",
+        plate_no: "SDRF-BOAT-VAR-01",
+        driver_name: "Dharmendra Nishad",
+        driver_phone: "+91 96210 55001",
+        status: "ON_PATROL",
+        urgency: "MODERATE",
+        lat: 25.3370,
+        lng: 82.9920,
+        speed_kmh: 12.0,
+        heading_deg: 90.0,
+        current_address: "Varuna River Basin under Chaukaghat Bridge",
+        target_destination: "Active Patrol along Low-Lying Kachhari Embankment",
+        target_lat: 25.3370,
+        target_lng: 82.9920,
+        eta_minutes: 0,
+        battery_fuel_pct: 95,
+        route_waypoints: [
+          [25.3350, 82.9850],
+          [25.3370, 82.9920],
+          [25.3390, 83.0010]
+        ],
+        assigned_incident: "Monitoring 2.8m danger mark warning breaches",
+        last_ping: "Just now"
+      },
+      {
+        vehicle_id: "BUS-EVAC-UP-12",
+        callsign: "24-Seater Mass Evacuation Minibus",
+        vehicle_type: "MINIBUS",
+        plate_no: "UP-65-AT-4412",
+        driver_name: "Gurmeet Singh",
+        driver_phone: "+91 98380 99412",
+        status: "EN_ROUTE_DROP",
+        urgency: "HIGH",
+        lat: 25.3230,
+        lng: 82.9935,
+        speed_kmh: 26.0,
+        heading_deg: 250.0,
+        current_address: "Lahurabir Crossing towards Sigra",
+        target_destination: "Sigra Stadium Relief Center #1",
+        target_lat: 25.3180,
+        target_lng: 82.9840,
+        eta_minutes: 8,
+        battery_fuel_pct: 78,
+        route_waypoints: [
+          [25.3310, 83.0050],
+          [25.3270, 83.0000],
+          [25.3230, 82.9935],
+          [25.3180, 82.9840]
+        ],
+        assigned_incident: "18 citizens evacuated from inundated lowlands of Maidagin",
+        last_ping: "Just now"
+      }
+    ];
+
+    function initLiveFleetMap() {
+      const mapElem = document.getElementById("liveFleetMap");
+      if (!mapElem || liveFleetMap) return;
+
+      try {
+        liveFleetMap = L.map("liveFleetMap", {
+          center: [25.3176, 82.9900],
+          zoom: 13,
+          maxZoom: 19,
+          zoomControl: true
+        });
+
+        // Base tile layers
+        const osmStreet = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+          maxZoom: 19
+        }).addTo(liveFleetMap);
+
+        const esriSatellite = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", {
+          attribution: "Tiles &copy; Esri &mdash; Satellite HD",
+          maxZoom: 19
+        });
+
+        const esriTopo = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}", {
+          attribution: "Tiles &copy; Esri &mdash; Topo Relief",
+          maxZoom: 19
+        });
+
+        L.control.layers({
+          "🗺️ Street Radar": osmStreet,
+          "🛰️ Satellite HD": esriSatellite,
+          "⛰️ Topo Elevation": esriTopo
+        }, null, { position: "topright" }).addTo(liveFleetMap);
+
+        // Render Reference Bases (Hospitals & Relief Camps)
+        FLEET_REFERENCE_BASES.forEach(base => {
+          const baseIcon = L.divIcon({
+            className: "custom-base-icon",
+            html: `<div class="base-badge-marker base-${base.type.toLowerCase()}">
+                     <span class="base-emoji">${base.icon}</span>
+                     <span class="base-label">${escapeAdminHtml(base.name.split('(')[0].trim())}</span>
+                   </div>`,
+            iconSize: [120, 36],
+            iconAnchor: [60, 18]
+          });
+          L.marker([base.lat, base.lng], { icon: baseIcon, zIndexOffset: 200 })
+            .addTo(liveFleetMap)
+            .bindPopup(`
+              <div style="font-family:'Inter',sans-serif;padding:6px;max-width:240px;">
+                <div style="font-weight:700;color:var(--navy);font-size:0.95rem;display:flex;align-items:center;gap:6px;">
+                  ${base.icon} ${escapeAdminHtml(base.name)}
+                </div>
+                <div style="font-size:0.75rem;color:#64748b;margin-top:4px;">
+                  ${base.type === 'HOSPITAL' ? '🏥 Designated Emergency Medical Evacuation Base' : '🏕️ Verified Safe Citizen Relief Camp'}
+                </div>
+                <div style="font-size:0.72rem;color:#0284c7;font-weight:600;margin-top:4px;">
+                  GPS: ${base.lat.toFixed(4)}°N, ${base.lng.toFixed(4)}°E
+                </div>
+              </div>
+            `);
+        });
+
+        // Render Inundation Risk Circles
+        FLEET_HAZARD_ZONES.forEach(hz => {
+          L.circle([hz.lat, hz.lng], {
+            radius: hz.radiusM,
+            color: hz.risk === 'CRITICAL' ? '#dc2626' : '#ea580c',
+            fillColor: hz.risk === 'CRITICAL' ? '#ef4444' : '#f97316',
+            fillOpacity: 0.22,
+            weight: 1.5,
+            dashArray: "4, 6"
+          }).addTo(liveFleetMap).bindTooltip(`⚠️ ${hz.name} (${hz.risk} Hazard Zone)`, { permanent: false });
+        });
+
+        // Click on map to auto-fill lat/lng in manual dispatch modal
+        liveFleetMap.on("click", (e) => {
+          const latInp = document.getElementById("manVehLat");
+          const lngInp = document.getElementById("manVehLng");
+          if (latInp && lngInp && document.getElementById("modalManualVehicle")?.style.display === "flex") {
+            latInp.value = e.latlng.lat.toFixed(6);
+            lngInp.value = e.latlng.lng.toFixed(6);
+            showToast(`📍 Set GPS location: ${latInp.value}, ${lngInp.value}`, "info");
+          }
+        });
+
+        setTimeout(() => {
+          liveFleetMap.invalidateSize();
+        }, 250);
+
+        startGpsSimulation();
+
+      } catch (err) {
+        console.error("Live Fleet Map initialization error:", err);
+      }
+    }
+
+    async function loadFleetTrackingData() {
+      let fleetMap = new Map();
+
+      // 1. Load default fallback
+      DEFAULT_FLEET_FALLBACK.forEach(v => fleetMap.set(v.vehicle_id, Object.assign({}, v)));
+
+      // 2. Load locally saved updates
+      try {
+        const localSaved = JSON.parse(localStorage.getItem("aapda_fleet_vehicles") || "[]");
+        if (Array.isArray(localSaved)) {
+          localSaved.forEach(v => {
+            if (v && v.vehicle_id) fleetMap.set(v.vehicle_id, Object.assign({}, fleetMap.get(v.vehicle_id) || {}, v));
+          });
+        }
+      } catch (e) {
+        console.warn("Could not read local fleet cache:", e);
+      }
+
+      // 3. Fetch from Backend API
+      try {
+        const res = await fetch(`${API_BASE}/admin/vehicles/tracking`, {
+          headers: { "X-Admin-Key": adminKey },
+          signal: AbortSignal.timeout(3000)
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data.fleet) && data.fleet.length > 0) {
+            data.fleet.forEach(v => {
+              if (v && v.vehicle_id) fleetMap.set(v.vehicle_id, Object.assign({}, fleetMap.get(v.vehicle_id) || {}, v));
+            });
+          }
+        }
+      } catch (e) {
+        console.log("Backend live fleet tracker offline/fallback mode:", e.message);
+      }
+
+      allTrackedVehicles = Array.from(fleetMap.values());
+      updateTrackingKpiBadges();
+      renderFleetMarkers();
+      renderFleetCardsList();
+    }
+
+    function getFilteredFleetList() {
+      let filtered = allTrackedVehicles;
+
+      if (currentTrackingTypeFilter !== "ALL") {
+        filtered = filtered.filter(v => (v.vehicle_type || "").toUpperCase() === currentTrackingTypeFilter);
+      }
+
+      if (currentTrackingStatusFilter !== "ALL") {
+        filtered = filtered.filter(v => {
+          const st = (v.status || "").toUpperCase();
+          if (currentTrackingStatusFilter === "EN_ROUTE") return st.includes("EN_ROUTE") || st === "DISPATCHED";
+          if (currentTrackingStatusFilter === "PATIENT_ONBOARD") return st.includes("PATIENT");
+          if (currentTrackingStatusFilter === "IDLE_STANDBY") return st.includes("STANDBY") || st === "AVAILABLE";
+          return true;
+        });
+      }
+
+      if (trackingSearchQuery.trim()) {
+        const q = trackingSearchQuery.toLowerCase();
+        filtered = filtered.filter(v =>
+          (v.plate_no || "").toLowerCase().includes(q) ||
+          (v.callsign || "").toLowerCase().includes(q) ||
+          (v.driver_name || "").toLowerCase().includes(q) ||
+          (v.current_address || "").toLowerCase().includes(q) ||
+          (v.target_destination || "").toLowerCase().includes(q)
+        );
+      }
+
+      return filtered;
+    }
+
+    function renderFleetMarkers() {
+      if (!liveFleetMap) return;
+
+      const activeIds = new Set();
+      const filtered = getFilteredFleetList();
+
+      filtered.forEach(v => {
+        activeIds.add(v.vehicle_id);
+
+        const isAmbulance = v.vehicle_type === "AMBULANCE";
+        const isBoat = v.vehicle_type === "BOAT";
+        const isBus = v.vehicle_type === "MINIBUS";
+        const isSelected = selectedTrackingVehicleId === v.vehicle_id;
+
+        let markerTypeClass = "veh-suv";
+        let iconEmoji = "🚙";
+        if (isAmbulance) { markerTypeClass = "veh-ambulance"; iconEmoji = "🚑"; }
+        else if (isBoat) { markerTypeClass = "veh-boat"; iconEmoji = "🚤"; }
+        else if (isBus) { markerTypeClass = "veh-bus"; iconEmoji = "🚐"; }
+
+        const isCritical = (v.urgency || "").toUpperCase() === "CRITICAL" || (v.status || "").toUpperCase() === "PATIENT_ONBOARD";
+        const pulseEffectClass = isCritical ? "critical-pulse-siren" : (isAmbulance ? "siren-pulse" : "standard-pulse");
+
+        const markerHtml = `
+          <div class="fleet-gps-pin ${markerTypeClass} ${pulseEffectClass} ${isSelected ? 'pin-focused' : ''}" id="gpsPin-${v.vehicle_id}">
+            <div class="pin-beacon"></div>
+            <div class="pin-core">
+              <span class="pin-icon">${iconEmoji}</span>
+            </div>
+            <div class="pin-callsign-pill">
+              <span class="pin-plate">${escapeAdminHtml(v.plate_no || v.vehicle_id)}</span>
+              <span class="pin-speed">${Math.round(v.speed_kmh || 0)} km/h</span>
+            </div>
+          </div>
+        `;
+
+        const customIcon = L.divIcon({
+          className: "fleet-leaflet-div-icon",
+          html: markerHtml,
+          iconSize: [44, 44],
+          iconAnchor: [22, 22]
+        });
+
+        const popupHtml = `
+          <div class="fleet-popup-card">
+            <div class="popup-head">
+              <div class="popup-title">
+                <span style="font-size:1.3rem;">${iconEmoji}</span>
+                <div>
+                  <strong style="color:var(--navy);font-size:0.95rem;display:block;">${escapeAdminHtml(v.callsign || v.vehicle_id)}</strong>
+                  <span class="badge-status ${getStatusBadgeClass(v.status)}" style="font-size:0.68rem;padding:2px 8px;">
+                    ${escapeAdminHtml(v.status || 'ACTIVE')}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="popup-telemetry-grid">
+              <div class="telemetry-pill">
+                <span class="t-label">⚡ GPS Speed</span>
+                <span class="t-val">${Math.round(v.speed_kmh || 0)} km/h</span>
+              </div>
+              <div class="telemetry-pill">
+                <span class="t-label">🔋 Fuel/Battery</span>
+                <span class="t-val">${v.battery_fuel_pct || 85}%</span>
+              </div>
+              <div class="telemetry-pill">
+                <span class="t-label">⏱️ ETA</span>
+                <span class="t-val">${v.eta_minutes || 0} min</span>
+              </div>
+              <div class="telemetry-pill">
+                <span class="t-label">🚨 Urgency</span>
+                <span class="t-val" style="color:${isCritical ? '#dc2626' : '#0284c7'}">${escapeAdminHtml(v.urgency || 'HIGH')}</span>
+              </div>
+            </div>
+
+            <div class="popup-info-row">
+              <div>📍 <strong>Live GPS:</strong> ${v.lat.toFixed(5)}°N, ${v.lng.toFixed(5)}°E</div>
+              <div>🧭 <strong>Current Area:</strong> ${escapeAdminHtml(v.current_address || 'En route')}</div>
+              <div>🎯 <strong>Destination:</strong> ${escapeAdminHtml(v.target_destination || 'Designated Base')}</div>
+              <div>👤 <strong>Driver:</strong> ${escapeAdminHtml(v.driver_name || 'Assigned Officer')} (📞 <a href="tel:${escapeAdminHtml(v.driver_phone || '')}" style="color:#2563eb;text-decoration:none;font-weight:700;">${escapeAdminHtml(v.driver_phone || 'N/A')}</a>)</div>
+              ${v.assigned_incident ? `<div style="color:#475569;font-size:0.75rem;margin-top:4px;background:#f1f5f9;padding:4px 8px;border-radius:4px;">🚨 <strong>Mission:</strong> ${escapeAdminHtml(v.assigned_incident)}</div>` : ''}
+            </div>
+
+            <div class="popup-actions-row">
+              <button onclick="focusVehicleOnMap('${v.vehicle_id}')" class="btn-outline" style="padding:4px 10px;font-size:0.75rem;">
+                🎯 Re-Center
+              </button>
+              <button onclick="quickUpdateVehicleGps('${v.vehicle_id}')" class="btn-primary" style="padding:4px 10px;font-size:0.75rem;">
+                ⚡ Update Telemetry
+              </button>
+              ${v.driver_phone ? `
+                <a href="tel:${escapeAdminHtml(v.driver_phone)}" class="btn-outline" style="padding:4px 10px;font-size:0.75rem;background:#dcfce7;color:#166534;border-color:#86efac;text-decoration:none;display:inline-flex;align-items:center;gap:4px;">
+                  📞 Call Driver
+                </a>
+              ` : ''}
+            </div>
+          </div>
+        `;
+
+        if (fleetMarkersMap.has(v.vehicle_id)) {
+          const existingMarker = fleetMarkersMap.get(v.vehicle_id);
+          existingMarker.setLatLng([v.lat, v.lng]);
+          existingMarker.setIcon(customIcon);
+          existingMarker.setPopupContent(popupHtml);
+        } else {
+          const marker = L.marker([v.lat, v.lng], { icon: customIcon, zIndexOffset: isAmbulance ? 500 : 300 })
+            .addTo(liveFleetMap)
+            .bindPopup(popupHtml);
+
+          marker.on("click", () => {
+            selectVehicle(v.vehicle_id, false);
+          });
+
+          fleetMarkersMap.set(v.vehicle_id, marker);
+        }
+
+        // Render / update Route Polyline
+        const routeCoords = [];
+        if (Array.isArray(v.route_waypoints) && v.route_waypoints.length > 0) {
+          v.route_waypoints.forEach(pt => {
+            if (Array.isArray(pt) && pt.length >= 2) routeCoords.push([pt[0], pt[1]]);
+          });
+        }
+        if (!routeCoords.some(pt => Math.abs(pt[0] - v.lat) < 0.0001 && Math.abs(pt[1] - v.lng) < 0.0001)) {
+          routeCoords.push([v.lat, v.lng]);
+        }
+        if (v.target_lat && v.target_lng) {
+          routeCoords.push([v.target_lat, v.target_lng]);
+        }
+
+        if (routeCoords.length >= 2) {
+          const polylineColor = isCritical ? '#dc2626' : (isAmbulance ? '#ea580c' : '#2563eb');
+          if (fleetPolylinesMap.has(v.vehicle_id)) {
+            const poly = fleetPolylinesMap.get(v.vehicle_id);
+            poly.setLatLngs(routeCoords);
+          } else {
+            const poly = L.polyline(routeCoords, {
+              color: polylineColor,
+              weight: 3.5,
+              opacity: 0.75,
+              dashArray: "8, 8",
+              className: "animated-route-polyline"
+            }).addTo(liveFleetMap);
+            fleetPolylinesMap.set(v.vehicle_id, poly);
+          }
+        }
+      });
+
+      // Remove inactive markers
+      fleetMarkersMap.forEach((marker, id) => {
+        if (!activeIds.has(id)) {
+          liveFleetMap.removeLayer(marker);
+          fleetMarkersMap.delete(id);
+        }
+      });
+      fleetPolylinesMap.forEach((poly, id) => {
+        if (!activeIds.has(id)) {
+          liveFleetMap.removeLayer(poly);
+          fleetPolylinesMap.delete(id);
+        }
+      });
+    }
+
+    function renderFleetCardsList() {
+      const container = document.getElementById("fleetCardsContainer");
+      if (!container) return;
+
+      const filtered = getFilteredFleetList();
+      const countEl = document.getElementById("feedVehiclesCount");
+      if (countEl) countEl.textContent = filtered.length;
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div style="text-align:center;padding:32px 16px;background:#f8fafc;border-radius:var(--radius-md);border:1px dashed #cbd5e1;">
+            <span style="font-size:2rem;display:block;margin-bottom:8px;">🛰️</span>
+            <strong style="color:var(--navy);font-size:0.95rem;display:block;">No Vehicles Match Current Filter</strong>
+            <p style="font-size:0.8rem;color:var(--text-muted);margin:4px 0 0;">Try selecting 'All Types' or clearing search.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = "";
+      filtered.forEach(v => {
+        const isAmbulance = v.vehicle_type === "AMBULANCE";
+        const isBoat = v.vehicle_type === "BOAT";
+        const isBus = v.vehicle_type === "MINIBUS";
+        const isSelected = selectedTrackingVehicleId === v.vehicle_id;
+
+        let iconEmoji = "🚙";
+        if (isAmbulance) iconEmoji = "🚑";
+        else if (isBoat) iconEmoji = "🚤";
+        else if (isBus) iconEmoji = "🚐";
+
+        const card = document.createElement("div");
+        card.className = `vehicle-tracking-card ${isSelected ? 'card-selected' : ''}`;
+        card.id = `fleetCard-${v.vehicle_id}`;
+        card.onclick = () => selectVehicle(v.vehicle_id, true);
+
+        card.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:1.4rem;">${iconEmoji}</span>
+              <div>
+                <strong style="color:var(--navy);font-size:0.95rem;display:block;">${escapeAdminHtml(v.callsign || v.vehicle_id)}</strong>
+                <span style="font-size:0.75rem;color:#64748b;font-weight:700;">Plate: ${escapeAdminHtml(v.plate_no || v.vehicle_id)}</span>
+              </div>
+            </div>
+            <span class="badge-status ${getStatusBadgeClass(v.status)}" style="font-size:0.7rem;padding:3px 8px;">
+              ${escapeAdminHtml(v.status || 'ACTIVE')}
+            </span>
+          </div>
+
+          <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;">
+            <span style="background:#eff6ff;color:#1e40af;font-size:0.72rem;font-weight:700;padding:2px 8px;border-radius:4px;">
+              ⚡ ${Math.round(v.speed_kmh || 0)} km/h
+            </span>
+            <span style="background:#f0fdf4;color:#166534;font-size:0.72rem;font-weight:700;padding:2px 8px;border-radius:4px;">
+              🔋 ${v.battery_fuel_pct || 85}% Battery
+            </span>
+            <span style="background:#fef3c7;color:#92400e;font-size:0.72rem;font-weight:700;padding:2px 8px;border-radius:4px;">
+              ⏱️ ETA: ${v.eta_minutes || 0} min
+            </span>
+          </div>
+
+          <div style="font-size:0.8rem;color:#334155;line-height:1.5;margin-bottom:10px;">
+            <div>📍 <strong>Location:</strong> ${escapeAdminHtml(v.current_address || 'En route')}</div>
+            <div>🎯 <strong>Destination:</strong> ${escapeAdminHtml(v.target_destination || 'Standby')}</div>
+            <div>👤 <strong>Driver:</strong> ${escapeAdminHtml(v.driver_name || 'Assigned')} (📞 <a href="tel:${escapeAdminHtml(v.driver_phone || '')}" style="color:#2563eb;text-decoration:none;font-weight:700;">${escapeAdminHtml(v.driver_phone || 'N/A')}</a>)</div>
+            <div style="font-family:monospace;font-size:0.75rem;color:#0284c7;margin-top:2px;">
+              GPS: ${v.lat.toFixed(5)}° N, ${v.lng.toFixed(5)}° E
+            </div>
+          </div>
+
+          <div style="display:flex;gap:6px;border-top:1px solid var(--border-light);padding-top:10px;flex-wrap:wrap;" onclick="event.stopPropagation()">
+            <button onclick="focusVehicleOnMap('${v.vehicle_id}')" class="btn-outline" style="padding:4px 10px;font-size:0.75rem;flex:1;">
+              🎯 Focus on Map
+            </button>
+            <button onclick="quickUpdateVehicleGps('${v.vehicle_id}')" class="btn-primary" style="padding:4px 10px;font-size:0.75rem;flex:1;background:linear-gradient(135deg,#0284c7,#2563eb);">
+              ⚡ Update GPS
+            </button>
+            ${v.driver_phone ? `
+              <a href="tel:${escapeAdminHtml(v.driver_phone)}" class="btn-outline" style="padding:4px 10px;font-size:0.75rem;background:#dcfce7;color:#166534;border-color:#86efac;text-decoration:none;">
+                📞 Call
+              </a>
+            ` : ''}
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    function selectVehicle(vehicleId, panToMap = true) {
+      selectedTrackingVehicleId = vehicleId;
+      document.querySelectorAll(".vehicle-tracking-card").forEach(c => c.classList.remove("card-selected"));
+      document.getElementById(`fleetCard-${vehicleId}`)?.classList.add("card-selected");
+
+      if (panToMap) {
+        focusVehicleOnMap(vehicleId);
+      }
+    }
+
+    function focusVehicleOnMap(vehicleId) {
+      const v = allTrackedVehicles.find(x => x.vehicle_id === vehicleId);
+      if (!v || !liveFleetMap) return;
+
+      selectedTrackingVehicleId = vehicleId;
+      liveFleetMap.flyTo([v.lat, v.lng], 16, { animate: true, duration: 1.2 });
+
+      setTimeout(() => {
+        const marker = fleetMarkersMap.get(vehicleId);
+        if (marker) marker.openPopup();
+      }, 1250);
+    }
+
+    function recenterFleetMap() {
+      if (!liveFleetMap || allTrackedVehicles.length === 0) return;
+      const group = new L.featureGroup(Array.from(fleetMarkersMap.values()));
+      liveFleetMap.fitBounds(group.getBounds().pad(0.18));
+      showToast("🎯 Radar view recentered on all active fleet units", "info");
+    }
+
+    function toggleMapFullscreen() {
+      const mapContainer = document.querySelector(".fleet-map-container");
+      if (!mapContainer) return;
+      if (!document.fullscreenElement) {
+        mapContainer.requestFullscreen?.().catch(() => {});
+      } else {
+        document.exitFullscreen?.().catch(() => {});
+      }
+      setTimeout(() => liveFleetMap?.invalidateSize(), 300);
+    }
+
+    function filterFleetByType(type) {
+      currentTrackingTypeFilter = type;
+      document.querySelectorAll("#secLiveVehicleTracking .filter-tab-btn").forEach(btn => btn.classList.remove("active"));
+      const btnIdMap = {
+        "ALL": "trackTypeAll",
+        "AMBULANCE": "trackTypeAmb",
+        "SUV_4X4": "trackTypeSuv",
+        "BOAT": "trackTypeBoat",
+        "MINIBUS": "trackTypeBus"
+      };
+      document.getElementById(btnIdMap[type])?.classList.add("active");
+      renderFleetMarkers();
+      renderFleetCardsList();
+    }
+
+    function filterFleetByStatus(status) {
+      currentTrackingStatusFilter = status;
+      renderFleetMarkers();
+      renderFleetCardsList();
+    }
+
+    function handleFleetSearch(val) {
+      trackingSearchQuery = val;
+      renderFleetMarkers();
+      renderFleetCardsList();
+    }
+
+    function getStatusBadgeClass(status) {
+      const s = (status || "").toUpperCase();
+      if (s.includes("CRITICAL") || s.includes("PATIENT")) return "rescued";
+      if (s.includes("EN_ROUTE") || s.includes("DISPATCH")) return "pending";
+      if (s.includes("STANDBY") || s.includes("AVAIL")) return "accepted";
+      return "requested";
+    }
+
+    function updateTrackingKpiBadges() {
+      const allCount = allTrackedVehicles.length;
+      const ambCount = allTrackedVehicles.filter(v => v.vehicle_type === "AMBULANCE").length;
+      const suvCount = allTrackedVehicles.filter(v => v.vehicle_type === "SUV_4X4").length;
+      const boatCount = allTrackedVehicles.filter(v => v.vehicle_type === "BOAT").length;
+      const busCount = allTrackedVehicles.filter(v => v.vehicle_type === "MINIBUS").length;
+      const activeCount = allTrackedVehicles.filter(v => (v.status || "").toUpperCase().includes("EN_ROUTE") || (v.status || "").toUpperCase().includes("PATIENT") || (v.status || "").toUpperCase() === "DISPATCHED").length;
+
+      const kpiFleet = document.getElementById("kpiTrackingFleetCount");
+      if (kpiFleet) kpiFleet.textContent = allCount;
+      const fTotal = document.getElementById("kpiFleetTotal");
+      if (fTotal) fTotal.textContent = allCount;
+      const fAmb = document.getElementById("kpiFleetAmbulances");
+      if (fAmb) fAmb.textContent = ambCount;
+      const fSuv = document.getElementById("kpiFleetSuvs");
+      if (fSuv) fSuv.textContent = suvCount;
+      const fBoat = document.getElementById("kpiFleetBoats");
+      if (fBoat) fBoat.textContent = boatCount;
+      const fBus = document.getElementById("kpiFleetBuses");
+      if (fBus) fBus.textContent = busCount;
+      const fAct = document.getElementById("kpiFleetActive");
+      if (fAct) fAct.textContent = activeCount;
+
+      const cAll = document.getElementById("cntAllFleet");
+      if (cAll) cAll.textContent = allCount;
+      const cAmb = document.getElementById("cntAmbFleet");
+      if (cAmb) cAmb.textContent = ambCount;
+      const cSuv = document.getElementById("cntSuvFleet");
+      if (cSuv) cSuv.textContent = suvCount;
+      const cBoat = document.getElementById("cntBoatFleet");
+      if (cBoat) cBoat.textContent = boatCount;
+      const cBus = document.getElementById("cntBusFleet");
+      if (cBus) cBus.textContent = busCount;
+
+      const hud = document.getElementById("hudTrackedCount");
+      if (hud) hud.textContent = allCount;
+    }
+
+    function toggleGpsSimulation() {
+      isGpsSimulationActive = !isGpsSimulationActive;
+      updateSimulationToggleButton();
+      if (isGpsSimulationActive) {
+        startGpsSimulation();
+        showToast("🟢 Live GPS radar telemetry simulation resumed", "info");
+      } else {
+        if (gpsSimulationInterval) clearInterval(gpsSimulationInterval);
+        showToast("⏸️ GPS simulation paused. Fixed telemetry pins displayed.", "info");
+      }
+    }
+
+    function updateSimulationToggleButton() {
+      const icon = document.getElementById("simulationIcon");
+      const text = document.getElementById("simulationText");
+      if (icon && text) {
+        icon.textContent = isGpsSimulationActive ? "⏸️" : "▶️";
+        text.textContent = isGpsSimulationActive ? "Auto-Simulation: ON" : "Auto-Simulation: OFF";
+      }
+    }
+
+    function startGpsSimulation() {
+      if (gpsSimulationInterval) clearInterval(gpsSimulationInterval);
+      isGpsSimulationActive = true;
+      updateSimulationToggleButton();
+
+      gpsSimulationInterval = setInterval(() => {
+        if (!isGpsSimulationActive || allTrackedVehicles.length === 0) return;
+
+        allTrackedVehicles.forEach(v => {
+          const st = (v.status || "").toUpperCase();
+          if (st.includes("EN_ROUTE") || st.includes("PATIENT") || st.includes("DISPATCHED")) {
+            if (v.target_lat && v.target_lng) {
+              const dLat = v.target_lat - v.lat;
+              const dLng = v.target_lng - v.lng;
+              const dist = Math.sqrt(dLat * dLat + dLng * dLng);
+
+              if (dist > 0.001) {
+                const step = 0.00032;
+                v.lat += (dLat / dist) * step + (Math.random() - 0.5) * 0.00006;
+                v.lng += (dLng / dist) * step + (Math.random() - 0.5) * 0.00006;
+                v.speed_kmh = Math.max(22, Math.min(58, (v.speed_kmh || 35) + (Math.random() * 6 - 3)));
+                if (v.eta_minutes > 1) v.eta_minutes = Math.max(1, Math.round(v.eta_minutes - 0.15));
+              } else {
+                v.status = v.status === "EN_ROUTE_PICKUP" ? "PATIENT_ONBOARD" : "STANDBY";
+                v.speed_kmh = 0;
+              }
+            } else {
+              v.lat += (Math.random() - 0.5) * 0.00015;
+              v.lng += (Math.random() - 0.5) * 0.00015;
+            }
+            v.last_ping = "Just now";
+          }
+        });
+
+        renderFleetMarkers();
+        renderFleetCardsList();
+        updateTrackingKpiBadges();
+      }, 3500);
+    }
+
+    function simulateDriverGpsPing() {
+      const activeUnits = allTrackedVehicles.filter(v => (v.status || "").toUpperCase().includes("EN_ROUTE") || (v.status || "").toUpperCase().includes("PATIENT"));
+      const target = activeUnits.length > 0 ? activeUnits[Math.floor(Math.random() * activeUnits.length)] : allTrackedVehicles[0];
+
+      if (target) {
+        target.lat += (Math.random() - 0.5) * 0.0005;
+        target.lng += (Math.random() - 0.5) * 0.0005;
+        target.speed_kmh = Math.round(30 + Math.random() * 25);
+        target.last_ping = "Just now";
+
+        renderFleetMarkers();
+        renderFleetCardsList();
+        focusVehicleOnMap(target.vehicle_id);
+
+        showToast(`⚡ Heartbeat GPS ping received from ${target.callsign} (${target.plate_no})!`, "success");
+      }
+    }
+
+    /* Manual Vehicle Dispatch & GPS Telemetry Modal */
+    function openManualVehicleModal(vehicleIdToEdit = null) {
+      const modal = document.getElementById("modalManualVehicle");
+      if (!modal) return;
+
+      if (vehicleIdToEdit) {
+        const v = allTrackedVehicles.find(x => x.vehicle_id === vehicleIdToEdit);
+        if (v) {
+          document.getElementById("manVehType").value = v.vehicle_type || "AMBULANCE";
+          document.getElementById("manVehPlate").value = v.plate_no || v.vehicle_id;
+          document.getElementById("manVehCallsign").value = v.callsign || "";
+          document.getElementById("manVehDriverName").value = v.driver_name || "";
+          document.getElementById("manVehDriverPhone").value = v.driver_phone || "";
+          document.getElementById("manVehLat").value = v.lat.toFixed(6);
+          document.getElementById("manVehLng").value = v.lng.toFixed(6);
+          document.getElementById("manVehAddress").value = v.current_address || "";
+          document.getElementById("manVehDestination").value = v.target_destination || "";
+          document.getElementById("manVehStatus").value = v.status || "EN_ROUTE_PICKUP";
+          document.getElementById("manVehSpeed").value = Math.round(v.speed_kmh || 35);
+          document.getElementById("manVehEta").value = v.eta_minutes || 8;
+          document.getElementById("manVehIncident").value = v.assigned_incident || "";
+          modal.dataset.editId = vehicleIdToEdit;
+        }
+      } else {
+        document.getElementById("manVehPlate").value = "UP-65-AM-" + Math.floor(1000 + Math.random() * 9000);
+        document.getElementById("manVehCallsign").value = "Emergency Evacuation Unit #" + Math.floor(1 + Math.random() * 20);
+        document.getElementById("manVehDriverName").value = "";
+        document.getElementById("manVehDriverPhone").value = "";
+        document.getElementById("manVehLat").value = "25.3176";
+        document.getElementById("manVehLng").value = "82.9739";
+        document.getElementById("manVehAddress").value = "Assi Ghat / Sigra Road";
+        document.getElementById("manVehDestination").value = "BHU Trauma Center Emergency";
+        document.getElementById("manVehSpeed").value = "38";
+        document.getElementById("manVehEta").value = "10";
+        document.getElementById("manVehIncident").value = "Rapid evacuation response";
+        delete modal.dataset.editId;
+      }
+
+      modal.style.display = "flex";
+    }
+
+    function closeManualVehicleModal() {
+      const modal = document.getElementById("modalManualVehicle");
+      if (modal) modal.style.display = "none";
+    }
+
+    function useBrowserGpsForModal() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          pos => {
+            document.getElementById("manVehLat").value = pos.coords.latitude.toFixed(6);
+            document.getElementById("manVehLng").value = pos.coords.longitude.toFixed(6);
+            showToast("📍 Loaded live device GPS coordinates!", "success");
+          },
+          err => {
+            showToast("Could not access GPS. Please enter coordinates manually.", "warning");
+          }
+        );
+      }
+    }
+
+    function quickUpdateVehicleGps(vehicleId) {
+      openManualVehicleModal(vehicleId);
+    }
+
+    async function saveManualVehicleGps() {
+      const modal = document.getElementById("modalManualVehicle");
+      const vType = document.getElementById("manVehType").value;
+      const plate = document.getElementById("manVehPlate").value.trim() || ("UNIT-" + Math.floor(100 + Math.random() * 900));
+      const callsign = document.getElementById("manVehCallsign").value.trim() || plate;
+      const driverName = document.getElementById("manVehDriverName").value.trim() || "Duty Driver";
+      const driverPhone = document.getElementById("manVehDriverPhone").value.trim() || "+91 112";
+      const lat = parseFloat(document.getElementById("manVehLat").value) || 25.3176;
+      const lng = parseFloat(document.getElementById("manVehLng").value) || 82.9739;
+      const address = document.getElementById("manVehAddress").value.trim() || "Varanasi Zone";
+      const destination = document.getElementById("manVehDestination").value.trim() || "Designated Evacuation Base";
+      const status = document.getElementById("manVehStatus").value;
+      const speed = parseFloat(document.getElementById("manVehSpeed").value) || 30.0;
+      const eta = parseInt(document.getElementById("manVehEta").value) || 8;
+      const incident = document.getElementById("manVehIncident").value.trim() || "Disaster Relief Mission";
+
+      const vId = modal.dataset.editId || ("VEH-" + Math.random().toString(36).substring(2, 8).toUpperCase());
+
+      const payload = {
+        vehicle_id: vId,
+        callsign: callsign,
+        vehicle_type: vType,
+        plate_no: plate,
+        driver_name: driverName,
+        driver_phone: driverPhone,
+        status: status,
+        urgency: status === "PATIENT_ONBOARD" ? "CRITICAL" : "HIGH",
+        lat: lat,
+        lng: lng,
+        speed_kmh: speed,
+        heading_deg: 180.0,
+        current_address: address,
+        target_destination: destination,
+        target_lat: 25.2785,
+        target_lng: 82.9995,
+        eta_minutes: eta,
+        battery_fuel_pct: 88,
+        assigned_incident: incident
+      };
+
+      // 1. Save in local state
+      const existingIdx = allTrackedVehicles.findIndex(x => x.vehicle_id === vId);
+      if (existingIdx >= 0) {
+        allTrackedVehicles[existingIdx] = Object.assign({}, allTrackedVehicles[existingIdx], payload);
+      } else {
+        allTrackedVehicles.unshift(payload);
+      }
+
+      try {
+        localStorage.setItem("aapda_fleet_vehicles", JSON.stringify(allTrackedVehicles));
+      } catch (e) {}
+
+      // 2. Post to backend API
+      try {
+        await fetch(`${API_BASE}/admin/vehicles/tracking/update`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Admin-Key": adminKey
+          },
+          body: JSON.stringify(payload)
+        });
+      } catch (err) {
+        console.warn("Backend update skipped:", err.message);
+      }
+
+      closeManualVehicleModal();
+      updateTrackingKpiBadges();
+      renderFleetMarkers();
+      renderFleetCardsList();
+      focusVehicleOnMap(vId);
+
+      showToast(`✅ Vehicle ${callsign} (${plate}) successfully pinned to Live Radar!`, "success");
+    }
   </script>
+
+  <!-- ================= MODAL: MANUAL VEHICLE DISPATCH & GPS TELEMETRY ================= -->
+  <div id="modalManualVehicle" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,0.7);backdrop-filter:blur(4px);z-index:9999;align-items:center;justify-content:center;padding:16px;">
+    <div style="background:#ffffff;border-radius:var(--radius-lg);width:100%;max-width:540px;box-shadow:var(--shadow-lg);border:1px solid #cbd5e1;overflow:hidden;animation:fadeIn 0.2s ease;">
+      <div style="background:linear-gradient(135deg,#1e293b,#0f172a);color:#fff;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;">
+        <h3 style="margin:0;font-size:1.1rem;display:flex;align-items:center;gap:8px;">
+          <span>🛰️</span> Dispatch / Update Vehicle GPS Telemetry
+        </h3>
+        <button onclick="closeManualVehicleModal()" style="background:none;border:none;color:#94a3b8;font-size:1.4rem;cursor:pointer;line-height:1;">&times;</button>
+      </div>
+
+      <div style="padding:20px;display:flex;flex-direction:column;gap:12px;max-height:75vh;overflow-y:auto;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div>
+            <label style="font-size:0.78rem;font-weight:700;color:#334155;display:block;margin-bottom:4px;">Vehicle Type *</label>
+            <select id="manVehType" class="form-select" style="width:100%;padding:8px 10px;font-size:0.85rem;">
+              <option value="AMBULANCE">🚑 Emergency Ambulance (ALS/BLS)</option>
+              <option value="SUV_4X4">🚙 4x4 Offroad SUV / Mahindra Thar</option>
+              <option value="BOAT">🚤 Rescue Motor Boat</option>
+              <option value="MINIBUS">🚐 Disaster Evacuation Minibus</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:0.78rem;font-weight:700;color:#334155;display:block;margin-bottom:4px;">Plate / Registration No. *</label>
+            <input type="text" id="manVehPlate" placeholder="e.g. UP-65-AM-108" class="form-input" style="width:100%;padding:8px 10px;font-size:0.85rem;">
+          </div>
+        </div>
+
+        <div>
+          <label style="font-size:0.78rem;font-weight:700;color:#334155;display:block;margin-bottom:4px;">Callsign / Unit Name *</label>
+          <input type="text" id="manVehCallsign" placeholder="e.g. Assi Trauma Rapid Response 1" class="form-input" style="width:100%;padding:8px 10px;font-size:0.85rem;">
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div>
+            <label style="font-size:0.78rem;font-weight:700;color:#334155;display:block;margin-bottom:4px;">Driver / Pilot Name *</label>
+            <input type="text" id="manVehDriverName" placeholder="e.g. Ramesh Yadav" class="form-input" style="width:100%;padding:8px 10px;font-size:0.85rem;">
+          </div>
+          <div>
+            <label style="font-size:0.78rem;font-weight:700;color:#334155;display:block;margin-bottom:4px;">Driver Phone Number *</label>
+            <input type="text" id="manVehDriverPhone" placeholder="e.g. +91 98765 43210" class="form-input" style="width:100%;padding:8px 10px;font-size:0.85rem;">
+          </div>
+        </div>
+
+        <!-- GPS Coordinates -->
+        <div style="background:#f8fafc;padding:12px;border-radius:8px;border:1px solid #e2e8f0;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <span style="font-size:0.8rem;font-weight:800;color:#0f172a;">📍 Live GPS Coordinates (Click on Map to autofill)</span>
+            <button type="button" onclick="useBrowserGpsForModal()" class="btn-outline" style="padding:3px 8px;font-size:0.72rem;">
+              📍 My Device GPS
+            </button>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div>
+              <label style="font-size:0.72rem;color:#64748b;display:block;margin-bottom:2px;">Latitude (°N)</label>
+              <input type="number" step="0.0001" id="manVehLat" value="25.3176" class="form-input" style="width:100%;padding:6px 10px;font-size:0.82rem;">
+            </div>
+            <div>
+              <label style="font-size:0.72rem;color:#64748b;display:block;margin-bottom:2px;">Longitude (°E)</label>
+              <input type="number" step="0.0001" id="manVehLng" value="82.9739" class="form-input" style="width:100%;padding:6px 10px;font-size:0.82rem;">
+            </div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div>
+            <label style="font-size:0.78rem;font-weight:700;color:#334155;display:block;margin-bottom:4px;">Current Landmark / Location</label>
+            <input type="text" id="manVehAddress" placeholder="e.g. Sigra Chauraha, Varanasi" class="form-input" style="width:100%;padding:8px 10px;font-size:0.85rem;">
+          </div>
+          <div>
+            <label style="font-size:0.78rem;font-weight:700;color:#334155;display:block;margin-bottom:4px;">Target Destination / Drop</label>
+            <input type="text" id="manVehDestination" placeholder="e.g. BHU Trauma Center Emergency" class="form-input" style="width:100%;padding:8px 10px;font-size:0.85rem;">
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+          <div>
+            <label style="font-size:0.78rem;font-weight:700;color:#334155;display:block;margin-bottom:4px;">Status</label>
+            <select id="manVehStatus" class="form-select" style="width:100%;padding:8px 10px;font-size:0.82rem;">
+              <option value="EN_ROUTE_PICKUP">🚨 En Route to Pickup</option>
+              <option value="PATIENT_ONBOARD">🏥 Patient / Citizen Onboard</option>
+              <option value="DISPATCHED">🚀 Dispatched</option>
+              <option value="IDLE_STANDBY">✅ Standby / Available</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:0.78rem;font-weight:700;color:#334155;display:block;margin-bottom:4px;">Speed (km/h)</label>
+            <input type="number" id="manVehSpeed" value="35" class="form-input" style="width:100%;padding:8px 10px;font-size:0.82rem;">
+          </div>
+          <div>
+            <label style="font-size:0.78rem;font-weight:700;color:#334155;display:block;margin-bottom:4px;">ETA (Minutes)</label>
+            <input type="number" id="manVehEta" value="8" class="form-input" style="width:100%;padding:8px 10px;font-size:0.82rem;">
+          </div>
+        </div>
+
+        <div>
+          <label style="font-size:0.78rem;font-weight:700;color:#334155;display:block;margin-bottom:4px;">Assigned Mission / Incident Notes</label>
+          <input type="text" id="manVehIncident" placeholder="e.g. Evacuating stranded family from flood zone #4" class="form-input" style="width:100%;padding:8px 10px;font-size:0.85rem;">
+        </div>
+      </div>
+
+      <div style="background:#f8fafc;padding:14px 20px;border-top:1px solid #e2e8f0;display:flex;justify-content:flex-end;gap:10px;">
+        <button type="button" onclick="closeManualVehicleModal()" class="btn-outline" style="padding:8px 16px;font-size:0.85rem;">
+          Cancel
+        </button>
+        <button type="button" onclick="saveManualVehicleGps()" class="btn-primary" style="padding:8px 20px;font-size:0.85rem;background:linear-gradient(135deg,#0284c7,#2563eb);">
+          💾 Save & Pin on Live Radar
+        </button>
+      </div>
+    </div>
+  </div>
 </body>
 
 </html>
