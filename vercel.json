@@ -1,7 +1,49 @@
 {
   "version": 2,
+  "cleanUrls": true,
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com; style-src 'self' 'unsafe-inline' https://unpkg.com https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://server.arcgisonline.com https://tile.openstreetmap.de https://*.tile.openstreetmap.org https://*.openstreetmap.org https://api.qrserver.com https://worldview.earthdata.nasa.gov; connect-src 'self' http://127.0.0.1:8000 http://localhost:8000 https://api.search.tinyfish.ai https://api.open-meteo.com https://geocoding-api.open-meteo.com https://air-quality-api.open-meteo.com https://api.web3forms.com https://formsubmit.co; object-src 'none'; base-uri 'self';"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        }
+      ]
+    }
+  ],
   "rewrites": [
     { "source": "/", "destination": "/frontend/index.html" },
+    { "source": "/admin", "destination": "/frontend/admin.html" },
+    { "source": "/rescue", "destination": "/frontend/rescue.html" },
+    { "source": "/weather", "destination": "/frontend/weather.html" },
+    { "source": "/monitoring", "destination": "/frontend/monitoring.html" },
+    { "source": "/shelters", "destination": "/frontend/shelters.html" },
+    { "source": "/safe-route", "destination": "/frontend/safe-route.html" },
+    { "source": "/alerts", "destination": "/frontend/alerts.html" },
+    { "source": "/chatbot", "destination": "/frontend/chatbot.html" },
+    { "source": "/emergency", "destination": "/frontend/emergency.html" },
+    { "source": "/family", "destination": "/frontend/family.html" },
+    { "source": "/donation", "destination": "/frontend/donation.html" },
+    { "source": "/community", "destination": "/frontend/community.html" },
+    { "source": "/report", "destination": "/frontend/report.html" },
+    { "source": "/prediction", "destination": "/frontend/prediction.html" },
     { "source": "/frontend/(.*)", "destination": "/frontend/$1" },
     { "source": "/(.*)", "destination": "/frontend/$1" }
   ]
