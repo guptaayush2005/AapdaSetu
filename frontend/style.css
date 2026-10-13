@@ -1712,16 +1712,151 @@ h4 {
   color: var(--blue-primary) !important;
 }
 
+/* ==========================================================================
+   Leaflet Layer Control Switcher (Allag Allag Map Views: Street, Satellite, Topo)
+   100% Solid Opaque, High Contrast, Crisp Readability - Zero Transparency Bleed
+   ========================================================================== */
 .leaflet-control-layers {
-  border-radius: 10px !important;
-  border: 1px solid var(--border-light) !important;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
-  padding: 10px 14px !important;
-  background: rgba(255, 255, 255, 0.96) !important;
-  backdrop-filter: blur(8px);
-  font-size: 0.85rem !important;
-  color: var(--navy) !important;
-  font-weight: 600;
+  border-radius: 12px !important;
+  border: 2px solid #2563eb !important;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.28) !important;
+  background: #ffffff !important;
+  opacity: 1 !important;
+  font-size: 0.88rem !important;
+  color: #0f172a !important;
+  font-weight: 700 !important;
+  transition: all 0.2s ease !important;
+  z-index: 1000 !important;
+}
+
+/* Collapsed Toggle Button (Clean 44px square, solid white, high contrast) */
+.leaflet-control-layers:not(.leaflet-control-layers-expanded) {
+  padding: 0 !important;
+  width: 44px !important;
+  height: 44px !important;
+  background: #ffffff !important;
+  opacity: 1 !important;
+  border-radius: 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22) !important;
+}
+
+.leaflet-control-layers-toggle {
+  width: 36px !important;
+  height: 36px !important;
+  background-size: 24px 24px !important;
+  background-position: center !important;
+}
+
+/* Expanded Map View Palette */
+.leaflet-control-layers-expanded {
+  padding: 14px 18px !important;
+  min-width: 260px !important;
+  background: #ffffff !important;
+  opacity: 1 !important;
+  border-radius: 14px !important;
+  box-shadow: 0 12px 36px rgba(15, 23, 42, 0.32) !important;
+}
+
+.leaflet-control-layers-base,
+.leaflet-control-layers-overlays {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+}
+
+.leaflet-control-layers-base label,
+.leaflet-control-layers-overlays label {
+  background: #f8fafc !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 8px !important;
+  padding: 8px 12px !important;
+  margin: 2px 0 !important;
+  color: #0f172a !important;
+  font-size: 0.86rem !important;
+  font-weight: 700 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  cursor: pointer !important;
+  opacity: 1 !important;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.1s ease !important;
+}
+
+.leaflet-control-layers-base label:hover,
+.leaflet-control-layers-overlays label:hover {
+  background: #eff6ff !important;
+  border-color: #3b82f6 !important;
+  color: #1d4ed8 !important;
+  transform: translateX(2px);
+}
+
+.leaflet-control-layers-base label:has(input:checked),
+.leaflet-control-layers-overlays label:has(input:checked) {
+  background: #dbeafe !important;
+  border-color: #2563eb !important;
+  color: #1e3a8a !important;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.20) !important;
+}
+
+.leaflet-control-layers-selector {
+  accent-color: #2563eb !important;
+  width: 17px !important;
+  height: 17px !important;
+  margin: 0 !important;
+  cursor: pointer !important;
+  flex-shrink: 0 !important;
+}
+
+.leaflet-control-layers-separator {
+  border-top: 1px solid #cbd5e1 !important;
+  margin: 10px 0 !important;
+  height: 0 !important;
+}
+
+/* Dark Mode Support for Layer Switcher */
+body.dark-mode .leaflet-control-layers {
+  background: #0f172a !important;
+  border: 2px solid #3b82f6 !important;
+  color: #f8fafc !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+}
+
+body.dark-mode .leaflet-control-layers:not(.leaflet-control-layers-expanded) {
+  background: #0f172a !important;
+  opacity: 1 !important;
+}
+
+body.dark-mode .leaflet-control-layers-expanded {
+  background: #0f172a !important;
+  opacity: 1 !important;
+}
+
+body.dark-mode .leaflet-control-layers-base label,
+body.dark-mode .leaflet-control-layers-overlays label {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+body.dark-mode .leaflet-control-layers-base label:hover,
+body.dark-mode .leaflet-control-layers-overlays label:hover {
+  background: #334155 !important;
+  border-color: #60a5fa !important;
+  color: #93c5fd !important;
+}
+
+body.dark-mode .leaflet-control-layers-base label:has(input:checked),
+body.dark-mode .leaflet-control-layers-overlays label:has(input:checked) {
+  background: #1e3a8a !important;
+  border-color: #60a5fa !important;
+  color: #ffffff !important;
+}
+
+body.dark-mode .leaflet-control-layers-separator {
+  border-top-color: #334155 !important;
 }
 
 .leaflet-popup-content-wrapper {

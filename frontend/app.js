@@ -2539,7 +2539,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Populate options on all language selectors dynamically with all 31 Indian state languages
   document.querySelectorAll("#languageSelector").forEach(sel => {
     sel.innerHTML = langList.map(l => 
-      `<option value="${l.code}">🌐 ${l.name} — ${l.region}</option>`
+      `<option value="${l.code}">${l.name} — ${l.region}</option>`
     ).join("");
     sel.value = currentLang;
     sel.addEventListener("change", function() {
