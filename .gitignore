@@ -33,3 +33,5 @@ desktop.ini
 *.tar.gz
 *.rar
 scratch/
+cloudflared.exe
+
