@@ -7067,6 +7067,17 @@ async def api_security_fle_decrypt(request: Request):
 # Create/upgrade feature tables after all helper definitions are available.
 create_feature_tables()
 
+# =========================================================
+# STATIC FRONTEND MOUNT FOR DIRECT LOCAL / MOBILE BROWSING
+# =========================================================
+_FRONTEND_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend")
+if os.path.isdir(_FRONTEND_DIR):
+    app.mount("/frontend", StaticFiles(directory=_FRONTEND_DIR, html=True), name="frontend")
+
+    @app.get("/")
+    async def root_redirect():
+        return RedirectResponse(url="/frontend/index.html")
+
 
 if __name__ == "__main__":
     import uvicorn
