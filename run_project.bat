@@ -17,6 +17,6 @@ if exist ".venv\Scripts\python.exe" (
 
 echo [2/2] Launching Backend and Frontend Dashboard...
 start "" http://127.0.0.1:8000/frontend/index.html
-"%PYTHON_EXE%" "backend\app\main.py"
+"%PYTHON_EXE%" "backend\main.py"
 
 pause

@@ -1,13 +1,17 @@
 from fastapi import FastAPI, HTTPException, Header, Request
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import RedirectResponse, JSONResponse
+from fastapi.responses import RedirectResponse, JSONResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from datetime import datetime, timedelta, timezone
 import tempfile
 # pyrefly: ignore [missing-import]
-import rasterio
-from rasterio.warp import transform as raster_transform
+try:
+    import rasterio
+    from rasterio.warp import transform as raster_transform
+except ImportError:
+    rasterio = None
+    raster_transform = None
 import os
 import sys
 import uuid
@@ -467,6 +471,85 @@ def home(request: Request):
         "project": "AapdaSetu",
         "status": "Backend is running"
     }
+
+
+# Direct Clean URLs for all AapdaSetu platform pages
+@app.get("/admin")
+def route_admin():
+    return RedirectResponse(url="/frontend/admin.html")
+
+@app.get("/alerts")
+def route_alerts():
+    return RedirectResponse(url="/frontend/alerts.html")
+
+@app.get("/chatbot")
+def route_chatbot():
+    return RedirectResponse(url="/frontend/chatbot.html")
+
+@app.get("/community")
+def route_community():
+    return RedirectResponse(url="/frontend/community.html")
+
+@app.get("/donation")
+def route_donation():
+    return RedirectResponse(url="/frontend/donation.html")
+
+@app.get("/emergency")
+def route_emergency():
+    return RedirectResponse(url="/frontend/emergency.html")
+
+@app.get("/family")
+def route_family():
+    return RedirectResponse(url="/frontend/family.html")
+
+@app.get("/index")
+def route_index():
+    return RedirectResponse(url="/frontend/index.html")
+
+@app.get("/monitoring")
+def route_monitoring():
+    return RedirectResponse(url="/frontend/monitoring.html")
+
+@app.get("/prediction")
+def route_prediction():
+    return RedirectResponse(url="/frontend/prediction.html")
+
+@app.get("/report")
+def route_report():
+    return RedirectResponse(url="/frontend/report.html")
+
+@app.get("/rescue")
+def route_rescue():
+    return RedirectResponse(url="/frontend/rescue.html")
+
+@app.get("/safe-route")
+def route_safe_route():
+    return RedirectResponse(url="/frontend/safe-route.html")
+
+@app.get("/weather")
+def route_weather(request: Request):
+    accept = request.headers.get("accept", "")
+    if "text/html" in accept:
+        return RedirectResponse(url="/frontend/weather.html")
+    return RedirectResponse(url="/frontend/weather.html")
+
+
+# Root-level CSS and JS asset fallbacks
+@app.get("/style.css")
+def get_style_css():
+    return FileResponse(os.path.join(_frontend_dir, "style.css"))
+
+@app.get("/app.js")
+def get_app_js():
+    return FileResponse(os.path.join(_frontend_dir, "app.js"))
+
+@app.get("/translations.js")
+def get_translations_js():
+    return FileResponse(os.path.join(_frontend_dir, "translations.js"))
+
+@app.get("/signature-interceptor.js")
+def get_signature_interceptor_js():
+    return FileResponse(os.path.join(_frontend_dir, "signature-interceptor.js"))
 
 
 @app.get("/{page}.html")
@@ -4939,9 +5022,12 @@ def haversine_km(lat1, lon1, lat2, lon2):
 
 
 @app.get("/shelters")
-def get_shelters(state: str | None = None, district: str | None = None,
+def get_shelters(request: Request, state: str | None = None, district: str | None = None,
                  latitude: float | None = None, longitude: float | None = None,
                  radius_km: float = 25, limit: int = 50):
+    accept = request.headers.get("accept", "")
+    if "text/html" in accept and not (state or district or latitude or longitude):
+        return RedirectResponse(url="/frontend/shelters.html")
     limit = max(1, min(limit, 200))
     radius_km = max(1, min(radius_km, 200))
     query = """SELECT shelter_id,name,state,district,address,latitude,longitude,capacity,
@@ -6985,5 +7071,5 @@ create_feature_tables()
 if __name__ == "__main__":
     import uvicorn
     print("Starting AapdaSetu platform backend server at http://127.0.0.1:8000 ...")
-    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
+    uvicorn.run(app, host="127.0.0.1", port=8000)
 
