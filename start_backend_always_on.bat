@@ -16,7 +16,7 @@ if exist ".venv\Scripts\python.exe" (
 
 :LOOP
 echo [%DATE% %TIME%] Starting AapdaSetu backend on port 8000...
-"%PYTHON_EXE%" -m uvicorn backend.main:app --host 127.0.0.1 --port 8000
+"%PYTHON_EXE%" -m uvicorn backend.main:app --host 0.0.0.0 --port 8000
 
 echo.
 echo [WARNING] AapdaSetu backend process terminated. Auto-restarting in 3 seconds...
